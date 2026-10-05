@@ -18,6 +18,7 @@ production security, HA/DR or data-plane recovery.
 | Linux chart quality | PASS: 10 charts lint/render/package; unknown setting rejection; five unsafe configuration cases | `helm-quality-1791213322` |
 | Tool contracts | PASS: 5 tests, 0 failed/skipped | same Linux quality Job |
 | GitHub Linux CI | PASS for initial code commit `83b822d` | [run 37331378852](https://github.com/william-lbn/neon-helm/actions/runs/37331378852) |
+| GitHub Linux CI with audit/report | PASS for `83d4128` | [run 37332838769](https://github.com/william-lbn/neon-helm/actions/runs/37332838769) |
 | Ordered upgrade | PASS: eight releases Ready | protected `apply-attempt1` and `verify-attempt1` |
 | Repeated same-config upgrade | PASS: eight releases Ready again | protected `apply-attempt2` and `verify-attempt2` |
 | Durable identity | PASS: all original PVC UIDs/bindings retained; external Secret UIDs/data retained, routes allowed to reconcile | protected `audit-attempt1` |

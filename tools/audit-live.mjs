@@ -22,7 +22,10 @@ try {
     if(values['require-manifest-match']) {
       const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
       const normalize=text=>documents(text).map(canonical).sort((a,b)=>(a.kind+'/'+(a.metadata?.namespace||'')+'/'+a.metadata?.name).localeCompare(b.kind+'/'+(b.metadata?.namespace||'')+'/'+b.metadata?.name));
-      if(JSON.stringify(normalize(rendered))!==JSON.stringify(normalize(helm(['get','manifest',step.release,'-n',step.namespace]).stdout)))throw new Error('Release manifest differs from checked-out source '+step.release);
+      // Helm records lifecycle hooks separately from the normal manifest. A
+      // completed/deleted bucket-init hook must still be included in this check.
+      const installed=helm(['get','manifest',step.release,'-n',step.namespace]).stdout+'\n---\n'+helm(['get','hooks',step.release,'-n',step.namespace]).stdout;
+      if(JSON.stringify(normalize(rendered))!==JSON.stringify(normalize(installed)))throw new Error('Release manifest/hook differs from checked-out source '+step.release);
     }
     for(const obj of documents(rendered).filter(o=>['Deployment','DaemonSet'].includes(o.kind))) {
       const ns=obj.metadata.namespace||step.namespace;

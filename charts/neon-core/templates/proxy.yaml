@@ -1,0 +1,151 @@
+{{- if .Values.proxy.enabled }}
+{{- if .Values.proxy.legacyApiEnabled }}
+{{- if .Values.proxy.scaleToZero.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: proxy-api-scaler }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { name: proxy-api-scaler }
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  resourceNames: ["compute"]
+  verbs: ["get"]
+- apiGroups: ["apps"]
+  resources: ["deployments/scale"]
+  resourceNames: ["compute"]
+  verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: { name: proxy-api-scaler }
+subjects:
+- { kind: ServiceAccount, name: proxy-api-scaler, namespace: {{ .Release.Namespace }} }
+roleRef: { kind: Role, name: proxy-api-scaler, apiGroup: rbac.authorization.k8s.io }
+---
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: proxy-api-code }
+data:
+  proxy_api.py: |
+{{ .Files.Get "files/proxy_api.py" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: proxy-api }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: proxy-api }
+  template:
+    metadata:
+      labels: { app: proxy-api }
+      annotations:
+        checksum/code: {{ .Files.Get "files/proxy_api.py" | sha256sum }}
+    spec:
+      {{- with .Values.global.platformPriorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      {{- if .Values.proxy.scaleToZero.enabled }}
+      serviceAccountName: proxy-api-scaler
+      {{- end }}
+      containers:
+      - name: api
+        resources:
+          {{- toYaml .Values.proxy.apiResources | nindent 10 }}
+        image: {{ .Values.proxy.image | quote }}
+        command: ["python3", "/app/proxy_api.py"]
+        ports: [{ name: http, containerPort: 8080 }]
+        env:
+        - { name: ENDPOINT_ID, value: {{ .Values.proxy.endpointId | quote }} }
+        - { name: ROLE_NAME, value: {{ .Values.proxy.roleName | quote }} }
+        - { name: COMPUTE_ADDRESS, value: {{ .Values.proxy.computeAddress | quote }} }
+        - { name: VM_ENDPOINT_ID, value: {{ .Values.proxy.vmEndpointId | quote }} }
+        - { name: VM_COMPUTE_ADDRESS, value: {{ .Values.proxy.vmComputeAddress | quote }} }
+        - { name: ALLOWED_IPS, value: {{ .Values.proxy.allowedIps | toJson | quote }} }
+        - { name: SCALE_TO_ZERO_ENABLED, value: {{ .Values.proxy.scaleToZero.enabled | quote }} }
+        - { name: SCALE_IDLE_SECONDS, value: {{ .Values.proxy.scaleToZero.idleSeconds | quote }} }
+        - name: POD_NAMESPACE
+          valueFrom: { fieldRef: { fieldPath: metadata.namespace } }
+        {{- if .Values.proxy.scaleToZero.enabled }}
+        - name: SCALE_ADMIN_TOKEN
+          valueFrom: { secretKeyRef: { name: {{ .Values.proxy.scaleToZero.adminSecret }}, key: token } }
+        {{- end }}
+        - name: PROXY_API_TOKEN
+          valueFrom: { secretKeyRef: { name: {{ .Values.proxy.authSecret }}, key: proxyToken } }
+        - name: SCRAM_VERIFIER
+          valueFrom: { secretKeyRef: { name: {{ .Values.proxy.authSecret }}, key: scramVerifier } }
+        readinessProbe:
+          httpGet: { path: /healthz, port: http }
+        volumeMounts: [{ name: code, mountPath: /app, readOnly: true }]
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: { drop: ["ALL"] }
+      volumes:
+      - { name: code, configMap: { name: proxy-api-code } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: proxy-api }
+spec:
+  selector: { app: proxy-api }
+  ports: [{ name: http, port: 8080, targetPort: http }]
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: proxy }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: proxy }
+  template:
+    metadata:
+      labels: { app: proxy }
+    spec:
+      {{- with .Values.global.platformPriorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      containers:
+      - name: proxy
+        resources:
+          {{- toYaml .Values.proxy.resources | nindent 10 }}
+        image: {{ include "neon-lab.component-image" (list . "proxy") | quote }}
+        command: ["/usr/local/bin/proxy"]
+        args:
+        - --proxy=0.0.0.0:4432
+        - --http=0.0.0.0:7001
+        - --mgmt=0.0.0.0:7000
+        - --auth-backend=control-plane
+        - --auth-endpoint={{ .Values.proxy.authEndpoint }}
+        - --project-info-cache={{ .Values.proxy.projectInfoCache | default "size=0,ttl=0s,max_roles=500,gc_interval=60m" }}
+        {{- if .Values.proxy.scaleToZero.enabled }}
+        - --wake-compute-cache=size=0
+        {{- end }}
+        - --tls-cert=/tls/tls.crt
+        - --tls-key=/tls/tls.key
+        env:
+        - name: NEON_PROXY_TO_CONTROLPLANE_TOKEN
+          valueFrom: { secretKeyRef: { name: {{ .Values.proxy.authSecret }}, key: proxyToken } }
+        ports: [{ name: postgres, containerPort: 4432 }, { name: metrics, containerPort: 7001 }]
+        readinessProbe:
+          tcpSocket: { port: postgres }
+          initialDelaySeconds: 5
+        volumeMounts: [{ name: tls, mountPath: /tls, readOnly: true }]
+      volumes:
+      - { name: tls, secret: { secretName: {{ .Values.proxy.tlsSecret }} } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: proxy }
+spec:
+  type: {{ .Values.proxy.service.type }}
+  selector: { app: proxy }
+  ports:
+  - { name: postgres, port: {{ .Values.proxy.service.port }}, targetPort: postgres }
+  - { name: metrics, port: 7001, targetPort: metrics }
+{{- end }}

@@ -1,0 +1,24 @@
+image: '' # Set from locks/neon-fork-20260930.json; never silently use an old image.
+initImage: docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+configMap: pageserver-managed-config
+existingClaim: pageserver-managed-cache
+objectStoreSecret: neon-object-store
+resources:
+  requests: {cpu: 250m, memory: 512Mi}
+  limits: {memory: 2Gi}
+# Controller-managed node 2 is distinct from the retained emergency-mode node 1.
+config:
+  create: true
+  nodeId: 2
+  availabilityZone: k8s-lab
+  brokerEndpoint: http://storage-broker:50051
+  controllerEndpoint: http://storage-controller:1234/upcall/v1/
+  objectStoreEndpoint: http://minio:9000
+  objectStoreBucket: neon
+  objectStoreRegion: eu-north-1
+  objectStorePrefix: /pageserver
+persistence:
+  create: true
+  size: 10Gi
+  storageClassName: ''
+priorityClassName: ''

@@ -1,0 +1,5 @@
+{{- if not .Values.experimentalAcknowledged -}}{{- fail "NeonVM compute lab requires experimentalAcknowledged=true and docs/13-NEONVM-AUTOSCALING-RUNBOOK.md" -}}{{- end -}}
+{{- if not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.compute.image) -}}{{- fail "Pin compute.image to a public OCI digest" -}}{{- end -}}
+{{- if not (regexMatch "^[a-f0-9]{32}$" .Values.compute.tenantId) -}}{{- fail "Set compute.tenantId to the isolated 32-hex tenant" -}}{{- end -}}
+{{- if not (regexMatch "^[a-f0-9]{32}$" .Values.compute.timelineId) -}}{{- fail "Set compute.timelineId to the isolated 32-hex timeline" -}}{{- end -}}
+{{- if not .Values.compute.existingConfigSecret -}}{{- fail "Set compute.existingConfigSecret" -}}{{- end -}}

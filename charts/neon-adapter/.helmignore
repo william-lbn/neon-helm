@@ -1,0 +1,6 @@
+.git/
+.local/
+artifacts/
+*.private.*
+__pycache__/
+*.pyc

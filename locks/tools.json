@@ -1,0 +1,13 @@
+{
+  "helm": {
+    "version": "3.17.3",
+    "linux_amd64_sha256": "ee88b3c851ae6466a3de507f7be73fe94d54cbf2987cbaa3d1a3832ea331f2cd"
+  },
+  "node": "24.19.0",
+  "actionlint": {
+    "version": "1.7.12",
+    "linux_amd64_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+  },
+  "ci_image": "neon.local/public-control-ci@sha256:87a01258b1cfe1c6788fc1a31ae99af00861140b44544ddb324eac748172eb2f",
+  "e2e_image": "neon.local/public-control-e2e@sha256:9ed0f4030d7af2ffa86e4fa6bf6bedcc348bbc50d3d58cf354880ae9580570f0"
+}

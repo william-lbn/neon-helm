@@ -1,0 +1,127 @@
+{{- if .Values.compute.enabled }}
+{{- if eq .Values.compute.mode "public" }}
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: compute-public-config }
+data:
+  config.json: |-
+{{ .Files.Get "files/compute-public-config.json" | indent 4 }}
+---
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: compute }
+spec:
+  replicas: {{ .Values.compute.replicaCount }}
+  # Two writers for the same tenant/timeline race on safekeeper WAL terms.
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: compute }
+  template:
+    metadata:
+      labels: { app: compute }
+    spec:
+      {{- if eq .Values.compute.mode "public" }}
+      initContainers:
+      - name: render-config
+        image: {{ .Values.compute.configImage | quote }}
+        command: ["python3", "-c"]
+        args:
+        - |
+          import json, os, pathlib
+          data = json.loads(pathlib.Path('/template/config.json').read_text())
+          settings = data['spec']['cluster']['settings']
+          ids = {'neon.tenant_id': os.environ['TENANT_ID'], 'neon.timeline_id': os.environ['TIMELINE_ID']}
+          for setting in settings:
+              if setting['name'] in ids:
+                  setting['value'] = ids[setting['name']]
+              if setting['name'] == 'shared_preload_libraries':
+                  libraries = setting['value'].split(',')
+                  if 'ulid' not in libraries:
+                      setting['value'] += ',ulid'
+          secret = os.environ['PG_ROLE_SECRET']
+          if not secret.startswith('SCRAM-SHA-256$'):
+              raise SystemExit('expected SCRAM verifier')
+          for role in data['spec']['cluster']['roles']:
+              if role['name'] == 'cloud_admin':
+                  role['encrypted_password'] = secret
+          output = pathlib.Path('/rendered/config.json')
+          output.write_text(json.dumps(data))
+          output.chmod(0o644)
+        env:
+        - { name: TENANT_ID, value: {{ .Values.compute.tenantId | quote }} }
+        - { name: TIMELINE_ID, value: {{ .Values.compute.timelineId | quote }} }
+        - name: PG_ROLE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.proxy.authSecret | quote }}
+              key: scramVerifier
+        volumeMounts:
+        - { name: config-template, mountPath: /template, readOnly: true }
+        - { name: rendered-config, mountPath: /rendered }
+      {{- end }}
+      containers:
+      - name: compute
+        image: "{{ if .Values.compute.image.digest }}{{ .Values.compute.image.digest }}{{ else }}{{ .Values.compute.image.repository }}:{{ .Values.compute.image.tag }}{{ end }}"
+        imagePullPolicy: {{ .Values.compute.image.pullPolicy }}
+        {{- if eq .Values.compute.mode "public" }}
+        command: ["/usr/local/bin/compute_ctl"]
+        args:
+        - --pgdata
+        - /var/db/postgres/compute
+        - -C
+        - postgresql://cloud_admin@localhost:55433/postgres
+        - -b
+        - /usr/local/bin/postgres
+        - --compute-id
+        - compute-public-lab
+        - --config
+        - /run/neon-lab/config.json
+        - --dev
+        volumeMounts:
+        - { name: rendered-config, mountPath: /run/neon-lab, readOnly: true }
+        {{- end }}
+        env:
+        - { name: PG_VERSION, value: {{ .Values.compute.pgVersion | quote }} }
+        - { name: ALLOW_LAB_AUTOBOOTSTRAP, value: {{ ternary "YES" "NO" .Values.compute.allowLabAutoBootstrap | quote }} }
+        {{- if .Values.compute.tenantId }}
+        - { name: TENANT_ID, value: {{ .Values.compute.tenantId | quote }} }
+        {{- end }}
+        {{- if .Values.compute.timelineId }}
+        - { name: TIMELINE_ID, value: {{ .Values.compute.timelineId | quote }} }
+        {{- end }}
+        {{- if .Values.proxy.enabled }}
+        - name: PG_ROLE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.proxy.authSecret | quote }}
+              key: scramVerifier
+        {{- end }}
+        ports:
+        - { name: postgres, containerPort: 55433 }
+        - { name: http, containerPort: 3080 }
+        readinessProbe:
+          tcpSocket: { port: postgres }
+          initialDelaySeconds: 5
+          periodSeconds: 2
+        {{- with .Values.compute.resources }}
+        resources:
+{{ toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if eq .Values.compute.mode "public" }}
+      volumes:
+      - name: config-template
+        configMap: { name: compute-public-config }
+      - name: rendered-config
+        emptyDir: {}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata: { name: compute }
+spec:
+  type: {{ .Values.compute.service.type }}
+  selector: { app: compute }
+  ports:
+  - { name: postgres, port: {{ .Values.compute.service.port }}, targetPort: postgres }
+{{- end }}

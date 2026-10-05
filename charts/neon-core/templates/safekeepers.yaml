@@ -1,0 +1,91 @@
+{{- if .Values.safekeeper.enabled }}
+{{- $root := . -}}
+{{- range $i := until (int .Values.safekeeper.replicas) }}
+{{- $n := add $i 1 }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations: {helm.sh/resource-policy: keep}
+  name: safekeeper{{ $n }}-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- if $root.Values.safekeeper.persistence.storageClassName }}
+  storageClassName: {{ $root.Values.safekeeper.persistence.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests: { storage: {{ $root.Values.safekeeper.persistence.size }} }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safekeeper{{ $n }}
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: safekeeper{{ $n }} }
+  template:
+    metadata:
+      labels: { app: safekeeper{{ $n }}, neon-role: safekeeper }
+    spec:
+      {{- if $root.Values.safekeeper.requireNodeSeparation }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels: { neon-role: safekeeper }
+            topologyKey: kubernetes.io/hostname
+      {{- end }}
+      containers:
+      - name: safekeeper
+        image: "{{ include "neon-lab.component-image" (list $root "safekeeper") }}"
+        imagePullPolicy: {{ $root.Values.global.neonImage.pullPolicy }}
+        env:
+        {{- if $root.Values.minio.enabled }}
+        - { name: AWS_ACCESS_KEY_ID, valueFrom: { secretKeyRef: { name: {{ $root.Values.minio.existingSecret }}, key: accessKey } } }
+        - { name: AWS_SECRET_ACCESS_KEY, valueFrom: { secretKeyRef: { name: {{ $root.Values.minio.existingSecret }}, key: secretKey } } }
+        {{- else }}
+        - { name: AWS_ACCESS_KEY_ID, valueFrom: { secretKeyRef: { name: {{ $root.Values.objectStore.existingSecret }}, key: accessKey } } }
+        - { name: AWS_SECRET_ACCESS_KEY, valueFrom: { secretKeyRef: { name: {{ $root.Values.objectStore.existingSecret }}, key: secretKey } } }
+        {{- end }}
+        command: ["/bin/sh","-ec"]
+        args:
+        - >-
+          exec safekeeper
+          --listen-pg=0.0.0.0:5454
+          --advertise-pg=safekeeper{{ $n }}:5454
+          --listen-http=0.0.0.0:7676
+          --id={{ $n }}
+          --broker-endpoint=http://storage-broker:50051
+          -D /data
+          {{- if $root.Values.minio.enabled }}
+          --remote-storage="{endpoint='http://minio:9000',bucket_name='{{ $root.Values.minio.bucket }}',bucket_region='{{ $root.Values.minio.region }}',prefix_in_bucket='/safekeeper/'}"
+          {{- else }}
+          --remote-storage="{endpoint='{{ $root.Values.objectStore.endpoint }}',bucket_name='{{ $root.Values.objectStore.bucket }}',bucket_region='{{ $root.Values.objectStore.region }}',prefix_in_bucket='{{ $root.Values.objectStore.prefixSafekeeper }}'}"
+          {{- end }}
+        ports:
+        - { name: pg, containerPort: 5454 }
+        - { name: http, containerPort: 7676 }
+        volumeMounts:
+        - { name: data, mountPath: /data }
+        {{- with $root.Values.safekeeper.resources }}
+        resources:
+{{ toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+      - name: data
+        persistentVolumeClaim: { claimName: safekeeper{{ $n }}-data }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safekeeper{{ $n }}
+spec:
+  selector: { app: safekeeper{{ $n }} }
+  ports:
+  - { name: pg, port: 5454, targetPort: pg }
+  - { name: http, port: 7676, targetPort: http }
+---
+{{- end }}
+
+{{- end }}

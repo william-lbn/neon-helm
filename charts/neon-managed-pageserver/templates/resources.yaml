@@ -1,0 +1,60 @@
+{{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" .Values.image) -}}{{- fail "image must be pinned by digest" -}}{{- end -}}
+{{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" .Values.initImage) -}}{{- fail "initImage must be pinned by digest" -}}{{- end -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pageserver-managed
+  labels: {app: pageserver-managed, app.kubernetes.io/part-of: neon-control}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: pageserver-managed}
+  template:
+    metadata:
+      labels: {app: pageserver-managed, app.kubernetes.io/part-of: neon-control}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      initContainers:
+      - name: init-config
+        image: {{ .Values.initImage | quote }}
+        command: ["sh", "-ec"]
+        args: ["mkdir -p /data/.neon; cp /config/* /data/.neon/; chown -R 1000:1000 /data/.neon || true"]
+        volumeMounts:
+        - {name: data, mountPath: /data}
+        - {name: config, mountPath: /config, readOnly: true}
+      containers:
+      - name: pageserver
+        image: {{ .Values.image | quote }}
+        command: ["/usr/local/bin/pageserver", "-D", "/data/.neon"]
+        ports:
+        - {name: pg, containerPort: 6400}
+        - {name: http, containerPort: 9898}
+        env:
+        - {name: AWS_ACCESS_KEY_ID, valueFrom: {secretKeyRef: {name: {{ .Values.objectStoreSecret }}, key: accessKey}}}
+        - {name: AWS_SECRET_ACCESS_KEY, valueFrom: {secretKeyRef: {name: {{ .Values.objectStoreSecret }}, key: secretKey}}}
+        readinessProbe:
+          tcpSocket: {port: 6400}
+          initialDelaySeconds: 3
+        resources:
+{{ toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - {name: data, mountPath: /data}
+      volumes:
+      - {name: data, persistentVolumeClaim: {claimName: {{ .Values.existingClaim }}}}
+      - {name: config, configMap: {name: {{ .Values.configMap }}}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pageserver-managed
+  labels: {app: pageserver-managed, app.kubernetes.io/part-of: neon-control}
+spec:
+  type: ClusterIP
+  selector: {app: pageserver-managed}
+  ports:
+  - {name: pg, port: 6400, targetPort: pg}
+  - {name: http, port: 9898, targetPort: http}

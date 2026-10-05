@@ -1,0 +1,10 @@
+{
+  "image": {
+    "reference": "docker.io/williamluckyli/control-gateway@sha256:e134ae2242792dfd7e258fd093c217fd6f04bb1c199fbe0c9cc1de5acb58528e"
+  },
+  "runtime": {
+    "mode": "image",
+    "binaryHostPath": "",
+    "binarySha256": ""
+  }
+}

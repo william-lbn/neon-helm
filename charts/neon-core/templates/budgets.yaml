@@ -1,0 +1,13 @@
+{{- if and .Values.safekeeper.enabled .Values.disruptionBudget.safekeeperEnabled }}
+# Each safekeeper has a distinct retained PVC and stable advertised identity.
+# The shared selector is the existing pod label; do not change immutable selectors.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: neon-safekeeper-quorum
+  labels: {app.kubernetes.io/part-of: neon, app.kubernetes.io/instance: {{ .Release.Name }}}
+spec:
+  minAvailable: {{ .Values.disruptionBudget.minAvailable }}
+  selector:
+    matchLabels: {neon-role: safekeeper}
+{{- end }}

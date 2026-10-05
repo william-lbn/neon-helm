@@ -1,0 +1,305 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "api",
+    "web",
+    "service"
+  ],
+  "properties": {
+    "worker": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "replicaCount"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "replicaCount": {
+          "type": "integer",
+          "const": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "api": {
+      "type": "object",
+      "required": [
+        "image",
+        "replicaCount",
+        "existingSecret",
+        "pgTLSMode"
+      ],
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "const": 1
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pgTLSMode": {
+          "enum": [
+            "verify-full",
+            "lab-insecure"
+          ]
+        },
+        "computeImage": {
+          "type": "string",
+          "pattern": "^[a-z0-9./_-]+@sha256:[a-f0-9]{64}$"
+        },
+        "image": {
+          "$ref": "#/definitions/image",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "reference": {
+              "type": "string"
+            },
+            "pullPolicy": {
+              "type": "string"
+            }
+          }
+        },
+        "creationEnabled": {
+          "type": "boolean"
+        },
+        "scaleToZeroEnabled": {
+          "type": "boolean"
+        },
+        "cookieSecure": {
+          "type": "boolean"
+        },
+        "proxyHost": {
+          "type": "string"
+        },
+        "proxyPort": {
+          "type": "integer"
+        },
+        "publicProxyHost": {
+          "type": "string"
+        },
+        "publicProxyPort": {
+          "type": "integer"
+        },
+        "pgCASecret": {
+          "type": "string"
+        },
+        "computeGatewayURL": {
+          "type": "string"
+        },
+        "computeControlHost": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "web": {
+      "type": "object",
+      "properties": {
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "image": {
+          "$ref": "#/definitions/image",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "reference": {
+              "type": "string"
+            },
+            "pullPolicy": {
+              "type": "string"
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "ClusterIP",
+            "NodePort"
+          ]
+        },
+        "nodePort": {
+          "type": "integer",
+          "minimum": 30000,
+          "maximum": 32767
+        },
+        "port": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataAPI": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "labHTTP",
+        "gatewayImage",
+        "postgrestImage"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "labHTTP": {
+          "type": "boolean"
+        },
+        "gatewayImage": {
+          "type": "string"
+        },
+        "postgrestImage": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "labHTTP": {
+                "const": true
+              },
+              "gatewayImage": {
+                "pattern": "^[a-z0-9./_-]+@sha256:[a-f0-9]{64}$"
+              },
+              "postgrestImage": {
+                "pattern": "^[a-z0-9./_-]+@sha256:[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "backendCredentials": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "existingSecret",
+        "labHTTP"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "existingSecret": {
+          "type": "string",
+          "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "maxLength": 63
+        },
+        "labHTTP": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "existingSecret": {
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "fullnameOverride": {
+      "type": "string"
+    },
+    "imagePullSecrets": {
+      "type": "array"
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "tolerations": {
+      "type": "array"
+    },
+    "priorityClassName": {
+      "type": "string"
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "className": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "tls": {
+          "type": "array"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "image": {
+      "type": "object",
+      "required": [
+        "reference",
+        "pullPolicy"
+      ],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "pattern": "^[a-z0-9./_-]+@sha256:[a-f0-9]{64}$"
+        },
+        "pullPolicy": {
+          "enum": [
+            "IfNotPresent",
+            "Always",
+            "Never"
+          ]
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,40 @@
+# The original runtime depended on resources made by a workstation script.
+# Fresh installs now declare them; migration adopts only the exact existing UID.
+{{- if .Values.config.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMap }}
+  labels: {app: pageserver-managed, app.kubernetes.io/part-of: neon-control}
+data:
+  identity.toml: |
+    id={{ .Values.config.nodeId }}
+  pageserver.toml: |
+    broker_endpoint='{{ .Values.config.brokerEndpoint }}'
+    pg_distrib_dir='/usr/local/'
+    listen_pg_addr='0.0.0.0:6400'
+    listen_http_addr='0.0.0.0:9898'
+    availability_zone='{{ .Values.config.availabilityZone }}'
+    control_plane_api='{{ .Values.config.controllerEndpoint }}'
+    control_plane_emergency_mode=false
+    virtual_file_io_mode='buffered'
+    remote_storage={ endpoint='{{ .Values.config.objectStoreEndpoint }}', bucket_name='{{ .Values.config.objectStoreBucket }}', bucket_region='{{ .Values.config.objectStoreRegion }}', prefix_in_bucket='{{ .Values.config.objectStorePrefix }}' }
+  metadata.json: |
+    {"host":"pageserver-managed.{{ .Release.Namespace }}.svc.cluster.local","http_host":"pageserver-managed.{{ .Release.Namespace }}.svc.cluster.local","http_port":9898,"port":6400}
+---
+{{- end }}
+{{- if .Values.persistence.create }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.existingClaim }}
+  labels: {app: pageserver-managed, app.kubernetes.io/part-of: neon-control}
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests: {storage: {{ .Values.persistence.size | quote }}}
+{{- end }}

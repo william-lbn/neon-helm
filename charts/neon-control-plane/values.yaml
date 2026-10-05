@@ -1,0 +1,56 @@
+fullnameOverride: neon-control
+backendCredentials:
+  enabled: false
+  existingSecret: ''
+  labHTTP: false
+dataAPI:
+  enabled: false
+  # Native Driver v1 requires this explicit development transport exception.
+  # It does not satisfy the trusted TLS production gate.
+  labHTTP: false
+  gatewayImage: ''
+  postgrestImage: ''
+worker:
+  # Upgrade from combined mode requires the documented stop/drain procedure.
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: '1', memory: 512Mi}
+api:
+  # Multiple APIs still require external connection fencing and a separate gate.
+  replicaCount: 1
+  image: {reference: '', pullPolicy: IfNotPresent}
+  existingSecret: neon-control-plane-credentials
+  creationEnabled: true
+  scaleToZeroEnabled: true
+  cookieSecure: true
+  proxyHost: proxy.neon.svc.cluster.local
+  proxyPort: 4432
+  publicProxyHost: ''
+  publicProxyPort: 5432
+  pgTLSMode: verify-full
+  pgCASecret: ''
+  computeGatewayURL: https://neon-compute-management-gateway.neon.svc:8443
+  computeControlHost: neon-compute-management-gateway.neon.svc
+  computeImage: docker.io/williamluckyli/vm-compute-node-v16@sha256:4716bf4c0d5437b05977787398b764b5638ab42bbc657dcc6909fd39c095744d
+  resources:
+    requests: {cpu: 150m, memory: 128Mi}
+    limits: {cpu: '1', memory: 512Mi}
+web:
+  replicaCount: 1
+  image: {reference: '', pullPolicy: IfNotPresent}
+  resources:
+    requests: {cpu: 50m, memory: 32Mi}
+    limits: {cpu: 250m, memory: 128Mi}
+service: {type: ClusterIP, port: 8080, nodePort: 30788}
+imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+priorityClassName: ''
+ingress:
+  enabled: false
+  className: traefik
+  host: ''
+  annotations: {}
+  tls: []

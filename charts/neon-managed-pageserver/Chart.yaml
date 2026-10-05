@@ -1,0 +1,20 @@
+apiVersion: v2
+name: neon-managed-pageserver
+description: Helm ownership for the control-plane-managed Neon pageserver runtime
+type: application
+version: 0.1.0
+appVersion: 1f30cd02092d
+home: https://github.com/william-lbn/neon-helm
+sources:
+- https://github.com/william-lbn/neon
+- https://github.com/william-lbn/autoscaling
+- https://github.com/william-lbn/control-plane
+maintainers:
+- name: william-lbn
+  url: https://github.com/william-lbn
+keywords:
+- neon
+- postgresql
+- autoscaling
+- self-hosted
+kubeVersion: '>=1.30.0-0'

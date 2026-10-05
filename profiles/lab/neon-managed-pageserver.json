@@ -1,0 +1,6 @@
+{
+  "image": "docker.io/williamluckyli/pageserver@sha256:a24cd6f6f613959c7501457db4c3f9140035f60af4236194c3e24e197c3e5675",
+  "persistence": {
+    "storageClassName": "local-path"
+  }
+}

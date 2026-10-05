@@ -1,0 +1,36 @@
+{
+  "api": {
+    "image": {
+      "reference": "docker.io/williamluckyli/control-api@sha256:5e0bcbee2b53621b0bc67cd2b3c7d6e3ec3714f29f5162502b14d8455f8c2246"
+    },
+    "pgTLSMode": "lab-insecure",
+    "cookieSecure": false,
+    "computeImage": "docker.io/williamluckyli/vm-compute-node-v16@sha256:4716bf4c0d5437b05977787398b764b5638ab42bbc657dcc6909fd39c095744d",
+    "publicProxyHost": "192.168.146.100",
+    "publicProxyPort": 30432
+  },
+  "web": {
+    "image": {
+      "reference": "docker.io/williamluckyli/control-web@sha256:39ed160016ec6408c4b743053f3bd49a13b08a6b1ade6e5b85f5c6eef0476495"
+    }
+  },
+  "worker": {
+    "enabled": true
+  },
+  "service": {
+    "type": "NodePort",
+    "nodePort": 30788
+  },
+  "priorityClassName": "neon-platform-critical",
+  "dataAPI": {
+    "enabled": true,
+    "labHTTP": true,
+    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:bb442ea8df2a571fbc8c83e1bd67fff40f186d994cc06b72ad1a42efe4cccca6",
+    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:a318ec772e690a45426dd51a71db591c7fc35651b34c269abaaae41df8e9c593"
+  },
+  "backendCredentials": {
+    "enabled": true,
+    "labHTTP": true,
+    "existingSecret": "neon-backend-credential-keys-v1"
+  }
+}

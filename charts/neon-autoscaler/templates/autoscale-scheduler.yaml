@@ -1,0 +1,177 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autoscale-scheduler
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: autoscale-scheduler-apiserver-auth-config
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+- kind: ServiceAccount
+  name: autoscale-scheduler
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autoscale-scheduler-virtualmachine-editor
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: neonvm-virtualmachine-editor-role
+subjects:
+- kind: ServiceAccount
+  name: autoscale-scheduler
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autoscale-scheduler-virtualmachinemigration-editor
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: neonvm-virtualmachinemigration-editor-role
+subjects:
+- kind: ServiceAccount
+  name: autoscale-scheduler
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autoscale-scheduler-as-kube-scheduler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:kube-scheduler
+subjects:
+- kind: ServiceAccount
+  name: autoscale-scheduler
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autoscale-scheduler-as-volume-scheduler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:volume-scheduler
+subjects:
+- kind: ServiceAccount
+  name: autoscale-scheduler
+  namespace: kube-system
+
+---
+apiVersion: v1
+data:
+  scheduler-config.yaml: "apiVersion: kubescheduler.config.k8s.io/v1\nkind: KubeSchedulerConfiguration\n\
+    leaderElection:\n  leaderElect: false\nprofiles:\n  - schedulerName: autoscale-scheduler\n\
+    \    plugins:\n      multiPoint:\n        enabled:\n          - name: AutoscaleEnforcer\n\
+    \      score:\n        # Score() for some plugins is disabled to avoid conflicts\
+    \ with AutoscaleEnforcer\n        disabled:\n          - name: ImageLocality\n\
+    \          - name: NodeResourcesBalancedAllocation\n          - name: NodeResourcesFit\n"
+kind: ConfigMap
+metadata:
+  name: autoscale-scheduler-config
+  namespace: kube-system
+
+---
+apiVersion: v1
+data:
+  autoscale-enforcer-config.json: "{\n  \"watermark\": 0.9,\n  \"scoring\": {\n  \
+    \  \"minUsageScore\": 0.5,\n    \"maxUsageScore\": 0,\n    \"scorePeak\": 0.8,\n\
+    \    \"randomize\": true\n  },\n  \"schedulerName\": \"autoscale-scheduler\",\n\
+    \  \"reconcileWorkers\": 16,\n  \"logSuccessiveFailuresThreshold\": 10,\n  \"\
+    startupEventHandlingTimeoutSeconds\": 15,\n  \"patchRetryWaitSeconds\": 1,\n \
+    \ \"k8sCRUDTimeoutSeconds\": 1,\n  \"nodeMetricLabels\": {},\n  \"ignoredNamespaces\"\
+    : []\n}\n"
+kind: ConfigMap
+metadata:
+  name: scheduler-plugin-config
+  namespace: kube-system
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: scheduler
+    tier: control-plane
+  name: autoscale-scheduler
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: scheduler
+      tier: control-plane
+  template:
+    metadata:
+      labels:
+        component: scheduler
+        name: autoscale-scheduler
+        tier: control-plane
+    spec:
+      containers:
+      - command:
+        - /usr/bin/kube-scheduler
+        - --config=/etc/kubernetes/autoscale-scheduler-config/scheduler-config.yaml
+        image: {{ .Values.images.scheduler | quote }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+          initialDelaySeconds: 15
+        name: autoscale-scheduler
+        ports:
+        - containerPort: 9100
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+        resources: {{ toYaml .Values.scheduler.resources | nindent 10 }}
+        securityContext:
+          privileged: false
+        volumeMounts:
+        - mountPath: /etc/kubernetes/autoscale-scheduler-config
+          name: scheduler-config-volume
+        - mountPath: /etc/scheduler-plugin-config
+          name: plugin-config-volume
+      hostNetwork: false
+      hostPID: false
+      priorityClassName: system-cluster-critical
+      serviceAccountName: autoscale-scheduler
+      tolerations:
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        tolerationSeconds: 30
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        tolerationSeconds: 30
+      volumes:
+      - configMap:
+          name: autoscale-scheduler-config
+        name: scheduler-config-volume
+      - configMap:
+          name: scheduler-plugin-config
+        name: plugin-config-volume

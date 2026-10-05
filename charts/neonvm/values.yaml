@@ -1,0 +1,38 @@
+experimentalAcknowledged: false
+compatibility:
+  expectedKubernetesMinor: "31"
+  allowUntestedKubernetes: false
+controller:
+  # Existing labs explicitly preserve their original unsafe disk cache setting.
+  # New installs retain flushes; neither option is a durability/DR certification.
+  qemuDiskCacheSettings: cache.writeback=on,cache.direct=on,cache.no-flush=off
+  labAcknowledged: false
+  replicas: 3
+  # Optional platform reservation profile. No image/CRD/source change.
+  spreadAcrossNodes: false
+  priorityClassName: ""
+  apiClient:
+    qps: 1000
+    burst: 2000
+    concurrency: 128
+  resources:
+    requests: {cpu: 2, memory: 1Gi}
+    limits: {cpu: 8, memory: 2Gi}
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+network:
+  # Must be disjoint from actual Pod/Service/host CIDRs. The preflight verifies it.
+  podRange: 10.100.0.0/16
+  podRangeStart: 10.100.1.0
+  podRangeEnd: 10.100.127.255
+  vmRange: 10.100.0.0/16
+  vmRangeStart: 10.100.128.0
+platformPriority:
+  create: false
+  name: neon-platform-critical
+  value: 100000
+images:
+  controller: ghcr.io/neondatabase/neonvm-controller@sha256:b460715aaa345b0d525349612e95c062d6a2ec83478d7833619b35ba213a6412
+  runner: ghcr.io/neondatabase/neonvm-runner@sha256:59ff469daa2e6a4c29ea096580ea36e8d80cabc71541a5fbca557721d5e04621
+  vxlanController: ghcr.io/neondatabase/neonvm-vxlan-controller@sha256:04919d58ad768b9f19fd0de810317e42818d093cda8cf3c3f5575cc1c38e3a3a

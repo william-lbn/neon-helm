@@ -1,0 +1,88 @@
+{{- if .Values.minio.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations: {helm.sh/resource-policy: keep}
+  name: minio-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- if .Values.minio.persistence.storageClassName }}
+  storageClassName: {{ .Values.minio.persistence.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.minio.persistence.size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: minio }
+  template:
+    metadata:
+      labels: { app: minio }
+    spec:
+      {{- with .Values.global.platformPriorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      containers:
+      - name: minio
+        resources:
+          {{- toYaml .Values.minio.resources | nindent 10 }}
+        image: {{ .Values.minio.image | quote }}
+        command: ["minio"]
+        args: ["server","/data","--address",":9000","--console-address",":9001"]
+        env:
+        - { name: MINIO_ROOT_USER, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: accessKey } } }
+        - { name: MINIO_ROOT_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: secretKey } } }
+        readinessProbe:
+          httpGet: { path: /minio/health/ready, port: 9000 }
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        ports:
+        - { name: api, containerPort: 9000 }
+        - { name: console, containerPort: 9001 }
+        volumeMounts:
+        - { name: data, mountPath: /data }
+      volumes:
+      - name: data
+        persistentVolumeClaim: { claimName: minio-data }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: minio }
+spec:
+  selector: { app: minio }
+  ports:
+  - { name: api, port: 9000, targetPort: api }
+  - { name: console, port: 9001, targetPort: console }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-minio-init
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 6
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: mc
+        image: {{ .Values.minio.mcImage | quote }}
+        env:
+        - { name: MINIO_ROOT_USER, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: accessKey } } }
+        - { name: MINIO_ROOT_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: secretKey } } }
+        command: ["/bin/sh","-ec"]
+        args:
+        - |
+          until mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do sleep 2; done
+          mc mb --ignore-existing --region {{ .Values.minio.region }} local/{{ .Values.minio.bucket }}
+{{- end }}

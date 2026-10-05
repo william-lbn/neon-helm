@@ -1,0 +1,20 @@
+apiVersion: v2
+name: neon-control-plane
+description: Go/PostgreSQL Neon control API and independently released React console
+type: application
+version: 0.1.0
+appVersion: 0.6.0-data-api
+kubeVersion: '>=1.30.0-0'
+home: https://github.com/william-lbn/neon-helm
+sources:
+- https://github.com/william-lbn/neon
+- https://github.com/william-lbn/autoscaling
+- https://github.com/william-lbn/control-plane
+maintainers:
+- name: william-lbn
+  url: https://github.com/william-lbn
+keywords:
+- neon
+- postgresql
+- autoscaling
+- self-hosted

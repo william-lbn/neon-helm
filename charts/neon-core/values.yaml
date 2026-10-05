@@ -1,0 +1,149 @@
+# Explicit operator pins are REQUIRED for actual install. Do not silently pull latest.
+global:
+  platformPriorityClassName: "" # opt-in after installing the owning NeonVM profile
+  initImage: ""             # busybox or compatible init image pinned full @sha256, separately verified
+  componentImages: {}       # pageserver/safekeeper/storageBroker/proxy/storageController full IMAGE@sha256 refs
+  neonImage:
+    repository: docker.io/neondatabase/neon
+    tag: ""
+    digest: ""                # sha256:<64hex>; resolve on real registry for chosen source revision
+    pullPolicy: IfNotPresent
+minio:
+  resources:
+    requests: {cpu: 150m, memory: 512Mi}
+    limits: {cpu: 2, memory: 2Gi}
+  enabled: true               # set false and configure objectStore for external S3
+  image: ""                  # quay.io/minio/minio@sha256:<64hex>
+  mcImage: ""                # quay.io/minio/mc@sha256:<64hex> or verified alternate
+  rootUser: minio
+  existingSecret: neon-object-store
+  bucket: neon
+  region: eu-north-1
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClassName: ""
+objectStore:
+  endpoint: ""               # required only when minio.enabled=false; e.g. https://s3...
+  bucket: ""
+  region: ""
+  prefixPageserver: "/pageserver"
+  prefixSafekeeper: "/safekeeper/"
+  existingSecret: neon-object-store
+storageBroker:
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 1, memory: 512Mi}
+  enabled: true
+  replicas: 1
+pageserver:
+  enabled: true
+  id: 1
+  replicas: 1
+  cache:
+    size: 20Gi
+    storageClassName: ""
+  resources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {memory: 2Gi}
+safekeeper:
+  enabled: true
+  replicas: 3
+  requireNodeSeparation: true
+  persistence:
+    size: 10Gi
+    storageClassName: ""
+  resources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {memory: 2Gi}
+compute:
+  replicaCount: 1             # 0 retains a cold legacy test Compute without deleting data
+  enabled: false
+  mode: wrapper               # public: run pinned upstream compute image with a ConfigMap init; wrapper: custom build
+  configImage: ""             # python:3.13-slim@sha256:... required for public mode
+  allowLabAutoBootstrap: false
+  pgVersion: 16
+  image:
+    repository: neon-compute-wrapper
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+  tenantId: ""
+  timelineId: ""
+  resources:
+    requests: {cpu: 500m, memory: 1Gi}
+  service:
+    type: ClusterIP
+    port: 55433
+computeResize:
+  enabled: false              # Kubernetes Pod /resize CPU request controller; separate from upstream NeonVM
+  image: ""                  # pinned public Python image
+  minCpuMilli: 500
+  maxCpuMilli: 2000
+  intervalSeconds: 15
+  upUtilization: 0.65
+  downUtilization: 0.20
+  upSamples: 3
+  downSamples: 8
+  cooldownSeconds: 120
+proxy:
+  # Fresh native projects use the dynamic adapter and require no static Compute.
+  # Enable only to preserve the original lab proxy-api deployment during migration.
+  legacyApiEnabled: false
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: 2, memory: 1Gi}
+  apiResources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 1, memory: 512Mi}
+  enabled: false
+  image: ""                  # python:3.13-slim@sha256:... for the one-endpoint API adapter
+  authEndpoint: http://proxy-api:8080/cplane/ # set to a dynamic adapter for managed endpoints
+  # Keep credential reads current until Redis invalidation/outbox is deployed.
+  # Enabling a TTL cache without invalidation breaks password rotation.
+  projectInfoCache: size=0,ttl=0s,max_roles=500,gc_interval=60m
+  endpointId: lab
+  roleName: cloud_admin
+  computeAddress: compute.neon.svc.cluster.local:55433
+  vmEndpointId: ""           # optional second static endpoint for the NeonVM compute guest
+  vmComputeAddress: ""       # e.g. vm-neon-compute.neon.svc.cluster.local:55433
+  allowedIps: ["0.0.0.0/0"]   # narrow for externally exposed Services
+  authSecret: neon-proxy-auth # keys proxyToken, scramVerifier
+  tlsSecret: neon-proxy-tls   # kubernetes.io/tls, supplied outside Helm
+  scaleToZero:
+    enabled: false            # one pre-provisioned Deployment only, not NeonVM
+    adminSecret: neon-scale-admin # key token, never stored in Helm values
+    idleSeconds: 180
+  service:
+    type: ClusterIP
+    port: 4432
+    public:
+      enabled: false
+      name: neon-proxy-public
+      type: ClusterIP
+      nodePort: 30432
+storageController:
+  resources:
+    requests: {cpu: 150m, memory: 256Mi}
+    limits: {cpu: 2, memory: 1Gi}
+  dbResources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {cpu: 2, memory: 2Gi}
+  enabled: false              # fresh clusters only; never flip on existing emergency-mode data
+  managePageserver: false      # explicit opt-in only after a tenant migration rehearsal
+  devMode: true               # no JWT auth; isolated lab only
+  hookUrl: ""                 # required when enabled; implements notify-attach/safekeepers
+  hookTokenSecret: ""         # secret key token, passed as --control-plane-jwt-token
+  dbImage: ""                 # postgres:16@sha256:...
+  existingSecret: neon-controller-db # keys password and url
+  persistence:
+    size: 5Gi
+    storageClassName: ""
+validation:
+  requirePinnedImages: true
+  # Keep current single-namespace / single-cluster architecture honest.
+  labAcknowledged: false
+
+disruptionBudget:
+  safekeeperEnabled: true
+  minAvailable: 2 # Protect quorum during voluntary node drains, not hardware loss.

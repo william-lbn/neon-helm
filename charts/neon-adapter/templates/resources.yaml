@@ -1,0 +1,107 @@
+{{- if not .Values.compatibilityAcknowledged }}{{ fail "adapter requires compatibilityAcknowledged: this single-instance runtime is not distributed fencing or HA" }}{{ end }}
+{{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" .Values.image) }}{{ fail "adapter image must be digest pinned" }}{{ end }}
+{{- $name := .Values.fullnameOverride }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control, app.kubernetes.io/managed-by: Helm}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control}
+rules:
+  - apiGroups: ['']
+    resources: [secrets]
+    resourceNames: [{{ .Values.routesSecret }}]
+    verbs: [get]
+  - apiGroups: ['']
+    resources: [configmaps]
+    resourceNames: [{{ .Values.notificationsConfigMap }}]
+    verbs: [get, update]
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [get]
+  - apiGroups: [apps]
+    resources: [deployments/scale]
+    verbs: [get, update]
+  # Kubernetes RBAC cannot restrict create by resourceNames. Ownership admission
+  # and cross-instance wake/suspend fencing remain separate production work.
+  - apiGroups: [vm.neon.tech]
+    resources: [virtualmachines]
+    verbs: [get, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control}
+subjects: [{kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}]
+roleRef: {kind: Role, name: {{ $name }}, apiGroup: rbac.authorization.k8s.io}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-code
+  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control}
+data:
+  adapter.py: |
+{{ .Files.Get "files/adapter.py" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: {{ $name }}}
+  template:
+    metadata:
+      labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control, app.kubernetes.io/instance: {{ .Release.Name }}}
+      annotations:
+        checksum/code: {{ .Files.Get "files/adapter.py" | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ $name }}
+      securityContext: {seccompProfile: {type: RuntimeDefault}}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      containers:
+        - name: adapter
+          image: {{ .Values.image | quote }}
+          command: [python3, -u, /app/adapter.py]
+          securityContext: {{ toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - {name: PYTHONDONTWRITEBYTECODE, value: '1'}
+            - name: POD_NAMESPACE
+              valueFrom: {fieldRef: {fieldPath: metadata.namespace}}
+            - {name: ROUTES_SECRET, value: {{ .Values.routesSecret | quote }}}
+            - {name: NOTIFICATIONS_CONFIGMAP, value: {{ .Values.notificationsConfigMap | quote }}}
+            - name: PROXY_API_TOKEN
+              valueFrom: {secretKeyRef: {name: {{ .Values.proxyTokenSecret }}, key: proxyToken}}
+            - name: CONTROLLER_HOOK_TOKEN
+              valueFrom: {secretKeyRef: {name: {{ .Values.hookTokenSecret }}, key: token}}
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 5}
+          startupProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 5, failureThreshold: 30}
+          resources: {{ toYaml .Values.resources | nindent 12 }}
+          volumeMounts: [{name: code, mountPath: /app, readOnly: true}]
+      volumes: [{name: code, configMap: {name: {{ $name }}-code}}]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control}
+spec:
+  type: ClusterIP
+  selector: {app: {{ $name }}}
+  ports: [{name: http, port: 8080, targetPort: http}]

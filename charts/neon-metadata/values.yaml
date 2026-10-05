@@ -1,0 +1,32 @@
+# This is an explicit development database, not a PostgreSQL HA operator.
+enabled: false
+developmentAcknowledged: false
+fullnameOverride: neon-control-v2-db
+image: '' # Complete registry/repository@sha256:<64 lowercase hex> from locks.
+existingSecret: neon-control-v2-db # key: password; never bootstrap/rotate here.
+database: neon_control_v2
+username: neon_control_v2
+priorityClassName: ''
+persistence:
+  # Keep claim identity during adoption; uninstall must not erase metadata.
+  create: true
+  existingClaim: ''
+  storageClassName: ''
+  size: 5Gi
+service:
+  type: ClusterIP
+  port: 5432
+  nodePort: 30433 # Used only by the explicitly selected laboratory profile.
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {cpu: '1', memory: 1Gi}
+podSecurityContext: {fsGroup: 999}
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 999
+  runAsGroup: 999
+  allowPrivilegeEscalation: false
+  capabilities: {drop: [ALL]}
+# PostgreSQL writes PGDATA and /tmp; do not claim an untested read-only root.
+nodeSelector: {}
+tolerations: []

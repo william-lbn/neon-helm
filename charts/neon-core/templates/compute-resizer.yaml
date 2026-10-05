@@ -1,0 +1,79 @@
+{{- if .Values.computeResize.enabled }}
+{{- if not .Values.compute.enabled }}{{ fail "computeResize requires compute.enabled=true" }}{{- end }}
+{{- if not .Values.computeResize.image }}{{ fail "computeResize.image must be a pinned public image" }}{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: compute-resizer-code }
+data:
+  compute_resizer.py: |-
+{{ .Files.Get "files/compute_resizer.py" | indent 4 }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: compute-resizer }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { name: compute-resizer }
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods/resize"]
+  verbs: ["patch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: { name: compute-resizer }
+subjects:
+- { kind: ServiceAccount, name: compute-resizer, namespace: {{ .Release.Namespace }} }
+roleRef: { kind: Role, name: compute-resizer, apiGroup: rbac.authorization.k8s.io }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: compute-resizer }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: compute-resizer }
+  template:
+    metadata:
+      labels: { app: compute-resizer }
+      annotations:
+        checksum/code: {{ .Files.Get "files/compute_resizer.py" | sha256sum }}
+    spec:
+      serviceAccountName: compute-resizer
+      containers:
+      - name: resizer
+        image: {{ .Values.computeResize.image | quote }}
+        command: ["python3", "-B", "/app/compute_resizer.py"]
+        env:
+        - name: POD_NAMESPACE
+          valueFrom: { fieldRef: { fieldPath: metadata.namespace } }
+        - { name: MIN_CPU_MILLI, value: {{ .Values.computeResize.minCpuMilli | quote }} }
+        - { name: MAX_CPU_MILLI, value: {{ .Values.computeResize.maxCpuMilli | quote }} }
+        - { name: INTERVAL_SECONDS, value: {{ .Values.computeResize.intervalSeconds | quote }} }
+        - { name: UP_UTILIZATION, value: {{ .Values.computeResize.upUtilization | quote }} }
+        - { name: DOWN_UTILIZATION, value: {{ .Values.computeResize.downUtilization | quote }} }
+        - { name: UP_SAMPLES, value: {{ .Values.computeResize.upSamples | quote }} }
+        - { name: DOWN_SAMPLES, value: {{ .Values.computeResize.downSamples | quote }} }
+        - { name: COOLDOWN_SECONDS, value: {{ .Values.computeResize.cooldownSeconds | quote }} }
+        resources:
+          requests: { cpu: 25m, memory: 32Mi }
+          limits: { memory: 128Mi }
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65532
+          capabilities: { drop: ["ALL"] }
+        volumeMounts:
+        - { name: code, mountPath: /app, readOnly: true }
+      volumes:
+      - { name: code, configMap: { name: compute-resizer-code } }
+{{- end }}

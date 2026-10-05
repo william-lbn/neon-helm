@@ -1,0 +1,9 @@
+{
+  "source": "control-plane/adapter/adapter.py",
+  "sha256": "d497fa5aeb43b66336d650ed21bea991598f41b87745f4aac071b4354beba604",
+  "image": "docker.io/library/python@sha256:8d9d0b8bcf6506481eae4907c18f5e3e7902e629f5f6d684f9e7c32e85e3ddf0",
+  "language": "python",
+  "runtime_code_only": true,
+  "replicas_supported": 1,
+  "production_qualified": false
+}

@@ -1,0 +1,5 @@
+{{- if not .Values.experimentalAcknowledged -}}{{- fail "EXPERIMENTAL ONLY. See docs/PRODUCTION-GATES.md" -}}{{- end -}}
+{{- range $name, $image := .Values.images -}}
+{{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" $image) -}}{{- fail (printf "images.%s must be pinned by digest" $name) -}}{{- end -}}
+{{- end -}}
+{{- if and (not .Values.compatibility.allowUntestedKubernetes) (ne (toString .Capabilities.KubeVersion.Minor) (toString .Values.compatibility.expectedKubernetesMinor)) -}}{{- fail "Autoscaling scheduler was built for Kubernetes 1.31; recompile and validate for this cluster before install" -}}{{- end -}}

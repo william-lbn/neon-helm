@@ -1,0 +1,95 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "image": {
+      "type": "string"
+    },
+    "initImage": {
+      "type": "string"
+    },
+    "configMap": {
+      "type": "string"
+    },
+    "existingClaim": {
+      "type": "string"
+    },
+    "objectStoreSecret": {
+      "type": "string"
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean"
+        },
+        "nodeId": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "availabilityZone": {
+          "type": "string"
+        },
+        "brokerEndpoint": {
+          "type": "string"
+        },
+        "controllerEndpoint": {
+          "type": "string"
+        },
+        "objectStoreEndpoint": {
+          "type": "string"
+        },
+        "objectStoreBucket": {
+          "type": "string"
+        },
+        "objectStoreRegion": {
+          "type": "string"
+        },
+        "objectStorePrefix": {
+          "type": "string"
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "string"
+        },
+        "storageClassName": {
+          "type": "string"
+        }
+      }
+    },
+    "priorityClassName": {
+      "type": "string"
+    },
+    "nameOverride": {
+      "type": "string"
+    },
+    "fullnameOverride": {
+      "type": "string"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "neon-managed-pageserver values"
+}

@@ -1,0 +1,14 @@
+{{- if .Values.platformPriority.create }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.platformPriority.name }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: neon
+value: {{ .Values.platformPriority.value }}
+globalDefault: false
+# Schedule platform control work first; never forcibly evict tenant/test Pods.
+preemptionPolicy: Never
+description: "Neon platform controllers; below Kubernetes system critical components."
+{{- end }}

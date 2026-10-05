@@ -1,0 +1,5 @@
+{{- if not .Values.experimentalAcknowledged -}}{{- fail "EXPERIMENTAL ONLY. See docs/PRODUCTION-GATES.md" -}}{{- end -}}
+{{- if and (contains "cache.no-flush=on" .Values.controller.qemuDiskCacheSettings) (not .Values.controller.labAcknowledged) -}}{{- fail "cache.no-flush=on requires an explicit lab acknowledgement; unsafe for durability claims" -}}{{- end -}}
+{{- range $name, $image := .Values.images -}}
+{{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" $image) -}}{{- fail (printf "images.%s must be pinned by digest" $name) -}}{{- end -}}
+{{- end -}}

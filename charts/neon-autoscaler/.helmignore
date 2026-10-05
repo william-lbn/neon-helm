@@ -1,0 +1,7 @@
+.git/
+.gitignore
+artifacts/
+__pycache__/
+*.pyc
+*.private.*
+*.bak

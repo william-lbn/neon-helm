@@ -1,0 +1,49 @@
+{{- if and .Values.storageController.enabled (not .Values.pageserver.enabled) -}}{{- fail "storageController needs pageserver" -}}{{- end -}}
+{{- if and (not .Values.validation.labAcknowledged) (or .Values.minio.enabled .Values.storageController.devMode .Values.compute.enabled .Values.computeResize.enabled) -}}{{- fail "current single-instance/dev-auth components require labAcknowledged; they are not a production HA/TLS profile" -}}{{- end -}}
+{{- if lt (int .Values.safekeeper.replicas) 3 -}}{{- fail "safekeeper replicas must be at least 3; one-replica durability is not supported" -}}{{- end -}}
+{{- if and .Values.storageController.enabled .Values.storageController.managePageserver (not .Values.storageController.hookUrl) -}}{{- fail "managed pageserver requires a working compute notification hookUrl" -}}{{- end -}}
+{{- if and .Values.storageController.enabled (gt (len (.Values.global.componentImages | default dict)) 0) (or (not .Values.storageController.hookUrl) (not .Values.storageController.hookTokenSecret)) -}}{{- fail "fork storage-controller requires a notification hook URL and token Secret" -}}{{- end -}}
+{{- if and .Values.storageController.enabled (not .Values.storageController.managePageserver) (not .Values.storageController.devMode) -}}{{- fail "isolated controller API trial requires devMode; production requires a managed pageserver and hook" -}}{{- end -}}
+{{- if and .Values.storageController.enabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.storageController.dbImage)) -}}{{- fail "storageController.dbImage must be pinned by digest" -}}{{- end -}}
+{{- if and .Values.compute.enabled (not .Values.pageserver.enabled) -}}{{- fail "compute needs pageserver" -}}{{- end -}}
+{{- if and .Values.compute.enabled (not (has .Values.compute.mode (list "wrapper" "public"))) -}}{{- fail "compute.mode must be wrapper or public" -}}{{- end -}}
+{{- if and .Values.compute.enabled (eq .Values.compute.mode "public") (or .Values.compute.allowLabAutoBootstrap (not .Values.proxy.enabled) (not (regexMatch "^[a-fA-F0-9]{32}$" .Values.compute.tenantId)) (not (regexMatch "^[a-fA-F0-9]{32}$" .Values.compute.timelineId))) -}}{{- fail "public compute requires proxy auth and explicit 32-hex tenant/timeline IDs" -}}{{- end -}}
+{{- if and .Values.compute.enabled (eq .Values.compute.mode "public") .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.compute.configImage)) -}}{{- fail "public compute configImage must be pinned to a digest" -}}{{- end -}}
+{{- if and .Values.pageserver.enabled (not .Values.storageBroker.enabled) -}}{{- fail "pageserver needs broker" -}}{{- end -}}
+{{- $componentImages := .Values.global.componentImages | default dict -}}
+{{- if gt (len $componentImages) 0 -}}
+  {{- range $name := list "pageserver" "safekeeper" "storageBroker" "proxy" "storageController" -}}
+    {{- $image := index $componentImages $name | default "" -}}
+    {{- if and $.Values.validation.requirePinnedImages (not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" $image)) -}}
+      {{- fail (printf "global.componentImages.%s must be pinned by digest" $name) -}}
+    {{- end -}}
+  {{- end -}}
+{{- else if and .Values.validation.requirePinnedImages (or (not (regexMatch "^sha256:[a-f0-9]{64}$" .Values.global.neonImage.digest)) (not .Values.global.neonImage.tag)) -}}
+  {{- fail "set an explicit Neon tag and digest, or all five pinned fork component images" -}}
+{{- end -}}
+{{- if and .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.global.initImage)) -}}{{- fail "global.initImage must be pinned full @sha256 (pageserver init container)" -}}{{- end -}}
+{{- if .Values.minio.enabled -}}
+  {{- if or (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.minio.image)) (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.minio.mcImage)) -}}
+    {{- fail "pin minio.image and minio.mcImage to full @sha256 digests (never latest)" -}}
+  {{- end -}}
+{{- else -}}
+  {{- if or (not .Values.objectStore.endpoint) (not .Values.objectStore.bucket) (not .Values.objectStore.region) -}}
+    {{- fail "external S3 requires objectStore.endpoint/bucket/region" -}}
+  {{- end -}}
+{{- end -}}
+{{- if and .Values.compute.enabled (not .Values.compute.allowLabAutoBootstrap) (or (not .Values.compute.tenantId) (not .Values.compute.timelineId)) -}}
+{{- fail "compute needs explicit tenantId/timelineId, or opt in to unverified dev bootstrap in disposable lab" -}}
+{{- end -}}
+{{- if and .Values.compute.enabled .Values.compute.allowLabAutoBootstrap (or .Values.compute.tenantId .Values.compute.timelineId) -}}
+{{- fail "compute: do not mix auto bootstrap and explicit IDs" -}}
+{{- end -}}
+{{- if and .Values.compute.enabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.compute.image.digest)) -}}
+{{- fail "compute.image.digest must be full IMAGE@sha256:... when enabled with pinned images" -}}
+{{- end -}}
+{{/* A dynamic auth/wake adapter does not need a permanently running test Compute. */}}
+{{- if and .Values.proxy.enabled .Values.proxy.legacyApiEnabled (not .Values.compute.enabled) -}}{{- fail "legacy proxy API requires the legacy compute; disable legacyApiEnabled for native managed endpoints" -}}{{- end -}}
+{{- if and .Values.proxy.enabled (not .Values.proxy.legacyApiEnabled) (eq .Values.proxy.authEndpoint "http://proxy-api:8080/cplane/") -}}{{- fail "dynamic proxy requires an explicit adapter authEndpoint" -}}{{- end -}}
+{{- if and .Values.proxy.scaleToZero.enabled (lt (int .Values.proxy.scaleToZero.idleSeconds) 30) -}}{{- fail "proxy.scaleToZero.idleSeconds must be at least 30" -}}{{- end -}}
+{{- if ne (not (empty .Values.proxy.vmEndpointId)) (not (empty .Values.proxy.vmComputeAddress)) -}}{{- fail "proxy VM endpoint ID and address must be configured together" -}}{{- end -}}
+{{- if and .Values.proxy.vmEndpointId (eq .Values.proxy.vmEndpointId .Values.proxy.endpointId) -}}{{- fail "proxy VM endpoint ID must differ from the primary endpoint" -}}{{- end -}}
+{{- if and .Values.proxy.enabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.proxy.image)) -}}{{- fail "proxy.image must pin the Python adapter image by digest" -}}{{- end -}}

@@ -1,0 +1,8 @@
+Neon lab stage installed in namespace {{ .Release.Namespace }}.
+Inspect: kubectl -n {{ .Release.Namespace }} get pods,pvc,svc
+{{- if .Values.compute.enabled }}
+Compute test: kubectl -n {{ .Release.Namespace }} port-forward svc/compute 55433:55433
+{{- else }}
+Compute is DISABLED by default. Provision and verify tenant/timeline before enabling.
+{{- end }}
+This is only staged lab infrastructure; it is NOT certified SQL/WAL durability or Neon SaaS HA.

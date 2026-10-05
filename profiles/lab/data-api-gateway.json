@@ -1,0 +1,15 @@
+{
+  "image": {
+    "reference": "docker.io/williamluckyli/control-dataapi@sha256:bb442ea8df2a571fbc8c83e1bd67fff40f186d994cc06b72ad1a42efe4cccca6"
+  },
+  "configSecret": "standalone-data-api-config",
+  "signingSecret": "standalone-data-api-signing",
+  "ingress": {
+    "enabled": false,
+    "host": "",
+    "tlsSecret": ""
+  },
+  "laboratory": {
+    "allowHTTP": true
+  }
+}

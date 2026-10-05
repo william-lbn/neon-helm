@@ -1,0 +1,41 @@
+{
+  "validation": {
+    "labAcknowledged": true
+  },
+  "global": {
+    "initImage": "docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+    "platformPriorityClassName": "neon-platform-critical",
+    "componentImages": {
+      "pageserver": "docker.io/williamluckyli/pageserver@sha256:a24cd6f6f613959c7501457db4c3f9140035f60af4236194c3e24e197c3e5675",
+      "safekeeper": "docker.io/williamluckyli/safekeeper@sha256:b3e2bb583410dadc38ebdd3e7838b3fd612affc68f93c69038625a23359d179f",
+      "storageBroker": "docker.io/williamluckyli/storage-broker@sha256:f99e4655176715192834ab4f5da27bc7f611fed3e3783130f3b278a342c48c7e",
+      "proxy": "docker.io/williamluckyli/proxy@sha256:3d2db3274c615e224211ffaad04c781e7e6c5a066b5c3b65d7e4742ba2adeba7",
+      "storageController": "docker.io/williamluckyli/storage-controller@sha256:cf99f677ff9facdf3ccc263770c3d9565b3f1382b080bd055a92e3151ae05539"
+    }
+  },
+  "minio": {
+    "image": "docker.io/bitnamilegacy/minio@sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+    "mcImage": "docker.io/bitnamilegacy/minio-client@sha256:73bd39f7899a0cef12b8dd5df13aa93a3ed1aaa44236542442e9ac76819ac158"
+  },
+  "proxy": {
+    "enabled": true,
+    "legacyApiEnabled": false,
+    "image": "docker.io/library/python@sha256:8d9d0b8bcf6506481eae4907c18f5e3e7902e629f5f6d684f9e7c32e85e3ddf0",
+    "authEndpoint": "http://neon-control-adapter:8080/cplane/",
+    "service": {
+      "public": {
+        "enabled": true,
+        "type": "NodePort",
+        "nodePort": 30432
+      }
+    }
+  },
+  "storageController": {
+    "enabled": true,
+    "managePageserver": false,
+    "devMode": true,
+    "dbImage": "docker.io/library/postgres@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6",
+    "hookUrl": "http://neon-control-adapter:8080/",
+    "hookTokenSecret": "neon-control-hook-auth"
+  }
+}

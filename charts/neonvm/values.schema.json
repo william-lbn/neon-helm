@@ -1,0 +1,149 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "experimentalAcknowledged": {
+      "type": "boolean"
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expectedKubernetesMinor": {
+          "type": "string"
+        },
+        "allowUntestedKubernetes": {
+          "type": "boolean"
+        }
+      }
+    },
+    "controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "qemuDiskCacheSettings": {
+          "type": "string"
+        },
+        "labAcknowledged": {
+          "type": "boolean"
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "spreadAcrossNodes": {
+          "type": "boolean"
+        },
+        "priorityClassName": {
+          "type": "string"
+        },
+        "apiClient": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "qps": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "burst": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "concurrency": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "rollingUpdate": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "maxSurge": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxUnavailable": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "podRange": {
+          "type": "string"
+        },
+        "podRangeStart": {
+          "type": "string"
+        },
+        "podRangeEnd": {
+          "type": "string"
+        },
+        "vmRange": {
+          "type": "string"
+        },
+        "vmRangeStart": {
+          "type": "string"
+        }
+      }
+    },
+    "platformPriority": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "controller": {
+          "type": "string"
+        },
+        "runner": {
+          "type": "string"
+        },
+        "vxlanController": {
+          "type": "string"
+        }
+      }
+    },
+    "nameOverride": {
+      "type": "string"
+    },
+    "fullnameOverride": {
+      "type": "string"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "neonvm values"
+}

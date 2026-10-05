@@ -1,0 +1,11 @@
+{
+  "experimentalAcknowledged": true,
+  "compatibility": {
+    "expectedKubernetesMinor": "36",
+    "allowUntestedKubernetes": true
+  },
+  "images": {
+    "agent": "docker.io/williamluckyli/autoscaler-agent@sha256:9fa38b61fd7f24efecb1bdf2dde85106bfaf2ef45f31b0127ae11ebdb83be5ff",
+    "scheduler": "docker.io/williamluckyli/autoscale-scheduler@sha256:6308bba494d08deb306a4562af4febcbf17f2a3a4fc94b09ab51ea98c3ab19da"
+  }
+}

@@ -1,0 +1,19 @@
+experimentalAcknowledged: false
+compute:
+  name: vm-neon-compute
+  tenantId: ""
+  timelineId: ""
+  existingConfigSecret: neon-vm-compute-config
+  image: docker.io/neondatabase/vm-compute-node-v16@sha256:77b433d68cca46b550ce56bc401fa6b652e02e866fd56e35d65a77cef95586af
+  rootDiskSize: 8Gi
+  cpu:
+    min: 1
+    use: 1
+    max: 2
+  memory:
+    slotSize: 1Gi
+    minSlots: 1
+    useSlots: 1
+    maxSlots: 3
+    minBound: 1Gi
+    maxBound: 3Gi

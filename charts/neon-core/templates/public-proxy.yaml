@@ -1,0 +1,14 @@
+{{- if and .Values.proxy.enabled .Values.proxy.service.public.enabled }}
+# PostgreSQL TCP is separate from the Console HTTPS ingress.
+# Existing installations adopt this exact Service UID without changing ClusterIP.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.proxy.service.public.name }}
+  labels: {app.kubernetes.io/part-of: neon, app.kubernetes.io/instance: {{ .Release.Name }}}
+spec:
+  type: {{ .Values.proxy.service.public.type }}
+  selector: {app: proxy}
+  ports:
+    - {name: postgres, port: {{ .Values.proxy.service.port }}, targetPort: postgres{{ if eq .Values.proxy.service.public.type "NodePort" }}, nodePort: {{ .Values.proxy.service.public.nodePort }}{{ end }}}
+{{- end }}

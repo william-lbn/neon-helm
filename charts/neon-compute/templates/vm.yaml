@@ -1,0 +1,68 @@
+apiVersion: vm.neon.tech/v1
+kind: VirtualMachine
+metadata:
+  name: {{ .Values.compute.name }}
+  labels:
+    autoscaling.neon.tech/enabled: "true"
+  annotations:
+    autoscaling.neon.tech/bounds: {{ dict "min" (dict "cpu" (toString .Values.compute.cpu.min) "mem" .Values.compute.memory.minBound) "max" (dict "cpu" (toString .Values.compute.cpu.max) "mem" .Values.compute.memory.maxBound) | toJson | quote }}
+spec:
+  schedulerName: autoscale-scheduler
+  enableSSH: true
+  guest:
+    cpus:
+      min: {{ .Values.compute.cpu.min }}
+      use: {{ .Values.compute.cpu.use }}
+      max: {{ .Values.compute.cpu.max }}
+    memorySlotSize: {{ .Values.compute.memory.slotSize }}
+    memorySlots:
+      min: {{ .Values.compute.memory.minSlots }}
+      use: {{ .Values.compute.memory.useSlots }}
+      max: {{ .Values.compute.memory.maxSlots }}
+    rootDisk:
+      image: {{ .Values.compute.image | quote }}
+      size: {{ .Values.compute.rootDiskSize }}
+    args:
+      - --pgdata
+      - /var/db/postgres/compute
+      - -C
+      - postgresql://cloud_admin@localhost:55433/postgres
+      - -b
+      - /usr/local/bin/postgres
+      - --compute-id
+      - {{ .Values.compute.name }}
+      - --config
+      - /run/neon-lab/config.json
+      - --filecache-connstr
+      - host=localhost port=55433 dbname=postgres user=cloud_admin sslmode=disable application_name=vm-monitor
+      - --dev
+    env:
+      - { name: PG_VERSION, value: "16" }
+      - { name: TENANT_ID, value: {{ .Values.compute.tenantId | quote }} }
+      - { name: TIMELINE_ID, value: {{ .Values.compute.timelineId | quote }} }
+      - { name: ALLOW_LAB_AUTOBOOTSTRAP, value: "NO" }
+      # compute_ctl in this pinned image embeds vm-monitor; this enables it.
+      - { name: AUTOSCALING, value: "1" }
+    ports:
+      - { name: postgres, port: 55433 }
+      - { name: metrics, port: 9100 }
+      - { name: monitor, port: 10301 }
+  extraNetwork:
+    enable: true
+  disks:
+    - name: compute-config
+      mountPath: /run/neon-lab
+      secret:
+        secretName: {{ .Values.compute.existingConfigSecret }}
+        items:
+          - { key: config.json, path: config.json }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.compute.name }}
+spec:
+  selector:
+    vm.neon.tech/name: {{ .Values.compute.name }}
+  ports:
+    - { name: postgres, port: 55433, targetPort: postgres }

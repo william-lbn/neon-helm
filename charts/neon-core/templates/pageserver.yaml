@@ -1,0 +1,113 @@
+{{- if .Values.pageserver.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: pageserver-config }
+data:
+  identity.toml: |
+    id={{ .Values.pageserver.id }}
+  pageserver.toml: |
+    broker_endpoint='http://storage-broker:50051'
+    pg_distrib_dir='/usr/local/'
+    listen_pg_addr='0.0.0.0:6400'
+    listen_http_addr='0.0.0.0:9898'
+    availability_zone='k8s-lab'
+    {{ if and .Values.storageController.enabled .Values.storageController.managePageserver }}
+    control_plane_api='http://storage-controller:1234/upcall/v1/'
+    control_plane_emergency_mode=false
+    {{ else }}
+    control_plane_api='http://0.0.0.0:6666'
+    control_plane_emergency_mode=true
+    {{ end }}
+    virtual_file_io_mode='buffered'
+    {{ if .Values.minio.enabled }}
+    remote_storage={ endpoint='http://minio:9000', bucket_name='{{ .Values.minio.bucket }}', bucket_region='{{ .Values.minio.region }}', prefix_in_bucket='/pageserver' }
+    {{ else }}
+    remote_storage={ endpoint='{{ .Values.objectStore.endpoint }}', bucket_name='{{ .Values.objectStore.bucket }}', bucket_region='{{ .Values.objectStore.region }}', prefix_in_bucket='{{ .Values.objectStore.prefixPageserver }}' }
+    {{ end }}
+  {{- if and .Values.storageController.enabled .Values.storageController.managePageserver }}
+  metadata.json: |
+    {"host":"pageserver","http_host":"pageserver","http_port":9898,"port":6400}
+  {{- end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pageserver-cache
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- if .Values.pageserver.cache.storageClassName }}
+  storageClassName: {{ .Values.pageserver.cache.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests: { storage: {{ .Values.pageserver.cache.size }} }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: pageserver }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: pageserver }
+  template:
+    metadata:
+      labels: { app: pageserver }
+    spec:
+      initContainers:
+      - name: init-config
+        image: {{ .Values.global.initImage | quote }}
+        command: ["sh","-ec"]
+        args:
+        - |
+          mkdir -p /data/.neon
+          cp /config/pageserver.toml /data/.neon/pageserver.toml
+          cp /config/identity.toml /data/.neon/identity.toml
+          {{ if and .Values.storageController.enabled .Values.storageController.managePageserver }}
+          cp /config/metadata.json /data/.neon/metadata.json
+          {{ end }}
+          chown -R 1000:1000 /data/.neon || true
+        volumeMounts:
+        - { name: data, mountPath: /data }
+        - { name: config, mountPath: /config }
+      containers:
+      - name: pageserver
+        image: "{{ include "neon-lab.component-image" (list . "pageserver") }}"
+        imagePullPolicy: {{ .Values.global.neonImage.pullPolicy }}
+        command: ["/usr/local/bin/pageserver","-D","/data/.neon"]
+        env:
+        {{- if .Values.minio.enabled }}
+        - { name: AWS_ACCESS_KEY_ID, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: accessKey } } }
+        - { name: AWS_SECRET_ACCESS_KEY, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: secretKey } } }
+        {{- else }}
+        - { name: AWS_ACCESS_KEY_ID, valueFrom: { secretKeyRef: { name: {{ .Values.objectStore.existingSecret }}, key: accessKey } } }
+        - { name: AWS_SECRET_ACCESS_KEY, valueFrom: { secretKeyRef: { name: {{ .Values.objectStore.existingSecret }}, key: secretKey } } }
+        {{- end }}
+        ports:
+        - { name: pg, containerPort: 6400 }
+        - { name: http, containerPort: 9898 }
+        readinessProbe:
+          tcpSocket: { port: 6400 }
+          initialDelaySeconds: 3
+        volumeMounts:
+        - { name: data, mountPath: /data }
+        {{- with .Values.pageserver.resources }}
+        resources:
+{{ toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+      - name: data
+        persistentVolumeClaim: { claimName: pageserver-cache }
+      - name: config
+        configMap: { name: pageserver-config }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: pageserver }
+spec:
+  selector: { app: pageserver }
+  ports:
+  - { name: pg, port: 6400, targetPort: pg }
+  - { name: http, port: 9898, targetPort: http }
+
+{{- end }}

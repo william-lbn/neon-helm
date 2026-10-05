@@ -1,0 +1,316 @@
+{
+  "imports": [
+    {
+      "path": "charts/neon-core/Chart.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/Chart.yaml",
+      "import_sha256": "2b558505f69d50cf0407afbb22aa96c215e282b75783e50ffd84fdf9d06ee37d"
+    },
+    {
+      "path": "charts/neon-core/files/compute-public-config.json",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/files/compute-public-config.json",
+      "import_sha256": "2b26b3c16a31fc6508a711bac453cb18a58c797afa48409ce2557a493d8a077f"
+    },
+    {
+      "path": "charts/neon-core/files/compute_resizer.py",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/files/compute_resizer.py",
+      "import_sha256": "e745909dbc885c36f897ecb7574b8eeca66463ea1a54d811eca69fa90bb9b9fd"
+    },
+    {
+      "path": "charts/neon-core/files/proxy_api.py",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/files/proxy_api.py",
+      "import_sha256": "f3eb7aa14667b5139990b33563ad96398e879101d2cca8b1cfc62d7dbbc11ddc"
+    },
+    {
+      "path": "charts/neon-core/templates/00-guards.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/00-guards.yaml",
+      "import_sha256": "3acce7a590de79e1add647e335ee0fbaf05961c3dd89205aaebcbe4300efd971"
+    },
+    {
+      "path": "charts/neon-core/templates/_helpers.tpl",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/_helpers.tpl",
+      "import_sha256": "1e6c01ae58bf73b23ad4b56c73dcd6ccabe842278f1fa4c8da8756c82bed4b86"
+    },
+    {
+      "path": "charts/neon-core/templates/_image.tpl",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/_image.tpl",
+      "import_sha256": "7d951f3b98bf88c07a33f723d344854e201c34674f89eed5c6df50ee5eba8fa6"
+    },
+    {
+      "path": "charts/neon-core/templates/compute-resizer.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/compute-resizer.yaml",
+      "import_sha256": "0cd3f6a9a272cb838a85321014ca095220524d8443b6cfd2559a1ec83ee910d8"
+    },
+    {
+      "path": "charts/neon-core/templates/compute.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/compute.yaml",
+      "import_sha256": "2d6312fd24e8525a8a26f33359f08401ca2bc3e121a3740a6cb58bdc5eaaeb9d"
+    },
+    {
+      "path": "charts/neon-core/templates/minio.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/minio.yaml",
+      "import_sha256": "46acd192901e567db84c4544b2240a9e997ad3295a9b70574a7b211e314add03"
+    },
+    {
+      "path": "charts/neon-core/templates/NOTES.txt",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/NOTES.txt",
+      "import_sha256": "5f5ad4e9ff041ee99a11cc118b042f4e2e0164f0c5c816a468f658699cfa6f5c"
+    },
+    {
+      "path": "charts/neon-core/templates/pageserver.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/pageserver.yaml",
+      "import_sha256": "eecb0e707c701cab66b1e590ac7f6d0d43a9aa428f88aa664743f348a666549a"
+    },
+    {
+      "path": "charts/neon-core/templates/proxy.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/proxy.yaml",
+      "import_sha256": "5cc26edea3e69c7082f309338900cd3b548bb87826aadd1b974851a62f70e87a"
+    },
+    {
+      "path": "charts/neon-core/templates/safekeepers.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/safekeepers.yaml",
+      "import_sha256": "f224e9fe47c6c6523e0ebbd90d5aa14319f53a6600549538fa9754a68efbe4f0"
+    },
+    {
+      "path": "charts/neon-core/templates/secret.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/secret.yaml",
+      "import_sha256": "0a11ba5e2746a34d18de2956a8bcdc953a0dff64974e1a9fbd55f58472526964"
+    },
+    {
+      "path": "charts/neon-core/templates/storage-broker.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/storage-broker.yaml",
+      "import_sha256": "59e814f0429aff8834e862d42c5b6f536392b6890b6f7c067f3e82f13cf61044"
+    },
+    {
+      "path": "charts/neon-core/templates/storage-controller.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/templates/storage-controller.yaml",
+      "import_sha256": "c9e4bb666a3b91db0dc8bf41aac9d8fff013dccd1929cfb2c4211125e18d9936"
+    },
+    {
+      "path": "charts/neon-core/values.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/neon-lab/values.yaml",
+      "import_sha256": "c7f1ef8b5bab1af316f8b784d6cfc3d6e5730efa6e24820baab8c2ca146e6fdc"
+    },
+    {
+      "path": "charts/neon-managed-pageserver/Chart.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/managed-pageserver/Chart.yaml",
+      "import_sha256": "2a2fcbf27ae5b45936fdb8e1405edb8d886110a86b1424851d9bfe182863acbd"
+    },
+    {
+      "path": "charts/neon-managed-pageserver/templates/resources.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/managed-pageserver/templates/resources.yaml",
+      "import_sha256": "414ad09cb53a3510ea94a2348f98a433c9b7e8a737ee2643043217d6d89f79bd"
+    },
+    {
+      "path": "charts/neon-managed-pageserver/values.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/managed-pageserver/values.yaml",
+      "import_sha256": "2c6832dbea38fefabf77ff03e3791761227530b4980c96aea8b80cb9706bca38"
+    },
+    {
+      "path": "charts/neonvm/Chart.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/Chart.yaml",
+      "import_sha256": "0afb6907a31a71ef74a4f7033765d34e1cde20d1523253ea536aa91e8271fd54"
+    },
+    {
+      "path": "charts/neonvm/crds/neonvm.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/crds/neonvm.yaml",
+      "import_sha256": "cbc6f162f0fada992f1272b2c606ef6fa3cbe415991205f643515892037a79e1"
+    },
+    {
+      "path": "charts/neonvm/templates/00-guard.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/templates/00-guard.yaml",
+      "import_sha256": "a8743572482145a4356be389512df0e2ddb7e15decad6023a5031ef1d9d08170"
+    },
+    {
+      "path": "charts/neonvm/templates/neonvm-controller.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/templates/neonvm-controller.yaml",
+      "import_sha256": "8e80eeb60e135d5f9b7c78f88f840873ff23e99b64e44e957259b12de74db63a"
+    },
+    {
+      "path": "charts/neonvm/templates/neonvm-runner-image-loader.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/templates/neonvm-runner-image-loader.yaml",
+      "import_sha256": "31c47693957ca2c6213ca8e40a45401fbca49a69050a67b84c57ed47cbabd5f9"
+    },
+    {
+      "path": "charts/neonvm/templates/neonvm-vxlan-controller.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/templates/neonvm-vxlan-controller.yaml",
+      "import_sha256": "e3ca61c5906ef585b9afab9274fb63d9fc2ec1293ef8cbadf49645685092df80"
+    },
+    {
+      "path": "charts/neonvm/templates/neonvm.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/templates/neonvm.yaml",
+      "import_sha256": "6de006a983ded2a09263c55de02486e590c4f76cf290834a8c7ad2d8f74f3599"
+    },
+    {
+      "path": "charts/neonvm/templates/platform-priority.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/templates/platform-priority.yaml",
+      "import_sha256": "6679e2a43964802a28190fda353f89d3dc1586724ff5d48a997657b2126d1801"
+    },
+    {
+      "path": "charts/neonvm/values.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/10-neonvm/values.yaml",
+      "import_sha256": "cc478c58a9aefffc245179a92a76f07018a2a2993e7107cb5e1ec22f84b0cd74"
+    },
+    {
+      "path": "charts/neon-autoscaler/Chart.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/20-autoscaler/Chart.yaml",
+      "import_sha256": "c8c9c507160aa392273dd3a361b98e235bb033f2533afceaad489dec16a83e06"
+    },
+    {
+      "path": "charts/neon-autoscaler/templates/00-guard.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/20-autoscaler/templates/00-guard.yaml",
+      "import_sha256": "3bab2a2cc46b66c1c3f5a1f23977528d129e8dedc88eeeb2c0da2a98312398ce"
+    },
+    {
+      "path": "charts/neon-autoscaler/templates/autoscale-scheduler.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/20-autoscaler/templates/autoscale-scheduler.yaml",
+      "import_sha256": "3cb395fa9cba59ebdb6ec46e6cf6d025648f06a803fdcd2f0af376c3f191d386"
+    },
+    {
+      "path": "charts/neon-autoscaler/templates/autoscaler-agent.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/20-autoscaler/templates/autoscaler-agent.yaml",
+      "import_sha256": "d867b332ca0d40bd3f1f83ba4b2059e6ccc15a4f62c871d3df14d323c873b281"
+    },
+    {
+      "path": "charts/neon-autoscaler/values.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/20-autoscaler/values.yaml",
+      "import_sha256": "0169c72692f12cd4c11e66c689d389fef2f7194f74e9c3e4124d662d31c26e5f"
+    },
+    {
+      "path": "charts/neon-compute/Chart.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/40-neon-compute/Chart.yaml",
+      "import_sha256": "d32072ede275e72b464d8b7863e0fee955e2cf4277b50dde60b91ddc54e120fb"
+    },
+    {
+      "path": "charts/neon-compute/templates/00-guard.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/40-neon-compute/templates/00-guard.yaml",
+      "import_sha256": "9153c5b780670eaf2a0c208a03a22bc5719d3909ff32cadcd04e82749bb03cf8"
+    },
+    {
+      "path": "charts/neon-compute/templates/vm.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/40-neon-compute/templates/vm.yaml",
+      "import_sha256": "b23c541e345b18aa31e8bcf2552220f1b1da73ff39e75ce1959eef5e100a481d"
+    },
+    {
+      "path": "charts/neon-compute/values.yaml",
+      "source": "Neon-RKE2-GOST-Helm-v2-20260924/charts/autoscaling-staged/40-neon-compute/values.yaml",
+      "import_sha256": "0d5840cb0b549ffd75dd5f47b35491bb67676af4bd8149e63cea7e1fa20cada5"
+    },
+    {
+      "path": "charts/neon-control-plane/Chart.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/Chart.yaml",
+      "import_sha256": "a2c8442aec484a552099e6d804ef64609f54a19de92a9568617788bea5bc4072"
+    },
+    {
+      "path": "charts/neon-control-plane/ci/render-values.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/ci/render-values.yaml",
+      "import_sha256": "a547411919fc92ff5a2493997ed49878105635bade75fa231e2b12c457f6d1a0"
+    },
+    {
+      "path": "charts/neon-control-plane/files/nginx.conf",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/files/nginx.conf",
+      "import_sha256": "7a9b3b3ea2a645f6dc8b4149a61cef2647b6e134a6f44069c2fb90f29e113557"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/_helpers.tpl",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/_helpers.tpl",
+      "import_sha256": "cf698070355c35acd62c4c5a1800d546d3a62dc6e2a67eb4be1e0b467443a045"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/_runtime.tpl",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/_runtime.tpl",
+      "import_sha256": "6af31e6b21e068f76ec8d987efedd5a47a235f3fb557bdf602630a0d77d4be1b"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/api.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/api.yaml",
+      "import_sha256": "806c387692e2e26d87125883095928c34b756c57cac53d721999dc0a4585c3c1"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/ingress.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/ingress.yaml",
+      "import_sha256": "0cc233ae1c30b370415329d374723dc99d6b737fa0c818e5b9295911cd7c4cc1"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/NOTES.txt",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/NOTES.txt",
+      "import_sha256": "2af80acf4e3d20742031d57460a9e11448c8eb45a9f3e35430d0a55420e5b163"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/rbac.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/rbac.yaml",
+      "import_sha256": "07527bd32a7731fa565408e228c43e9acd97b098f44ac721efbf99bda357bb02"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/web.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/web.yaml",
+      "import_sha256": "5fe811d1f2e2f8b5cb2b90d742f7867ad466c51574b9fabbf7e2fbaaf5db3a87"
+    },
+    {
+      "path": "charts/neon-control-plane/templates/worker.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/templates/worker.yaml",
+      "import_sha256": "572ff4153a26fc7fe3e890e48a42425139c106465f0d917fdf51410dfdf62949"
+    },
+    {
+      "path": "charts/neon-control-plane/values.schema.json",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/values.schema.json",
+      "import_sha256": "4d6866b8de3f4af127a952991a16e9569e03b5ad0e2025264f245bd28a0eafcb"
+    },
+    {
+      "path": "charts/neon-control-plane/values.yaml",
+      "source": "control-plane/publish/control-plane/charts/neon-control-plane/values.yaml",
+      "import_sha256": "b0f754031c5d306475642a2bb690a05044d6fdcfaac47647c9e6d7655d0d5a82"
+    },
+    {
+      "path": "charts/compute-management-gateway/Chart.yaml",
+      "source": "control-plane/publish/control-plane/charts/compute-management-gateway/Chart.yaml",
+      "import_sha256": "fcf7786f898db8457d063d2b475d9b3c0c732c4499ddddb32b08628e052b5938"
+    },
+    {
+      "path": "charts/compute-management-gateway/ci/render-values.yaml",
+      "source": "control-plane/publish/control-plane/charts/compute-management-gateway/ci/render-values.yaml",
+      "import_sha256": "b201422a0cab008808dc58780ec2a2627b83d94107ff6db23d22d58b91ee2a9a"
+    },
+    {
+      "path": "charts/compute-management-gateway/templates/gateway.yaml",
+      "source": "control-plane/publish/control-plane/charts/compute-management-gateway/templates/gateway.yaml",
+      "import_sha256": "3645d256f5d1ba7ef1b0c321907d5163fe96079f09545e9695b2e341bcbe9cc1"
+    },
+    {
+      "path": "charts/compute-management-gateway/values.schema.json",
+      "source": "control-plane/publish/control-plane/charts/compute-management-gateway/values.schema.json",
+      "import_sha256": "21ae1167e032e2c86551144a93f5e0bfead76bf5bc19f9ac86eee4978e1f5c24"
+    },
+    {
+      "path": "charts/compute-management-gateway/values.yaml",
+      "source": "control-plane/publish/control-plane/charts/compute-management-gateway/values.yaml",
+      "import_sha256": "3971b7a27c85ce02cec37a8548a7699a553fa0f95bdf3c6da8e9bfa1b3150c7e"
+    },
+    {
+      "path": "charts/data-api-gateway/Chart.yaml",
+      "source": "control-plane/publish/control-plane/charts/data-api-gateway/Chart.yaml",
+      "import_sha256": "1aa5ee9520b433b08a824903564af326abd0e29af41871edbbd88f4c69932618"
+    },
+    {
+      "path": "charts/data-api-gateway/ci/render-values.yaml",
+      "source": "control-plane/publish/control-plane/charts/data-api-gateway/ci/render-values.yaml",
+      "import_sha256": "7d0e0701d12d5301f48e1614c55e7e8cff20ae80f7c2c13d636e5f52f928921c"
+    },
+    {
+      "path": "charts/data-api-gateway/templates/gateway.yaml",
+      "source": "control-plane/publish/control-plane/charts/data-api-gateway/templates/gateway.yaml",
+      "import_sha256": "327bce67ebaeabc27565046e9c42b1658926495df04e5e15ab75f34ec3731270"
+    },
+    {
+      "path": "charts/data-api-gateway/values.schema.json",
+      "source": "control-plane/publish/control-plane/charts/data-api-gateway/values.schema.json",
+      "import_sha256": "5c3cd0491d7a004d711861264d5ce2fe212b99ec2bfaf2e4e303bc37e9197cac"
+    },
+    {
+      "path": "charts/data-api-gateway/values.yaml",
+      "source": "control-plane/publish/control-plane/charts/data-api-gateway/values.yaml",
+      "import_sha256": "574475582752f511d6b69919651b20e321509b611a68b4dc21d605f920aefe4d"
+    }
+  ],
+  "control_plane_source_commit": "6edab193b7a52b74167355ae0cf14192cffdf75a",
+  "notes": "Imported hashes describe the baseline. Subsequent reviewed changes are recorded by Git."
+}

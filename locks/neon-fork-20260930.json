@@ -1,0 +1,443 @@
+{
+  "version": "2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+  "architecture": "linux/amd64",
+  "created_at": "2026-10-01T14:24:26.634995+00:00",
+  "neon_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b",
+  "verification_commit": "0c8d4f02e04c9a765c6f6f144a002ef7e10ba8b7",
+  "source_lock": {
+    "registry": "docker.io/williamluckyli",
+    "autoscaling_repository": "william-lbn/autoscaling",
+    "autoscaling_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93",
+    "postgres_repository": "william-lbn/postgres",
+    "postgres": {
+      "v14": "2155cb165d05f617eb2c8ad7e43367189b627703",
+      "v15": "2aaab3bb4a13557aae05bb2ae0ef0a132d0c4f85",
+      "v16": "a42351fcd41ea01edede1daed65f651e838988fc",
+      "v17": "1e01fcea2a6b38180021aa83e0051d95286d9096"
+    },
+    "core_binaries": [
+      "pageserver",
+      "safekeeper",
+      "proxy",
+      "pg_sni_router",
+      "storage_broker",
+      "storage_controller",
+      "endpoint_storage",
+      "storage_scrubber",
+      "neon_local",
+      "pagectl",
+      "compute_ctl",
+      "fast_import",
+      "local_proxy",
+      "vm-monitor",
+      "storcon_cli",
+      "pagebench",
+      "compaction-simulator",
+      "wal_craft"
+    ],
+    "compute_components": {
+      "pgbouncer": "/usr/local/bin/pgbouncer",
+      "postgres-exporter": "/bin/postgres_exporter",
+      "pgbouncer-exporter": "/bin/pgbouncer_exporter",
+      "sql-exporter": "/bin/sql_exporter"
+    },
+    "autoscaling_images": [
+      "autoscaling-go-base",
+      "vm-kernel",
+      "vm-builder",
+      "neonvm-controller",
+      "neonvm-vxlan-controller",
+      "neonvm-runner",
+      "neonvm-daemon",
+      "autoscale-scheduler",
+      "autoscaler-agent",
+      "cluster-autoscaler-neonvm"
+    ]
+  },
+  "images": {
+    "autoscale-scheduler": {
+      "kind": "runtime",
+      "name": "autoscale-scheduler",
+      "image": "docker.io/williamluckyli/autoscale-scheduler:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:6308bba494d08deb306a4562af4febcbf17f2a3a4fc94b09ab51ea98c3ab19da",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "autoscaler-agent": {
+      "kind": "runtime",
+      "name": "autoscaler-agent",
+      "image": "docker.io/williamluckyli/autoscaler-agent:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:9fa38b61fd7f24efecb1bdf2dde85106bfaf2ef45f31b0127ae11ebdb83be5ff",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "autoscaling-go-base": {
+      "kind": "runtime",
+      "name": "autoscaling-go-base",
+      "image": "docker.io/williamluckyli/autoscaling-go-base:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:738a87b404f550f00d8b050242cb371b6d30f001eac165b642701720b30f2073",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "cluster-autoscaler-neonvm": {
+      "kind": "runtime",
+      "name": "cluster-autoscaler-neonvm",
+      "image": "docker.io/williamluckyli/cluster-autoscaler-neonvm:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:05d2dc796f1b1f45f82651635e114808028c516982856fcd84fb2ab15700b9aa",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "compaction-simulator": {
+      "kind": "runtime",
+      "name": "compaction-simulator",
+      "image": "docker.io/williamluckyli/compaction-simulator:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:01be72b90a034de2abc5e82259fbcf3abf6b07ee56d2e0847c7bcfa87dd202e8",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "compute-ctl": {
+      "kind": "runtime",
+      "name": "compute-ctl",
+      "image": "docker.io/williamluckyli/compute-ctl:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:8450016ff5c66ec8d3d64fe2e3281aa186089beb1544d7797c019b70f937a711",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "compute-node-v14": {
+      "kind": "runtime",
+      "pg": "v14",
+      "aliases": [
+        "runtime"
+      ],
+      "image": "docker.io/williamluckyli/compute-node-v14:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:7a1add51a1e5537712ae4436cda18b975d0ade91c081a498e926244434a102c0",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "compute-node-v15": {
+      "kind": "runtime",
+      "pg": "v15",
+      "aliases": [
+        "runtime"
+      ],
+      "image": "docker.io/williamluckyli/compute-node-v15:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:02a724e553cc0181cebf8d6fd27a49f9fa14cfe95baf7dc2871d56a24e1c7f03",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "compute-node-v16": {
+      "kind": "runtime",
+      "pg": "v16",
+      "aliases": [
+        "runtime"
+      ],
+      "image": "docker.io/williamluckyli/compute-node-v16:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:5d795e830f05ddfb412fbdf13f65285cc734c8b52bd6ab821d31f723d581996a",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "compute-node-v17": {
+      "kind": "runtime",
+      "pg": "v17",
+      "aliases": [
+        "runtime"
+      ],
+      "image": "docker.io/williamluckyli/compute-node-v17:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:186e6789f1da2eb8157eab0265f4ae822bb02c4af38334e05f3d19c60ff82261",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "endpoint-storage": {
+      "kind": "runtime",
+      "name": "endpoint-storage",
+      "image": "docker.io/williamluckyli/endpoint-storage:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:eb4c475b8931c14c1695e5a07d271bfb6f1841e72587ae13352184823843a4d8",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "fast-import": {
+      "kind": "runtime",
+      "name": "fast-import",
+      "image": "docker.io/williamluckyli/fast-import:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:56998e052ce1cbb526d0dfb7e2da5745913dec32383bfc4db09533824c491f1e",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "local-proxy": {
+      "kind": "runtime",
+      "name": "local-proxy",
+      "image": "docker.io/williamluckyli/local-proxy:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:8d47fefd9f8a2f50fdc8b6b1e36fb57abb6a4b1b1f618b14156754b8664e931c",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon": {
+      "kind": "runtime",
+      "name": "neon",
+      "image": "docker.io/williamluckyli/neon:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:d65f058bfb5a701f50cf013f22bc2677915f50e16119f5ef61d30b1cf90cb7bc",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon-build-tools": {
+      "kind": "runtime",
+      "name": "neon-build-tools",
+      "image": "docker.io/williamluckyli/neon-build-tools:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:426cf61cd05a6f43b25aabbeb8e316c316dcc49fb4315de3da4f8d2e868e411a",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon-local": {
+      "kind": "runtime",
+      "name": "neon-local",
+      "image": "docker.io/williamluckyli/neon-local:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:25d3f3c88d7cdb1bd0f7b7fffc7978fcdac81050e287aef6fba9fe24b1ed0d9d",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon-test-extensions-v14": {
+      "kind": "runtime",
+      "pg": "v14",
+      "aliases": [
+        "extension-tests"
+      ],
+      "image": "docker.io/williamluckyli/neon-test-extensions-v14:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:4503919883e4e299c810b1c8b00523fb804dde55db1b6674fd5627a98769f5c0",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon-test-extensions-v15": {
+      "kind": "runtime",
+      "pg": "v15",
+      "aliases": [
+        "extension-tests"
+      ],
+      "image": "docker.io/williamluckyli/neon-test-extensions-v15:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:ea1b292b4ae39b2106212955516b6c37dd63271f7f92f758d66845ba713d8d24",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon-test-extensions-v16": {
+      "kind": "runtime",
+      "pg": "v16",
+      "aliases": [
+        "extension-tests"
+      ],
+      "image": "docker.io/williamluckyli/neon-test-extensions-v16:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:ad80ecd5911d960c4b704a01f8d22f7ccc5ac4a99b159914ac76f3d601cff611",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neon-test-extensions-v17": {
+      "kind": "runtime",
+      "pg": "v17",
+      "aliases": [
+        "extension-tests"
+      ],
+      "image": "docker.io/williamluckyli/neon-test-extensions-v17:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:908d75f3b8574a912262968d9dd5376a2eea7054e4d7cdc035753c211af14ca5",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "neonvm-controller": {
+      "kind": "runtime",
+      "name": "neonvm-controller",
+      "image": "docker.io/williamluckyli/neonvm-controller:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:d260e93fedfc9018849f1175bd0bb0d8a89896bf56e80d28b9af6b2d448c487b",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "neonvm-daemon": {
+      "kind": "runtime",
+      "name": "neonvm-daemon",
+      "image": "docker.io/williamluckyli/neonvm-daemon:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:59528d915c134dd84db9208a1a412dfecc21eb81c4f329bb8cb3796c69eefc10",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "neonvm-runner": {
+      "kind": "runtime",
+      "name": "neonvm-runner",
+      "image": "docker.io/williamluckyli/neonvm-runner:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:5dc2833a442265b15c9584c05b4c12a1eafdc1a1b0d581c2c3093f551ec9328b",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "neonvm-vxlan-controller": {
+      "kind": "runtime",
+      "name": "neonvm-vxlan-controller",
+      "image": "docker.io/williamluckyli/neonvm-vxlan-controller:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:a9747b5cd5df5e94b3c1e69254d62e109a404c8e1cfe768133a78405ac8f4163",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "pagebench": {
+      "kind": "runtime",
+      "name": "pagebench",
+      "image": "docker.io/williamluckyli/pagebench:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:451c833217100f96fb04aa58f22a987d40e265c338d9ca6a0f997a96fa70c581",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "pagectl": {
+      "kind": "runtime",
+      "name": "pagectl",
+      "image": "docker.io/williamluckyli/pagectl:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:ab20012f8d9d8ae94fa6d6d966cdab4e9183ab6ce99a2a11caa4c387786faa07",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "pageserver": {
+      "kind": "runtime",
+      "name": "pageserver",
+      "image": "docker.io/williamluckyli/pageserver:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:a24cd6f6f613959c7501457db4c3f9140035f60af4236194c3e24e197c3e5675",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "pg-sni-router": {
+      "kind": "runtime",
+      "name": "pg-sni-router",
+      "image": "docker.io/williamluckyli/pg-sni-router:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:ad628c647c236aeaa337b55db649ca21a17d5d4ea66d22c2f56211fc6083cdb1",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "pgbouncer": {
+      "kind": "runtime",
+      "name": "pgbouncer",
+      "image": "docker.io/williamluckyli/pgbouncer:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:df43429b2247e8588c905c08a5e0890e739c397f613cdfcdd1dd7ab5f056e788",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "pgbouncer-exporter": {
+      "kind": "runtime",
+      "name": "pgbouncer-exporter",
+      "image": "docker.io/williamluckyli/pgbouncer-exporter:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:ce8c49a9e262dc5b1616d33458c92304ee9e1d058e3be188900bdd1d50c2c863",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "postgres-exporter": {
+      "kind": "runtime",
+      "name": "postgres-exporter",
+      "image": "docker.io/williamluckyli/postgres-exporter:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:e981dffd8263344770072198495da7383c6cb95caa864859b807315f2ac9a642",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "proxy": {
+      "kind": "runtime",
+      "name": "proxy",
+      "image": "docker.io/williamluckyli/proxy:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:3d2db3274c615e224211ffaad04c781e7e6c5a066b5c3b65d7e4742ba2adeba7",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "safekeeper": {
+      "kind": "runtime",
+      "name": "safekeeper",
+      "image": "docker.io/williamluckyli/safekeeper:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:b3e2bb583410dadc38ebdd3e7838b3fd612affc68f93c69038625a23359d179f",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "sql-exporter": {
+      "kind": "runtime",
+      "name": "sql-exporter",
+      "image": "docker.io/williamluckyli/sql-exporter:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:9d5fd71a1554cbdd6306bcd8fe74fc0ee1d0c64bb86f39dfe5c1e769ca8669a1",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "storage-broker": {
+      "kind": "runtime",
+      "name": "storage-broker",
+      "image": "docker.io/williamluckyli/storage-broker:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:f99e4655176715192834ab4f5da27bc7f611fed3e3783130f3b278a342c48c7e",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "storage-controller": {
+      "kind": "runtime",
+      "name": "storage-controller",
+      "image": "docker.io/williamluckyli/storage-controller:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:cf99f677ff9facdf3ccc263770c3d9565b3f1382b080bd055a92e3151ae05539",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "storage-scrubber": {
+      "kind": "runtime",
+      "name": "storage-scrubber",
+      "image": "docker.io/williamluckyli/storage-scrubber:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:55e6eba2724fc8b937965140f3627c0747b16055087ff9288a415884084fb3d1",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "storcon-cli": {
+      "kind": "runtime",
+      "name": "storcon-cli",
+      "image": "docker.io/williamluckyli/storcon-cli:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:1b53acf43d5bc78deffbb9277f280236301196cde51102d2900b56bf495361fd",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "vm-builder": {
+      "kind": "runtime",
+      "name": "vm-builder",
+      "image": "docker.io/williamluckyli/vm-builder:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:6d88835873fc6b33d2b68b80d06913fa150ddd8a6a9e2eb4f3256b3b0e93684c",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "vm-compute-node-v14": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v14",
+      "image": "docker.io/williamluckyli/vm-compute-node-v14:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:70465d2a7363bf40695a7dbcd5027c1c8d438e366798d365de50cb5201aa0df3",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "vm-compute-node-v15": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v15",
+      "image": "docker.io/williamluckyli/vm-compute-node-v15:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:f6eabd322a5ba260dacfc5a9e05f02e461f668ba5df20fd06d5775eb216d1539",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "vm-compute-node-v16": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v16",
+      "image": "docker.io/williamluckyli/vm-compute-node-v16:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:4716bf4c0d5437b05977787398b764b5638ab42bbc657dcc6909fd39c095744d",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "vm-compute-node-v17": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v17",
+      "image": "docker.io/williamluckyli/vm-compute-node-v17:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:888475be9a10e478f6555919194986b8dba89951515c1f93a723dda2603a59e7",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "vm-kernel": {
+      "kind": "runtime",
+      "name": "vm-kernel",
+      "image": "docker.io/williamluckyli/vm-kernel:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:abd0ff565418b46000010120c4b7b173b1b5b3d1de997e4e0a99a25d32eb60fc",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93"
+    },
+    "vm-monitor": {
+      "kind": "runtime",
+      "name": "vm-monitor",
+      "image": "docker.io/williamluckyli/vm-monitor:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:50c35bf6acdfbb1b2306ded31e2fbb0511454db995c20a4b4641f1753f2476e8",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    },
+    "wal-craft": {
+      "kind": "runtime",
+      "name": "wal-craft",
+      "image": "docker.io/williamluckyli/wal-craft:2026.09.30-162021-1f30cd02092d-r36742713551-a1",
+      "digest": "sha256:42db86108cba51f593215d13a1642423183b3e8c8740238c6e51dfa8d7bd7e04",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "1f30cd02092dc151f5d00aef97e7c629105b454b"
+    }
+  }
+}

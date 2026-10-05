@@ -1,0 +1,132 @@
+{
+  "apiVersion": "neon-helm/v1",
+  "version": "0.1.0",
+  "platform": "linux/amd64",
+  "kubernetesMinimum": "1.30.0",
+  "oneStackPerCluster": true,
+  "applicationNamespace": "neon",
+  "experimentalRuntimeAcknowledgementRequired": true,
+  "steps": [
+    {
+      "release": "neonvm",
+      "chart": "neonvm",
+      "namespace": "default",
+      "dependsOn": [],
+      "values": "profiles/lab/neonvm.json",
+      "health": [
+        "Deployment/neonvm-system/neonvm-controller",
+        "DaemonSet/neonvm-system/neonvm-device-plugin",
+        "DaemonSet/neonvm-system/neonvm-vxlan-controller",
+        "DaemonSet/neonvm-system/neonvm-runner-image-loader"
+      ]
+    },
+    {
+      "release": "neon-autoscaler",
+      "chart": "neon-autoscaler",
+      "namespace": "default",
+      "dependsOn": [
+        "neonvm"
+      ],
+      "values": "profiles/lab/neon-autoscaler.json",
+      "health": [
+        "Deployment/kube-system/autoscale-scheduler",
+        "DaemonSet/kube-system/autoscaler-agent"
+      ]
+    },
+    {
+      "release": "neon-metadata",
+      "chart": "neon-metadata",
+      "namespace": "neon",
+      "dependsOn": [],
+      "values": "profiles/lab/neon-metadata.json",
+      "health": [
+        "Deployment/neon/neon-control-v2-db"
+      ]
+    },
+    {
+      "release": "neon-adapter",
+      "chart": "neon-adapter",
+      "namespace": "neon",
+      "dependsOn": [
+        "neonvm"
+      ],
+      "values": "profiles/lab/neon-adapter.json",
+      "health": [
+        "Deployment/neon/neon-control-adapter"
+      ]
+    },
+    {
+      "release": "neon-lab",
+      "chart": "neon-core",
+      "namespace": "neon",
+      "dependsOn": [
+        "neon-adapter"
+      ],
+      "values": "profiles/lab/neon-core.json",
+      "health": [
+        "Deployment/neon/storage-controller",
+        "Deployment/neon/storage-broker",
+        "Deployment/neon/proxy",
+        "Deployment/neon/safekeeper1",
+        "Deployment/neon/safekeeper2",
+        "Deployment/neon/safekeeper3",
+        "Deployment/neon/minio",
+        "Deployment/neon/controller-db",
+        "Deployment/neon/pageserver"
+      ]
+    },
+    {
+      "release": "managed-pageserver",
+      "chart": "neon-managed-pageserver",
+      "namespace": "neon",
+      "dependsOn": [
+        "neon-lab"
+      ],
+      "values": "profiles/lab/neon-managed-pageserver.json",
+      "health": [
+        "Deployment/neon/pageserver-managed"
+      ]
+    },
+    {
+      "release": "neon-compute-management-gateway",
+      "chart": "compute-management-gateway",
+      "namespace": "neon",
+      "dependsOn": [
+        "neonvm"
+      ],
+      "values": "profiles/lab/compute-management-gateway.json",
+      "health": [
+        "Deployment/neon/neon-compute-management-gateway"
+      ]
+    },
+    {
+      "release": "neon-control-plane",
+      "chart": "neon-control-plane",
+      "namespace": "neon",
+      "dependsOn": [
+        "neon-metadata",
+        "managed-pageserver",
+        "neon-compute-management-gateway"
+      ],
+      "values": "profiles/lab/neon-control-plane.json",
+      "health": [
+        "Deployment/neon/neon-control-api",
+        "Deployment/neon/neon-control-worker",
+        "Deployment/neon/neon-control-web"
+      ]
+    }
+  ],
+  "optionalCharts": [
+    "neon-compute",
+    "data-api-gateway"
+  ],
+  "prerequisites": [
+    "cert-manager",
+    "multus",
+    "whereabouts",
+    "kvm",
+    "metrics-server",
+    "persistent-storage"
+  ],
+  "productionQualified": false
+}

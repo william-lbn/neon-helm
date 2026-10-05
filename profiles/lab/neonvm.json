@@ -1,0 +1,35 @@
+{
+  "experimentalAcknowledged": true,
+  "controller": {
+    "replicas": 3,
+    "spreadAcrossNodes": true,
+    "priorityClassName": "neon-platform-critical",
+    "apiClient": {
+      "qps": 25,
+      "burst": 50,
+      "concurrency": 8
+    },
+    "resources": {
+      "requests": {
+        "cpu": "500m",
+        "memory": "512Mi"
+      },
+      "limits": {
+        "cpu": "2",
+        "memory": "2Gi"
+      }
+    }
+  },
+  "platformPriority": {
+    "create": true
+  },
+  "compatibility": {
+    "expectedKubernetesMinor": "36",
+    "allowUntestedKubernetes": true
+  },
+  "images": {
+    "controller": "docker.io/williamluckyli/neonvm-controller@sha256:d260e93fedfc9018849f1175bd0bb0d8a89896bf56e80d28b9af6b2d448c487b",
+    "runner": "docker.io/williamluckyli/neonvm-runner@sha256:5dc2833a442265b15c9584c05b4c12a1eafdc1a1b0d581c2c3093f551ec9328b",
+    "vxlanController": "docker.io/williamluckyli/neonvm-vxlan-controller@sha256:a9747b5cd5df5e94b3c1e69254d62e109a404c8e1cfe768133a78405ac8f4163"
+  }
+}

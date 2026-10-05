@@ -1,0 +1,9 @@
+Neon Helm deployment source
+Copyright 2026 Neon Helm contributors
+
+Charts include adapted manifests derived from neondatabase/neon,
+neondatabase/autoscaling and william-lbn/control-plane deployment sources.
+See locks/source-imports.json and docs/SOURCE-PROVENANCE.md for provenance.
+PostgREST runtime is separately licensed under MIT. Other container images
+retain their upstream licenses. This repository's Apache-2.0 license does
+not replace the license of an independently distributed image.

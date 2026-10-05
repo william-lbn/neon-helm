@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autoscaler-agent
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autoscaler-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: autoscaler-agent
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: autoscaler-virtualmachine-editor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: neonvm-virtualmachine-editor-role
+subjects:
+- kind: ServiceAccount
+  name: autoscaler-agent
+  namespace: kube-system
+
+---
+apiVersion: v1
+data:
+  config.json: "{\n  \"refereshStateIntervalSeconds\": 5,\n  \"scaling\": {\n    \"\
+    computeUnit\": { \"vCPUs\": 0.25, \"mem\": \"1Gi\" },\n    \"defaultConfig\":\
+    \ {\n      \"loadAverageFractionTarget\": 0.9,\n      \"memoryUsageFractionTarget\"\
+    : 0.75,\n      \"memoryTotalFractionTarget\": 0.9,\n      \"enableLFCMetrics\"\
+    : false,\n      \"lfcUseLargestWindow\": false,\n      \"lfcToMemoryRatio\": 0.75,\n\
+    \      \"lfcWindowSizeMinutes\": 5,\n      \"lfcMinWaitBeforeDownscaleMinutes\"\
+    : 5,\n      \"cpuStableZoneRatio\": 0,\n      \"cpuMixedZoneRatio\": 0\n    }\n\
+    \  },\n  \"billing\": {\n    \"cpuMetricName\": \"effective_compute_seconds\"\
+    ,\n    \"activeTimeMetricName\": \"active_time_seconds\",\n    \"collectEverySeconds\"\
+    : 4,\n    \"accumulateEverySeconds\": 24,\n    \"clients\": {}\n  },\n  \"scalingEvents\"\
+    : {\n    \"cuMultiplier\": 0.25,\n    \"rereportThreshold\": 0.25,\n    \"regionName\"\
+    : \"replaceme\",\n    \"clients\": {}\n  },\n  \"monitor\": {\n      \"serverPort\"\
+    : 10301,\n      \"responseTimeoutSeconds\": 5,\n      \"connectionTimeoutSeconds\"\
+    : 4,\n      \"connectionRetryMinWaitSeconds\": 5,\n      \"unhealthyAfterSilenceDurationSeconds\"\
+    : 20,\n      \"unhealthyStartupGracePeriodSeconds\": 20,\n      \"maxHealthCheckSequentialFailuresSeconds\"\
+    : 30,\n      \"retryDeniedDownscaleSeconds\": 5,\n      \"requestedUpscaleValidSeconds\"\
+    : 10,\n      \"retryFailedRequestSeconds\": 3,\n      \"maxFailedRequestRate\"\
+    : {\n        \"intervalSeconds\": 120,\n        \"threshold\": 2\n      }\n  },\n\
+    \  \"metrics\": {\n    \"system\": {\n      \"port\": 9100,\n      \"requestTimeoutSeconds\"\
+    : 2,\n      \"secondsBetweenRequests\": 5\n    },\n    \"lfc\": {\n      \"port\"\
+    : 9499,\n      \"requestTimeoutSeconds\": 5,\n      \"secondsBetweenRequests\"\
+    : 15\n    }\n  },\n  \"scheduler\": {\n    \"schedulerName\": \"autoscale-scheduler\"\
+    ,\n    \"requestTimeoutSeconds\": 2,\n    \"requestAtLeastEverySeconds\": 15,\n\
+    \    \"retryFailedRequestSeconds\": 3,\n    \"retryDeniedUpscaleSeconds\": 2,\n\
+    \    \"requestPort\": 10299,\n    \"maxFailedRequestRate\": {\n      \"intervalSeconds\"\
+    : 120,\n      \"threshold\": 5\n    }\n  },\n  \"dumpState\": {\n    \"port\"\
+    : 10300,\n    \"timeoutSeconds\": 5\n  },\n  \"neonvm\": {\n    \"requestTimeoutSeconds\"\
+    : 10,\n    \"retryFailedRequestSeconds\": 5,\n    \"maxFailedRequestRate\": {\n\
+    \      \"intervalSeconds\": 120,\n      \"threshold\": 2\n    }\n  }\n}\n"
+kind: ConfigMap
+metadata:
+  name: autoscaler-agent-config
+  namespace: kube-system
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: autoscaler-agent
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: autoscaler-agent
+  template:
+    metadata:
+      labels:
+        name: autoscaler-agent
+    spec:
+      containers:
+      - env:
+        - name: K8S_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: K8S_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: CONFIG_PATH
+          value: /etc/autoscaler-agent-config/config.json
+        image: {{ .Values.images.agent | quote }}
+        name: autoscaler-agent
+        ports:
+        - containerPort: 9100
+          name: metrics
+          protocol: TCP
+        - containerPort: 9101
+          name: vm-metrics
+          protocol: TCP
+        resources: {{ toYaml .Values.agent.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /etc/autoscaler-agent-config
+          name: config
+      serviceAccountName: autoscaler-agent
+      volumes:
+      - configMap:
+          name: autoscaler-agent-config
+        name: config

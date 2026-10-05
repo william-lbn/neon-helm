@@ -1,0 +1,17 @@
+# Runtime state and credentials never belong in the public repository.
+.local/
+artifacts/
+dist/
+node_modules/
+*.private.*
+*.dump
+*.etl
+*.pem
+*.key
+*.kubeconfig
+.env
+.env.*
+__pycache__/
+*.pyc
+*.tgz
+# Helm packages are produced by Linux CI, not checked in.

@@ -16,6 +16,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 4. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
 5. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
 6. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
+7. [Actual deployment and UI acceptance](docs/ACCEPTANCE-2026-10-05.md)
 
 ```bash
 git clone https://github.com/william-lbn/neon-helm.git

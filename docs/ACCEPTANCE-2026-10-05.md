@@ -20,6 +20,8 @@ production security, HA/DR or data-plane recovery.
 | GitHub Linux CI | PASS for initial code commit `83b822d` | [run 37331378852](https://github.com/william-lbn/neon-helm/actions/runs/37331378852) |
 | GitHub Linux CI with audit/report | PASS for `83d4128` | [run 37332838769](https://github.com/william-lbn/neon-helm/actions/runs/37332838769) |
 | GitHub Linux CI with fail-closed fork image defaults | PASS for `5b3be23` | [run 37333848969](https://github.com/william-lbn/neon-helm/actions/runs/37333848969) |
+| Versioned Release pipeline | PASS: `v0.1.0` / `ab00ec8`; quality and publish completed | [run 37334651060](https://github.com/william-lbn/neon-helm/actions/runs/37334651060) |
+| Anonymous Helm consumer | PASS: repo add/update, all 10 Chart downloads, package and index SHA256 verification; no credential required | protected `anonymous-packages-attempt1` |
 | Ordered upgrade | PASS: eight releases Ready | protected `apply-attempt1` and `verify-attempt1` |
 | Repeated same-config upgrade | PASS: eight releases Ready again | protected `apply-attempt2` and `verify-attempt2` |
 | Durable identity | PASS: all original PVC UIDs/bindings retained; external Secret UIDs/data retained, routes allowed to reconcile | protected `audit-attempt1` |
@@ -36,6 +38,12 @@ Test projects `prj_6fd630399b4f2f21` and `prj_fad40f5c35c08ca0` remain available
 for reconnection using protected private fixtures. Evidence/screenshots and
 database passwords were retained outside this public repository. No public
 source or release asset includes an admin password, private dump or kubeconfig.
+
+Published [v0.1.0](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.0)
+contains ten chart packages, `index.yaml`, `SHA256SUMS`, five source/tool locks
+and the stack contract. Publication uses GitHub's scoped workflow token; it
+does not copy Docker Hub credentials between repositories. Source tag and
+packages are kept fixed; this post-publication evidence update changes docs only.
 
 ## 3. Migration details
 

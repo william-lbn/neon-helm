@@ -19,10 +19,13 @@ production security, HA/DR or data-plane recovery.
 | Tool contracts | PASS: 5 tests, 0 failed/skipped | same Linux quality Job |
 | GitHub Linux CI | PASS for initial code commit `83b822d` | [run 37331378852](https://github.com/william-lbn/neon-helm/actions/runs/37331378852) |
 | GitHub Linux CI with audit/report | PASS for `83d4128` | [run 37332838769](https://github.com/william-lbn/neon-helm/actions/runs/37332838769) |
+| GitHub Linux CI with fail-closed fork image defaults | PASS for `5b3be23` | [run 37333848969](https://github.com/william-lbn/neon-helm/actions/runs/37333848969) |
 | Ordered upgrade | PASS: eight releases Ready | protected `apply-attempt1` and `verify-attempt1` |
 | Repeated same-config upgrade | PASS: eight releases Ready again | protected `apply-attempt2` and `verify-attempt2` |
 | Durable identity | PASS: all original PVC UIDs/bindings retained; external Secret UIDs/data retained, routes allowed to reconcile | protected `audit-attempt1` |
 | Runtime image audit | PASS: 29 declared container/init-container image references match desired digests | protected `audit-attempt1` |
+| Public source/release match | PASS: anonymously cloned `5b3be23`; all eight release manifests and separately stored hooks match rendered public source | protected `public-source-audit-attempt2` |
+| New-lab credential bootstrap | PASS: eight generated external Secret contracts in a protected directory; not applied to current cluster | same public-source check |
 | Native UI + Worker recovery | PASS: project/branch, real Proxy SQL, inheritance/isolation, suspend/cold resume, monitoring, same queued Operation after Worker restart | `publication-ui-20261005150958` |
 | Data API UI | PASS: real RLS reads/writes, invalid identity rejection, idempotency, disable/reenable, manual/automatic zero and first-request cold wake | `publication-ui-20261005151226` |
 | Application credentials UI | PASS: lineage/model checks, one-time secret, replay, rotation/revocation and reload | `publication-ui-20261005151932` |

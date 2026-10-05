@@ -4,8 +4,9 @@ compatibility:
   expectedKubernetesMinor: '31'
   allowUntestedKubernetes: false
 images:
-  scheduler: ghcr.io/neondatabase/autoscale-scheduler@sha256:841f67baa1f0f98fd4df21a200a0d293ac823ebfd0ece10122ea10575a828bde
-  agent: ghcr.io/neondatabase/autoscaler-agent@sha256:fc83968800fe39657f4227d5d3ee2a9ab30afda5379a34a70aa55680ca2820de
+  # Explicit fork locks are required; see profiles/lab/neon-autoscaler.json.
+  scheduler: ''
+  agent: ''
 scheduler:
   resources:
     limits:

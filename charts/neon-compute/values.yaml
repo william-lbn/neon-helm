@@ -4,7 +4,7 @@ compute:
   tenantId: ""
   timelineId: ""
   existingConfigSecret: neon-vm-compute-config
-  image: docker.io/neondatabase/vm-compute-node-v16@sha256:77b433d68cca46b550ce56bc401fa6b652e02e866fd56e35d65a77cef95586af
+  image: '' # Fork digest from profiles/lab/neon-compute.json; never implicit old upstream.
   rootDiskSize: 8Gi
   cpu:
     min: 1

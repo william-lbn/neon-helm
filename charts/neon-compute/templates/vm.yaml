@@ -1,3 +1,4 @@
+{{- if .Values.compute.enabled }}
 apiVersion: vm.neon.tech/v1
 kind: VirtualMachine
 metadata:
@@ -56,6 +57,7 @@ spec:
         secretName: {{ .Values.compute.existingConfigSecret }}
         items:
           - { key: config.json, path: config.json }
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

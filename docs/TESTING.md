@@ -49,7 +49,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout 6edab193b7a52b74167355ae0cf14192cffdf75a
+git checkout f90c9370db583e71796c4c6ad44e51c6ea354f43
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium
@@ -59,6 +59,7 @@ export NEON_E2E_PRIVATE_DIR=/secure/e2e/native-001
 export NEON_E2E_ARTIFACTS=/var/lib/neon-evidence/native-001
 export NEON_E2E_ATTEMPT=native_001
 export NEON_E2E_EXPECT_SPLIT=true
+export NEON_E2E_POLL_FAULT=true
 npm run test:e2e -- native-product.spec.ts
 ```
 
@@ -81,6 +82,19 @@ manual reconnection. Use a new private/evidence directory and attempt per suite.
    unknown current CPU/RAM, while retaining historic samples.
 7. With the documented split-Worker fault fixture, pause Worker after admission,
    retain queued Operation, restore it and prove the same Operation succeeds.
+8. With `NEON_E2E_POLL_FAULT=true`, require recovery after two observation 503s
+   with exactly one project POST; apply the same flag to Data API enable tests.
+   Permission errors stop observation immediately; mutation requests are not replayed.
+
+### Console invitation sequence
+
+Use new private/evidence directories and run `console-invitations.spec.ts`.
+The actual UI creates an account-bound one-time invitation, registers/logs in
+an invitee, rejects another organization, accepts as an existing account without
+changing its password, revokes a pending invitation, refreshes/removes a member
+and proves existing-session access is denied immediately. It creates no Compute.
+See the control repository's `docs/CONSOLE-INVITATIONS.md` for manual steps,
+API/model invariants, expiry/demotion races and identity integration boundaries.
 
 ### Data API sequence
 
@@ -122,7 +136,7 @@ authorization, not AI provider inference.
 | Idle races | active long query/transaction/replication, incoming connection during suspend, old VM generation samples |
 | HA/DR/PITR/TLS | independent fault domains and complete recovery/trust evidence; see PRODUCTION-GATES.md |
 
-The three published UI slices do not automatically mark these additional rows
+The four published UI slices do not automatically mark these additional rows
 passed. Copy source acceptance reports only as historical evidence and rerun
 each changed behavior explicitly. Final reports distinguish pass/fail/not run/
 not implemented with reasons and resource identities.
@@ -135,3 +149,10 @@ project/timeline/role data, PVC, WAL, S3 objects, credentials needed for recover
 or any evidence. Historical tests can be reopened from their fixture, or new
 tests can create new project identities with the same scripts. Keep resource
 pressure low by running one suite at a time and stopping on infrastructure errors.
+
+Endpoint suspension and Kubernetes garbage collection complete asynchronously.
+Wait for the test VM **and runner Pod** to disappear before admitting another
+Compute suite; a terminating runner can still consume capacity. The final
+`audit-live --expect-zero` gate checks both, and fails on remaining runners.
+Bound any observation wait (for example 120 seconds), retain the timeout evidence,
+and inspect finalizers/controller/guest shutdown instead of force-deleting it.

@@ -64,7 +64,13 @@ export function get(kind, name, namespace) {
   let result;
   try {result = kube([...flags, 'get', kind, ...(name ? [name] : []), '--ignore-not-found', '-o', 'json']);}
   catch {throw new Error('Kubernetes lookup failed for '+kind+'/'+(namespace||'cluster')+'/'+(name||'list'));}
-  return result.stdout.trim() ? JSON.parse(result.stdout) : null;
+  return resourceResult(result.stdout, name);
+}
+// kubectl --ignore-not-found can produce no JSON for an empty custom-resource
+// collection. Preserve list semantics after the last test VM is retired;
+// named lookup still returns null. Lookup/JSON errors continue to fail closed.
+export function resourceResult(stdout, name) {
+  return stdout.trim() ? JSON.parse(stdout) : name ? null : {apiVersion:'v1',kind:'List',items:[]};
 }
 export function privateDirectory(target) {
   // Secret-bearing evidence must not be accidentally placed in tracked source.

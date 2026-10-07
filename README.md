@@ -16,7 +16,8 @@ Installing a chart does not implement Neon's proprietary Backend services.
 4. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
 5. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
 6. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-7. [Actual deployment and UI acceptance](docs/ACCEPTANCE-2026-10-05.md)
+7. [Current deployment and UI acceptance](docs/ACCEPTANCE-2026-10-07.md) / [initial release](docs/ACCEPTANCE-2026-10-05.md)
+8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 
 ```bash
 git clone https://github.com/william-lbn/neon-helm.git
@@ -54,7 +55,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.0
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.1
 helm repo update
 helm search repo neon
 ```

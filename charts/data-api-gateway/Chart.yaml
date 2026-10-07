@@ -2,7 +2,7 @@ apiVersion: v2
 name: data-api-gateway
 description: Branch-scoped JWT boundary for independently provisioned PostgREST runtimes
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.1.0-driver-foundation
 home: https://github.com/william-lbn/neon-helm
 sources:

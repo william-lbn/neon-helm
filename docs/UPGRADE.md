@@ -39,6 +39,32 @@ The current lab keeps `proxy.legacyApiEnabled=true` because its historical
 installs default to false and create no permanently running test Compute.
 Retained static VM `vm-neon-compute` is excluded from the default stack.
 
+### Retire a finished static lab Compute
+
+This optional chart owns a historical test VM; Go's managed `cp-*` Endpoint
+suspend action does not manage imported static VMs. Save its full release values,
+manifest, config/SSH Secrets, VM identity, logs and catalog IDs privately. Confirm
+no client work, stop admissions during a maintenance window, and gracefully stop
+PostgreSQL/compute_ctl. Verify WAL flush/shutdown evidence before removing runtime.
+Keep tenant/timeline/storage and project records.
+
+With reviewed complete values at `/secure/static-compute-values.json`:
+
+```bash
+helm upgrade vm-neon-compute ./charts/neon-compute -n neon --reset-values \
+  -f /secure/static-compute-values.json --set compute.enabled=false \
+  --history-max 20 --wait --timeout 180s
+kubectl -n neon get virtualmachines vm-neon-compute
+kubectl -n neon get service vm-neon-compute
+```
+
+The first `get` must return NotFound, the second the retained Service. Save a
+render before the upgrade. This removes the chart-owned VM and its transient
+runner, not the external Secret or Neon data. Repeat deployment from those same
+reviewed values with `compute.enabled=true`; do not invent a new tenant/timeline.
+An imported Endpoint has no automatic cold-wake guarantee while retired. This
+laboratory procedure is not a cross-instance production scale-to-zero fence.
+
 The historical VM controller uses `cache.no-flush=on`. The new chart default
 is `off`; an existing deployment must preserve its current setting with
 `controller.qemuDiskCacheSettings` and `controller.labAcknowledged=true` until

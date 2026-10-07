@@ -66,6 +66,12 @@ try {
   const managed=get('virtualmachines.vm.neon.tech',null,'neon').items.filter(v=>v.metadata.name.startsWith('cp-'));
   report.managedVMCount=managed.length;
   if(values['expect-zero']&&managed.length)throw new Error('Managed test Computes remain active');
+  // VM removal is asynchronous: a runner can still consume resources while
+  // its VM is already absent. Require actual Pod removal for the zero gate.
+  const runners=get('pods',null,'neon').items.filter(p=>p.metadata.name.startsWith('cp-'));
+  report.managedComputePods=runners.map(p=>({name:p.metadata.name,uid:p.metadata.uid,
+    phase:p.status.phase,deletionTimestamp:p.metadata.deletionTimestamp||null}));
+  if(values['expect-zero']&&runners.length)throw new Error('Managed Compute runner deletion is not complete');
   const pods=[];
   for(const ns of ['neon','neonvm-system','kube-system']) {
     for(const pod of get('pods',null,ns).items.filter(p=>p.status.phase==='Running'&&!p.metadata.name.startsWith('cp-'))) {

@@ -19,6 +19,7 @@ for(const file of files) {
   if(/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{24,}|sk-[A-Za-z0-9]{32,}/.test(value))failures.push('Credential pattern '+name);
 }
 const plan=validatePlan(readJSON('stack/stack.json'));
+if(readJSON('package.json').version!==plan.version)failures.push('Release package/stack version drift');
 for(const chart of [...plan.steps.map(s=>s.chart),...plan.optionalCharts]) {
   for(const name of ['Chart.yaml','values.yaml','values.schema.json','.helmignore'])if(!fs.existsSync(path.join(root,'charts',chart,name)))failures.push('Missing '+chart+'/'+name);
   const meta=documents(fs.readFileSync(path.join(root,'charts',chart,'Chart.yaml'),'utf8'))[0];

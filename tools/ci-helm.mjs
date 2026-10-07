@@ -21,6 +21,13 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     for(const c of [...containers,...(obj.spec?.template?.spec?.initContainers||[])])if(c.image)assert.match(c.image,pinned);
   }
   fs.writeFileSync(path.join(output,chart+'.yaml'),result.stdout);
+  if(chart==='neon-compute') {
+    const retired=path.join(output,chart+'.retired.json');
+    fs.writeFileSync(retired,JSON.stringify(merge(profile,{compute:{enabled:false}})));
+    const retiredObjects=documents(helm(['template',chart,'charts/'+chart,'-f',retired,'-n','neon','--kube-version','1.36.4']).stdout);
+    assert.equal(retiredObjects.filter(obj=>obj.kind==='VirtualMachine').length,0,'Retirement must release the static VM');
+    assert.equal(retiredObjects.filter(obj=>obj.kind==='Service').length,1,'Retirement must retain the service identity');
+  }
   const invalid=path.join(output,chart+'.invalid.json');fs.writeFileSync(invalid,JSON.stringify(merge(profile,{unknownSetting:true})));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',invalid,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unknown settings must fail schema validation');
   results.push({chart,lint:'pass',render:'pass',unknownSettingRejected:true,objects:objs.length});

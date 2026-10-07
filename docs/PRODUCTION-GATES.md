@@ -20,7 +20,7 @@ fencing, TLS, IAM or DR gates pass.
 | Project/branch/Endpoint, SQL and Proxy wake | current Go product implemented | real UI + external SQL regression after each release |
 | Read Computes, manual/idle zero and wake | current single-adapter deployment | writer/reader independence, read-only rejection and cold reconnect |
 | Cross-instance suspend/wake fencing | not certified; Adapter remains one replica | multiple API/Worker/adapter races, crash expiry, stale generation rejection, admitted SQL leases |
-| Authorization | current membership/permission gates implemented | complete tenant isolation and adversarial access matrix; registration/full customer Auth separate |
+| Authorization | current membership/permission and invited Console registration implemented | complete adversarial access matrix, enterprise identity/email verification; branch Managed Auth separate |
 | HA/DR | not qualified; local-path and singleton DB/MinIO/Pageserver | node/zone failure, metadata failover, storage redundancy, recovery exercises and measured RPO/RTO |
 | PITR and complete deletion | unfinished/unqualified lifecycle | timestamp restore, retention/GC correctness, cascade deletion/retry/recovery |
 | Fractional CPU / full memory downscale | upstream capability must be separately qualified | guest/cgroup/QEMU reconciliation, low-memory load, OOM/coldboot recovery and quota accuracy |

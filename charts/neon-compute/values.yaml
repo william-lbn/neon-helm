@@ -1,5 +1,6 @@
 experimentalAcknowledged: false
 compute:
+  enabled: true # false retires only the static lab VM; retain Service/config/data for explicit reactivation
   name: vm-neon-compute
   tenantId: ""
   timelineId: ""

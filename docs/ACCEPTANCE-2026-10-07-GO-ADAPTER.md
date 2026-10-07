@@ -31,8 +31,27 @@ Go 迁移不能代替分布式栅栏、HA/DR、安全审计或完整功能验收
 | 元数据备份 | 35,073,852 bytes，流式保存，SHA256 `451456f81a6973569f718d7bd30a94844a5327c758642ae4b0ccfb7b1bacd723`；`restoreTested:false` |
 | 上游 fork | Neon `1f30cd02092d`、Autoscaling `c0052f5f2d38`、PostgreSQL `a42351fcd41e` 与 46 镜像锁不变；本次未改上游源码 |
 
-版本 Chart 的正式 GitHub CI、版本标签发布、匿名标准 Helm 消费和公共源码现场
-审计回执在完成后追加至本报告；不能把本地打包通过当作已发布证明。
+正式发布与消费也已验收：
+
+| 门槛 | 回执 |
+| --- | --- |
+| Chart 源码提交 | `12d45e684b006d0afc73a1f2f611e5c1facf5c8c`；本报告后续更新仅变更文档，不重打标签 |
+| main Linux CI | [37625410616](https://github.com/william-lbn/neon-helm/actions/runs/37625410616)，成功 |
+| 不可变标签 | `v0.1.3`，annotated tag object `cda45dd9e305ec1622d0c31d9315bcd505649155`，指向上述源码；无 force/retag |
+| 正式 Release CI | [37625707569](https://github.com/william-lbn/neon-helm/actions/runs/37625707569)，quality/release 两项成功 |
+| 发布产物 | [v0.1.3](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.3)：10 包、index、SHA256SUMS、源码/镜像 locks |
+| 标准匿名 Helm 消费 | Linux `repo add/update` + `pull` 全部 10 包通过，index/包校验通过，不需要账号/Token |
+| 公共源码现场审计 | Linux 匿名 clone 上述精确 SHA，8 个现场 release 的 manifest/hooks 与源码渲染匹配；27 镜像引用、8 PVC、外部 Secrets、0 VM/Runner 均通过 |
+
+标准地址：
+
+```bash
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.3
+helm repo update
+helm pull neon/neon-adapter --version 0.1.3
+```
+
+单包拉取不代替完整八阶段安装，部署步骤仍按 DEPLOYMENT.md/UPGRADE.md。
 
 ### Go 适配器实现
 

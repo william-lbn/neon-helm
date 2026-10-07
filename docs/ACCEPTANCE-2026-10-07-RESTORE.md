@@ -37,7 +37,12 @@ semantics; it does not claim the second contract's connection cutover behavior.
 | Linux local chart gate | Ten charts, six tool contracts, six schema/unsafe-setting rejection cases; `helm-quality-1791368826` |
 | Unified deployment | Eight ordered release stages passed, protected attempt `unified-102757` |
 | Migration and external state | API/Worker quiesced; full saved values, metadata dump and external Secret archives retained before upgrade |
-| Live identity/manifest audit | Eight PVC identities/bindings and external Secret identity/data preserved; installed manifests/hooks and runtime images match |
+| Live identity/manifest audit | Eight PVC identities/bindings and external Secret identity/data preserved; 29 runtime image references and installed manifests/hooks match |
+| Public Helm main Linux CI | PASS: [37609631067](https://github.com/william-lbn/neon-helm/actions/runs/37609631067), exact source `1df9e8498e2eec60cd36556778a44feecaf2d196` |
+| Immutable version release | PASS: quality and release jobs [37609778493](https://github.com/william-lbn/neon-helm/actions/runs/37609778493); [v0.1.2](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.2) publishes ten packages, index, SHA256 and source locks |
+| Anonymous Linux package consumer | PASS: standard repo add/update and pull all ten 0.1.2 charts; package/index checksums verified, no credentials required |
+| Exact public-source final audit | PASS: anonymous Linux checkout `1df9e8498e2eec60cd36556778a44feecaf2d196`; deployed manifests/hooks, images, PVC/Secrets and zero VM/Runner gate match |
+| Runtime retirement and final health | PASS: 20 terminal test Jobs archived then deleted by identity/version preconditions; no VM/Runner; three nodes Ready, API/Worker/Web Ready, HTTP readiness 200 and I/O PSI avg10 zero |
 
 The `api.pitrEnabled` setting defaults to false. It is shared by API/Worker and
 cannot be enabled while creation is disabled. The lab profile explicitly enables
@@ -77,7 +82,7 @@ succeeds**, `op_6d8a7c4b05664a6d51322238`. Timestamp and explicit LSN branches a
 All five release-specific published-image browser suites passed. The original
 batch receipt remains failed because its first credential fixture was refused;
 the separate corrected credential receipt establishes that suite's success.
-Final public Helm release/consumer checks will be recorded from their own receipts.
+Public Helm release and consumer checks also have their own passing receipts.
 Earlier successful versions cannot substitute for these gates.
 
 ## 4. Failures, correction and storage incident
@@ -117,6 +122,14 @@ next test if I/O PSI or memory pressure exceeds the documented limits. It reads
 Linux pressure/memory state; it neither changes system settings nor proves host
 storage capacity under all loads. See [resource runbook](RESOURCE-RUNBOOK.md).
 No concurrent compiler/image build ran during the fresh real browser suites.
+
+After all suites, 20 terminal Jobs and their Pod/log records were archived in
+protected operator storage, then removed using server-side UID/resourceVersion
+preconditions. The allowlist came from this increment's immutable attempt
+receipts, with recorded Pod UID/Job ownership checks. No active Job, PVC, SQL
+data, Secret, fixture, rollback file or failed-attempt evidence was deleted.
+Final available memory was 9,705/8,990/9,341 MiB on the three nodes; memory/I/O
+pressure gates passed. This final snapshot does not explain the earlier stall.
 
 ## 5. Isolated metadata restore
 
@@ -158,3 +171,28 @@ See [production gates](PRODUCTION-GATES.md) for the qualification boundary.
 Two-reader/vertical-resource/fault qualification, complete catalog permissions
 and a clean-cluster installation are not rerun by these suites. Prior evidence
 is retained as historical and cannot qualify this release's untested scenarios.
+
+## 7. Publication identity and handoff
+
+The immutable chart source is `1df9e8498e2eec60cd36556778a44feecaf2d196`, annotated
+tag object `e3787f4533646245f1bbafabd2ca7b607389faf1`. Git HTTPS transport failed in
+this environment; the official GitHub Git Database API uploaded **exact local
+blob/tree/commit/tag objects**, verified each SHA and advanced only the expected
+parent without force. The tag was created only when absent and never overwritten.
+The ordinary GitHub push workflow published the artifacts. This final acceptance
+update changes documentation only; runtime chart templates/digests and the tag
+remain fixed.
+
+```bash
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.2
+helm repo update
+helm pull neon/neon-control-plane --version 0.1.2
+```
+
+Use the ordered stack and reviewed complete overlays for installation, rather
+than treating one chart as a full product install. Secrets are supplied by the
+site operator. Private evidence is retained under the operator's
+`20261007-product` attempt collection, with matching Linux paths and request,
+Operation, resource and digest identities; it is intentionally excluded from
+public source and release assets. The five TypeScript browser suites, manual
+steps, API/model contract and source locks are public and repeatable.

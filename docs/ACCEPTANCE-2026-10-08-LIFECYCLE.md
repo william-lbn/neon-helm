@@ -124,3 +124,24 @@ helm pull neon/neon-control-plane --version 0.1.4
 保存发布 commit/digest、每次 Operation、原 PVC/Secret UID 和新 attempt；失败先查看
 原操作与日志。最终匿名源代码/manifest审计、发布 package/hash 消费和资源退休结果
 在对应交付回执中独立记录。公开文档不包含凭据或私有原始 cluster export。
+
+## 8. 正式发布、匿名消费和最终现场回执
+
+上述软件/Chart 行为固定在控制软件 `6e778bbc631f6fa30a7543dc274789beb70afb0f`
+及 Chart 源码 `944697235487da261c2a2521a62685a78aafc59a`。
+后续 main 的本报告/README 同步只有文档变化；不改变运行软件或不可变发布标签。
+
+| Gate | 最终结果 |
+| --- | --- |
+| 不可变标签 | v0.1.4，annotated object `eb2cf84e03cca9985dd533ad2d8c12fd063bdd22`，指向上述 Chart commit；无 force/retag |
+| 主分支 CI | [37651563861](https://github.com/william-lbn/neon-helm/actions/runs/37651563861)，全部通过 |
+| 发布 CI | [37651684136](https://github.com/william-lbn/neon-helm/actions/runs/37651684136)，质量与正式发布均通过 |
+| 正式产物 | [v0.1.4](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.4)，10 Chart 包、index.yaml、SHA256SUMS、源码/镜像 locks |
+| 匿名消费者 | Linux 使用隔离 Helm repo 配置下载 10 包；index 与全部包 SHA256 通过；不需要 GitHub/Docker 凭据 |
+| 公开源码现场审计 | Linux 匿名 clone 上述 Chart commit，重新渲染比对全部 8 releases / 27 image refs，PVC/Secret 身份保留，VM/Runner 0 |
+| 运行语言 | API/Worker/Web Ready；Go adapter /readyz 与 native hook Go receipt 通过；无运行中的 Python Pod |
+| 最终资源退休 | 两轮分别 17 和 7，合计 24 个已完成 Job；先归档再按 UID/resourceVersion 删除，数据和证据保留 |
+| 节点状态 | 三节点 Ready，无 MemoryPressure/DiskPressure；最终 .100 I/O PSI avg10/60/300 为 0；Compute 0 |
+
+本发布的源代码、镜像、部署、UI、失败修复、包发布和匿名消费证据分别验证，
+没有用一次 Pod Ready 替代产品验收。共同磁盘长期延迟和第 6 节生产门槛仍未放行。

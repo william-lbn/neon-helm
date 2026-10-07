@@ -1,5 +1,26 @@
 # Neon Helm releases
 
+## 0.1.3
+
+The Proxy/Storage adapter is a compiled Go process from the same source revision
+as the API/Worker and gateways. It uses a non-root scratch image, projected
+rotatable credentials, dependency readiness, bounded wakes and ownership checks.
+The chart preserves Service/selector, external routes and notification receipts;
+no interpreter/source ConfigMap is mounted. A narrowly scoped Service proxy read
+validates native Controller placement. All ten packages share version 0.1.3.
+
+The lab deployment can retire the unused legacy proxy-api and compute-resizer
+after preserving complete values and proving Proxy already targets the dynamic
+adapter and the legacy compute Deployment has zero replicas. These optional
+legacy tools remain disabled compatibility paths in source. This migration is
+separate from distributed connection ledgers, external fencing, full placement
+reconfiguration, deletion/GC and production HA/TLS. Those gates remain open.
+
+Maintenance pg_dump now streams into an exclusive private partial file, then
+hashes/renames only after successful completion. This fixes the observed 32 MiB
+output-buffer failure without dropping backups or raising an in-memory limit.
+Linux tests cover large output, failed dumps and preservation of prior attempts.
+
 ## 0.1.2
 
 Historical PostgreSQL recovery to a **new branch** is implemented in the Go

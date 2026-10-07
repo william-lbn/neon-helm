@@ -1,9 +1,9 @@
 apiVersion: v2
 name: neon-adapter
-description: Versioned single-instance compatibility adapter for Neon Proxy wake and storage-controller notifications
+description: Compiled Go adapter for Neon Proxy authentication, cold wake and storage-controller notifications
 type: application
-version: 0.1.2
-appVersion: '2026.10.03'
+version: 0.1.3
+appVersion: '0.1.0'
 kubeVersion: '>=1.30.0-0'
 home: https://github.com/william-lbn/neon-helm
 sources: [https://github.com/william-lbn/control-plane]

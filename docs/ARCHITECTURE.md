@@ -17,7 +17,7 @@ flowchart TB
   Worker --> SC[Storage Controller]
   Worker --> Kube[Kubernetes API / NeonVM]
   SQL[PostgreSQL client] --> Proxy[Neon Proxy]
-  Proxy --> Adapter[Auth / wake / notification adapter]
+  Proxy --> Adapter[Go auth / wake / notification adapter]
   Adapter --> Routes[External mutable routes Secret]
   Adapter --> Kube
   Proxy --> Compute[Writer / independent read Compute VMs]
@@ -43,7 +43,7 @@ flowchart TB
 | neonvm / neonvm | default (release), neonvm-system (pods) | CRDs, controller, KVM device plugin, VXLAN, runner loader, certificates, platform priority |
 | neon-autoscaler / neon-autoscaler | default (release), kube-system (pods) | upstream scheduler and node agents |
 | neon-metadata / neon-metadata | neon | optional single-instance laboratory metadata PostgreSQL/PVC; use external HA PostgreSQL for production |
-| neon-adapter / neon-adapter | neon | current auth, wake and attach hook compatibility adapter with limited RBAC |
+| neon-adapter / neon-adapter | neon | compiled Go auth, wake and attach hook adapter; projected tokens, limited RBAC, one replica |
 | neon-core / neon-lab | neon | object store, controller DB, controller, broker, retained node-1 Pageserver, three Safekeepers, Proxy |
 | neon-managed-pageserver / managed-pageserver | neon | controller-managed node-2 Pageserver, config and retained cache PVC |
 | compute-management-gateway / neon-compute-management-gateway | neon | authenticated internal compute management connection, image runtime |

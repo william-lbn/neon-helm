@@ -14,7 +14,9 @@ const files=walk(root);
 for(const file of files) {
   const name=path.relative(root,file).replaceAll('\\','/');
   if(/\.(pem|key|dump|etl|db|pyc|ps1|tgz)$/.test(name)||/\.private\.|(^|\/)\.env/.test(name))failures.push('Private artifact '+name);
-  if(name.endsWith('.py')&&!['charts/neon-adapter/files/adapter.py','charts/neon-core/files/compute_resizer.py','charts/neon-core/files/proxy_api.py'].includes(name))failures.push('Verification Python '+name);
+  // Two disabled legacy laboratory compatibility tools remain for old deployments.
+  // The active Proxy/Storage adapter must be the compiled, source-locked Go image.
+  if(name.endsWith('.py')&&!['charts/neon-core/files/compute_resizer.py','charts/neon-core/files/proxy_api.py'].includes(name))failures.push('Verification Python '+name);
   const value=fs.readFileSync(file,'utf8');
   if(/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{24,}|sk-[A-Za-z0-9]{32,}/.test(value))failures.push('Credential pattern '+name);
 }
@@ -31,6 +33,6 @@ for(const name of fs.readdirSync(path.join(root,'profiles/lab'))) {
   if(!refs.length||refs.some(ref=>!pinned.test(ref)||ref.includes('example.invalid')))failures.push('Invalid image lock '+name);
 }
 const adapter=readJSON('locks/adapter.json');
-if(digest(fs.readFileSync(path.join(root,'charts/neon-adapter/files/adapter.py')))!==adapter.sha256)failures.push('Adapter source drift');
+if(adapter.language!=='go'||adapter.source!=='https://github.com/william-lbn/control-plane'||!/^([a-f0-9]{40})$/.test(adapter.source_commit)||!pinned.test(adapter.image)||adapter.image!==readJSON('profiles/lab/neon-adapter.json').image)failures.push('Go adapter source/image drift');
 if(failures.length)throw new Error(failures.join('\n'));
 console.log(JSON.stringify({result:'pass',files:files.length,charts:10,productionQualified:false}));

@@ -1,7 +1,7 @@
 # Neon Helm
 
 Versioned deployment source for self-hosted Neon, NeonVM, upstream autoscaling,
-the Go control API, independent Worker and TypeScript Console.
+the Go control API, independent Worker, Go Proxy/Storage adapter and TypeScript Console.
 
 **Status: laboratory release candidate. Not certified for production.**
 The repository applies production-oriented deployment discipline, but the
@@ -16,7 +16,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 4. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
 5. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
 6. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-7. [Historical branch restore and current acceptance](docs/ACCEPTANCE-2026-10-07-RESTORE.md) / [0.1.1 acceptance](docs/ACCEPTANCE-2026-10-07.md)
+7. [Go runtime and current acceptance](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
 8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 
 ```bash
@@ -55,7 +55,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.2
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.3
 helm repo update
 helm search repo neon
 ```

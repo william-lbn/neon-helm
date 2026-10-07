@@ -9,6 +9,15 @@ export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const pinned = /^[^\s]+@sha256:[a-f0-9]{64}$/;
 export const readJSON = (name) => JSON.parse(fs.readFileSync(path.resolve(root, name), 'utf8'));
 export const digest = (value) => crypto.createHash('sha256').update(value).digest('hex');
+export function fileDigest(file) {
+  const hash=crypto.createHash('sha256');
+  const fd=fs.openSync(file,'r');
+  const buffer=Buffer.alloc(64*1024);
+  try {
+    for(let bytes;(bytes=fs.readSync(fd,buffer,0,buffer.length,null))>0;)hash.update(buffer.subarray(0,bytes));
+  } finally {fs.closeSync(fd);}
+  return hash.digest('hex');
+}
 export function documents(input) {
   return parseAllDocuments(input).map((doc) => {
     if (doc.errors.length) throw new Error('Invalid rendered YAML: ' + doc.errors[0].message);
@@ -36,8 +45,17 @@ export function validatePlan(plan) {
   return plan;
 }
 export function run(binary, args, options = {}) {
-  const result = spawnSync(binary, args, {cwd: root, encoding: 'utf8', timeout: options.timeout ?? 90000,
-    maxBuffer: 32 * 1024 * 1024, input: options.input, env: process.env});
+  // Large pg_dump output must bypass Node's stdout maxBuffer. Open exclusively
+  // and retain partial bytes on failure for diagnosis; never overwrite evidence.
+  let fd;
+  let result;
+  try {
+    if(options.stdoutFile)fd=fs.openSync(options.stdoutFile,'wx',0o600);
+    result = spawnSync(binary, args, {cwd: root, encoding: 'utf8', timeout: options.timeout ?? 90000,
+      maxBuffer: 32 * 1024 * 1024, input: options.input, env: process.env,
+      ...(fd===undefined?{}:{stdio:['pipe',fd,'pipe']})});
+    if(fd!==undefined)fs.fsyncSync(fd);
+  } finally {if(fd!==undefined)fs.closeSync(fd);}
   if (result.error) throw new Error(binary + ' execution failed: ' + result.error.code);
   if (result.status !== 0 && !options.allowFailure) {
     // Child output can include metadata or accidental secrets. Keep errors

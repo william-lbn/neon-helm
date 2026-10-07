@@ -21,6 +21,12 @@ rules:
     resources: [configmaps]
     resourceNames: [{{ .Values.notificationsConfigMap }}]
     verbs: [get, update]
+  # Native placement validation uses the existing Controller via the API server.
+  # This is a read permission for one Service, not access to arbitrary proxies.
+  - apiGroups: ['']
+    resources: [services/proxy]
+    resourceNames: ['http:storage-controller:1234']
+    verbs: [get]
   - apiGroups: [apps]
     resources: [deployments]
     verbs: [get]
@@ -41,15 +47,6 @@ metadata:
 subjects: [{kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}]
 roleRef: {kind: Role, name: {{ $name }}, apiGroup: rbac.authorization.k8s.io}
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ $name }}-code
-  labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control}
-data:
-  adapter.py: |
-{{ .Files.Get "files/adapter.py" | indent 4 }}
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,37 +61,45 @@ spec:
     metadata:
       labels: {app: {{ $name }}, app.kubernetes.io/part-of: neon-control, app.kubernetes.io/instance: {{ .Release.Name }}}
       annotations:
-        checksum/code: {{ .Files.Get "files/adapter.py" | sha256sum }}
+        # Credentials are projected as files and reread for each request.
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       serviceAccountName: {{ $name }}
-      securityContext: {seccompProfile: {type: RuntimeDefault}}
+      securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, fsGroup: 65532, seccompProfile: {type: RuntimeDefault}}
       {{- with .Values.priorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
       containers:
         - name: adapter
           image: {{ .Values.image | quote }}
-          command: [python3, -u, /app/adapter.py]
+          command: [/opt/neon-control/control-adapter]
           securityContext: {{ toYaml .Values.securityContext | nindent 12 }}
           env:
-            - {name: PYTHONDONTWRITEBYTECODE, value: '1'}
             - name: POD_NAMESPACE
               valueFrom: {fieldRef: {fieldPath: metadata.namespace}}
             - {name: ROUTES_SECRET, value: {{ .Values.routesSecret | quote }}}
             - {name: NOTIFICATIONS_CONFIGMAP, value: {{ .Values.notificationsConfigMap | quote }}}
-            - name: PROXY_API_TOKEN
-              valueFrom: {secretKeyRef: {name: {{ .Values.proxyTokenSecret }}, key: proxyToken}}
-            - name: CONTROLLER_HOOK_TOKEN
-              valueFrom: {secretKeyRef: {name: {{ .Values.hookTokenSecret }}, key: token}}
+            - {name: PROXY_API_TOKEN_FILE, value: /run/neon/proxy/proxyToken}
+            - {name: CONTROLLER_HOOK_TOKEN_FILE, value: /run/neon/hook/token}
+            - {name: NEON_ADAPTER_WAKE_TIMEOUT, value: {{ .Values.wakeTimeout | quote }}}
+            - {name: NEON_ADAPTER_MAX_WAKES, value: {{ .Values.maxConcurrentWakes | quote }}}
+            - {name: NEON_ADAPTER_PAGESERVER_NODE_ID, value: {{ .Values.pageserverNodeID | quote }}}
           ports: [{name: http, containerPort: 8080}]
-          readinessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 5}
+          readinessProbe: {httpGet: {path: /readyz, port: http}, timeoutSeconds: 4, periodSeconds: 5}
           startupProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 5, failureThreshold: 30}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
           resources: {{ toYaml .Values.resources | nindent 12 }}
-          volumeMounts: [{name: code, mountPath: /app, readOnly: true}]
-      volumes: [{name: code, configMap: {name: {{ $name }}-code}}]
+          volumeMounts:
+            - {name: proxy-token, mountPath: /run/neon/proxy, readOnly: true}
+            - {name: hook-token, mountPath: /run/neon/hook, readOnly: true}
+      volumes:
+        # Decimal 288 is octal 0440; avoid YAML 1.1/1.2 interpretation drift.
+        - name: proxy-token
+          secret: {secretName: {{ .Values.proxyTokenSecret }}, defaultMode: 288, items: [{key: proxyToken, path: proxyToken}]}
+        - name: hook-token
+          secret: {secretName: {{ .Values.hookTokenSecret }}, defaultMode: 288, items: [{key: token, path: token}]}
 ---
 apiVersion: v1
 kind: Service

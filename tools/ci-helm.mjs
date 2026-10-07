@@ -21,6 +21,24 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     for(const c of [...containers,...(obj.spec?.template?.spec?.initContainers||[])])if(c.image)assert.match(c.image,pinned);
   }
   fs.writeFileSync(path.join(output,chart+'.yaml'),result.stdout);
+  if(chart==='neon-adapter') {
+    const deployment=objs.find(o=>o.kind==='Deployment');
+    const pod=deployment.spec.template.spec;
+    const container=pod.containers[0];
+    assert.equal(deployment.spec.replicas,1);
+    assert.equal(deployment.spec.strategy.type,'Recreate');
+    assert.deepEqual(container.command,['/opt/neon-control/control-adapter']);
+    assert.equal(container.securityContext.runAsUser,65532);
+    assert.equal(container.securityContext.readOnlyRootFilesystem,true);
+    assert.equal(pod.securityContext.fsGroup,65532);
+    assert.equal(container.readinessProbe.httpGet.path,'/readyz');
+    assert.equal(objs.filter(o=>o.kind==='ConfigMap').length,0,'Compiled adapter must not mount interpreter source or overwrite receipts');
+    assert.equal(pod.volumes.filter(v=>v.secret&&v.secret.defaultMode===288).length,2,'Credentials use separate group-readable projected files');
+    assert.equal(container.env.filter(v=>v.name.endsWith('_TOKEN_FILE')).length,2);
+    const role=objs.find(o=>o.kind==='Role');
+    assert.ok(role.rules.some(r=>r.resources.includes('services/proxy')&&r.resourceNames?.includes('http:storage-controller:1234')&&r.verbs.length===1&&r.verbs[0]==='get'));
+    assert.ok(!role.rules.some(r=>r.verbs.includes('delete')),'Adapter must never delete workload or state');
+  }
   if(chart==='neon-compute') {
     const retired=path.join(output,chart+'.retired.json');
     fs.writeFileSync(retired,JSON.stringify(merge(profile,{compute:{enabled:false}})));
@@ -37,11 +55,15 @@ for(const [chart,overlay] of [
   ['neon-core',{safekeeper:{replicas:2}}],
   ['neon-metadata',{developmentAcknowledged:false}],
   ['neon-adapter',{compatibilityAcknowledged:false}],
+  ['neon-adapter',{maxConcurrentWakes:0}],
+  ['neon-adapter',{maxConcurrentWakes:65}],
+  ['neon-adapter',{wakeTimeout:'301s'}],
+  ['neon-adapter',{pageserverNodeID:0}],
   ['neon-control-plane',{api:{pitrEnabled:true,creationEnabled:false}}],
   ['neonvm',{controller:{qemuDiskCacheSettings:'cache.no-flush=on',labAcknowledged:false}}],
 ]) {
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:6,productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:6}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:10,productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:10}));

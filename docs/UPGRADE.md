@@ -136,3 +136,50 @@ Compute suspension is identified by the deleted VM UID. An owned same-name
 cold-wake successor proves the old generation is gone; it must survive the
 old operation. Never force-delete the new UID to make a pending operation
 finish. This correction is distinct from full distributed admission fencing.
+
+## 6. Python adapter to compiled Go (0.1.3)
+
+Save all eight complete Helm values and manifests, external route/receipt state,
+Secret/PVC identities and SQL baseline in the protected attempt directory. Keep
+0.1.2 rollback packages. The new image is `control-adapter` from the source locked
+in `locks/adapter.json`; never use a general Python image with the new template.
+Keep `fullnameOverride`, Service name/selector, routes and notification resource
+names. The new container UID/GID and projected-Secret fsGroup are 65532.
+
+Upgrade as a maintenance operation: new adapter uses Recreate and one replica.
+Its readiness reads external state; install prerequisites from DEPLOYMENT.md
+before a fresh cluster install. RBAC includes GET on the exact Controller
+`http:storage-controller:1234` Service proxy for authoritative placement checks.
+Projected proxy/hook token keys are distinct, read each request and preserved.
+The old adapter code ConfigMap is removed by Helm; mutable receipt ConfigMap,
+routes Secret, database PVCs and objects are never chart-managed replacements.
+
+If retiring unused legacy Python proxy/resizer, first verify the live Proxy's
+authEndpoint already points to `neon-control-adapter:8080/cplane/`, the retained
+legacy Deployment compute has zero replicas, and no operator workflow depends
+on those services. Set `proxy.legacyApiEnabled=false` and
+`computeResize.enabled=false` in the **complete preserved core overlay**. Do not
+replace it with the clean-install profile: existing tenant/config/storage values
+must survive. Archive removed manifests/logs and retain prior values for rollback.
+
+The Go version compares native receipt payloads canonically, preserving idempotent
+replay of Python-era records without resetting hashes or history. It refuses
+unsupported storage layouts/reconfigurations. After rollout verify runtime=go,
+no active legacy Python Pods, native Proxy SQL/cold wake, UI project/branch/Reader,
+historical restore, Data API, invitations and authorization. Retain all failed
+attempts. Process-local wake locks are not distributed suspend/wake fencing.
+
+## 7. Large metadata backup and failed-attempt preservation
+
+The maintenance tool streams pg_dump stdout directly into a mode-0600 exclusive
+`metadata-before.partial.private.sql`, outside source in the protected attempt.
+It fsyncs and closes the file; only a successful, nonempty dump is hashed in
+bounded chunks and renamed `metadata-before.private.sql`. Failed/timeout output
+remains partial evidence and blocks the upgrade before stopping controllers.
+Never treat a partial file as a complete backup or overwrite an earlier attempt.
+
+This fixes a real pre-rollout failure where metadata exceeded Node's 32 MiB
+capture buffer (about 35 MB on the lab). Linux regression tests cover output
+above that boundary, failed exit preservation and exclusive destination behavior.
+A successful dump receipt records bytes/SHA256 and `restoreTested:false`;
+backup capture does not certify full DR or a restore rehearsal.

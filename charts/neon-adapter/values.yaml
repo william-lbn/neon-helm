@@ -1,4 +1,4 @@
-# Runtime Python compatibility code is included. No Python validation tool is imported.
+# Compiled Go runtime from the control-plane repository; no interpreter required.
 # This adapter has not passed the distributed fencing / production HA gates.
 compatibilityAcknowledged: false
 fullnameOverride: neon-control-adapter
@@ -7,13 +7,16 @@ proxyTokenSecret: neon-proxy-auth # key: proxyToken
 hookTokenSecret: neon-control-hook-auth # key: token
 routesSecret: neon-control-routes # key: routes.json; externally mutable, NEVER reset by Helm
 notificationsConfigMap: neon-control-notifications # key: receipts.json; never reset
+wakeTimeout: 300s # Native Proxy request bound; maximum five minutes.
+maxConcurrentWakes: 8 # Per-process bound, not a distributed lease/fence.
+pageserverNodeID: 2 # Current unsharded storage layout; changes require a real reconfiguration Driver.
 priorityClassName: ''
 resources:
   requests: {cpu: 100m, memory: 64Mi}
   limits: {cpu: '1', memory: 256Mi}
 securityContext:
   runAsNonRoot: true
-  runAsUser: 1000
+  runAsUser: 65532
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities: {drop: [ALL]}

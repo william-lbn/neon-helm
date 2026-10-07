@@ -20,6 +20,11 @@ Bound PVC capacity and duplicate YAML rejection; lint/render all ten charts;
 reject unknown settings and unsafe lab/quorum/cache configurations; check image
 digests, external Secrets and PVC retention. This does not simulate Neon storage
 or prove runtime HA. Evidence packages are retained by GitHub CI for 90 days.
+The Go adapter gate additionally checks the compiled command, UID/fsGroup,
+read-only root, two distinct projected credential files with decimal mode 288,
+dependency readiness, exact Controller Service proxy permission, no delete
+permission and no mounted Python/source ConfigMap. Invalid wake concurrency,
+timeout and Pageserver node bounds are rejected by schema.
 
 ## 2. Real cluster deployment gate
 
@@ -49,7 +54,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout ac94dfa2f8e00592bc0cc86fc2343494296fcdeb
+git checkout fba924ff096003d77610069ddd34d2d23a8962d0
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium

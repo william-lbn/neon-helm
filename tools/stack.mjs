@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {parseArgs} from 'node:util';
 import {root, readJSON, validatePlan, helm, kube, get, documents, lockedValues, rendered, privateDirectory,
-  writePrivate, compatibleAdoption, clusterScoped, digest} from './lib.mjs';
+  writePrivate, compatibleAdoption, clusterScoped, fileDigest} from './lib.mjs';
 
 const {values: flags, positionals} = parseArgs({allowPositionals: true, options: {
   'overlay-dir': {type: 'string'}, output: {type: 'string'}, 'maintenance-window': {type: 'boolean'},
@@ -91,10 +91,16 @@ function stopControllers() {
 function backupMetadata() {
   const pods = get('pods',null,'neon').items.filter(p => p.metadata.labels?.['app.kubernetes.io/name']==='neon-control-v2-db' && p.status.phase==='Running');
   if (!pods.length) return;
-  const result = kube(['-n','neon','exec',pods[0].metadata.name,'-c','postgres','--','sh','-c',
-    'PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U neon_control_v2 -d neon_control_v2 --no-owner --no-acl'], {timeout:180000});
-  writePrivate(path.join(output,'metadata-before.private.sql'),result.stdout);
-  receipt.metadataBackup={sha256:digest(result.stdout),bytes:Buffer.byteLength(result.stdout),restoreTested:false};
+  const partial=path.join(output,'metadata-before.partial.private.sql');
+  const complete=path.join(output,'metadata-before.private.sql');
+  if(fs.existsSync(complete))throw new Error('Metadata backup destination exists');
+  kube(['-n','neon','exec',pods[0].metadata.name,'-c','postgres','--','sh','-c',
+    'PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U neon_control_v2 -d neon_control_v2 --no-owner --no-acl'], {timeout:180000,stdoutFile:partial});
+  const bytes=fs.statSync(partial).size;
+  if(bytes===0)throw new Error('Metadata backup is empty; retain partial evidence');
+  const sha256=fileDigest(partial);
+  fs.renameSync(partial,complete);
+  receipt.metadataBackup={sha256,bytes,streamed:true,restoreTested:false};
 }
 function backupRuntimeState() {
   for (const name of ['neon-control-routes','neon-control-plane-credentials','neon-backend-credential-keys-v1',

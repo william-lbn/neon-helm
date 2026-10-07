@@ -16,7 +16,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 4. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
 5. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
 6. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-7. [Go runtime and current acceptance](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
+7. [Current retained lifecycle / recovery / two Readers acceptance](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
 8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 
 ```bash
@@ -55,7 +55,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.3
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.4
 helm repo update
 helm search repo neon
 ```

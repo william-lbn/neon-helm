@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {randomUUID} from 'node:crypto';
 import {parseArgs} from 'node:util';
 import {root, readJSON, validatePlan, helm, kube, get, documents, lockedValues, rendered, privateDirectory,
   writePrivate, compatibleAdoption, clusterScoped, fileDigest} from './lib.mjs';
@@ -94,13 +95,21 @@ function backupMetadata() {
   const partial=path.join(output,'metadata-before.partial.private.sql');
   const complete=path.join(output,'metadata-before.private.sql');
   if(fs.existsSync(complete))throw new Error('Metadata backup destination exists');
+  const applicationName='neon-helm-backup-'+randomUUID();
+  // Bound the remote process as well as kubectl. A local timeout alone can
+  // leave an exec'd pg_dump holding AccessShareLocks and block migrations.
+  // PostgreSQL also closes an abandoned idle export without affecting data.
   kube(['-n','neon','exec',pods[0].metadata.name,'-c','postgres','--','sh','-c',
-    'PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U neon_control_v2 -d neon_control_v2 --no-owner --no-acl'], {timeout:180000,stdoutFile:partial});
+    'PGPASSWORD="$POSTGRES_PASSWORD" PGAPPNAME='+applicationName+
+    ' PGCONNECT_TIMEOUT=10 PGOPTIONS="-c idle_in_transaction_session_timeout=60s"'+
+    ' timeout --signal=TERM --kill-after=10s 150s pg_dump -U neon_control_v2 -d neon_control_v2 --no-owner --no-acl'],
+    {timeout:180000,stdoutFile:partial});
   const bytes=fs.statSync(partial).size;
   if(bytes===0)throw new Error('Metadata backup is empty; retain partial evidence');
   const sha256=fileDigest(partial);
   fs.renameSync(partial,complete);
-  receipt.metadataBackup={sha256,bytes,streamed:true,restoreTested:false};
+  receipt.metadataBackup={sha256,bytes,streamed:true,applicationName,remoteDeadlineSeconds:150,
+    idleTransactionDeadlineSeconds:60,restoreTested:false};
 }
 function backupRuntimeState() {
   for (const name of ['neon-control-routes','neon-control-plane-credentials','neon-backend-credential-keys-v1',

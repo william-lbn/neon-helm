@@ -54,7 +54,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout fba924ff096003d77610069ddd34d2d23a8962d0
+git checkout 6e778bbc631f6fa30a7543dc274789beb70afb0f
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium
@@ -147,6 +147,33 @@ This suite does not certify in-place restore or consistency of external Backend
 services. Native storage/SQL failures must stay visible in retained evidence.
 
 ## 4. Additional independent acceptance
+
+### Retained lifecycle and two Readers
+
+Using a fresh fixture/evidence directory and the pinned control source, run
+`npm run test:e2e -- lifecycle.spec.ts`. This slice creates a dedicated project,
+data-only parent/leaf branches, one writer and two real read-only Endpoints.
+It checks root/child/protected deletion denial, leaf runtime retirement and
+same-Operation replay, WAL visibility/read-only rejection, independent zero/wake,
+active project retirement, seven-day recovery with original identities and
+credentials, and absence of previously deleted branches after recovery.
+
+The second retirement cycle covers active Data API/PostgREST/RLS, public relay
+closure, recovery with Data API still disabled, permanently revoked Backend
+tokens, explicit service re-enable with retained RLS data, and final service
+disable/Compute zero. No native timeline/object purge is enabled.
+
+The explicit `NEON_E2E_LIFECYCLE_RECOVERY_FAULT=true` variant adds recovery
+failure and same-Operation retry **inside the UI dialog**. It needs the separate
+trusted Linux operator described by the pinned control source's TESTING.md;
+browser Pods never receive Kubernetes credentials. The public Node tool CAS
+checks Worker UID/resourceVersion, changes only the queued owned recovery's
+terminal status, restores the Worker and verifies a successor leader epoch.
+This is operator-injected status, not storage outage or HA certification.
+
+Use separate attempts for restore, native, Data API, invitation, credential and
+lifecycle suites. A read-only observer may continue the original Job UID after
+an API outage; it must not reissue lifecycle mutations or rewrite failed reports.
 
 | Scenario | Required real assertions |
 |---|---|

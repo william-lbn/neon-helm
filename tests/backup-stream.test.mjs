@@ -34,3 +34,12 @@ test('a stream destination is exclusive and cannot overwrite an earlier attempt'
   assert.throws(()=>run(process.execPath,['-e','process.stdout.write("replacement")'],{stdoutFile:file}),{code:'EEXIST'});
   assert.equal(fs.readFileSync(file,'utf8'),'original');
 });
+
+test('a timed-out dump preserves the partial file and cannot become a complete backup',(t)=>{
+  const file=fixture(t);
+  assert.throws(()=>run(process.execPath,['-e',
+    'process.stdout.write("partial-before-timeout");setInterval(()=>{},1000)'],
+    {stdoutFile:file,timeout:500}),/execution failed: ETIMEDOUT/);
+  assert.equal(fs.readFileSync(file,'utf8'),'partial-before-timeout');
+  assert.equal(fs.statSync(file).mode&0o777,0o600);
+});

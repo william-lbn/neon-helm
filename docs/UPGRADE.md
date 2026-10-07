@@ -34,10 +34,12 @@ Existing releases map to their protected full values:
 | neon-control-plane | neon-control-plane.json |
 | neon-compute-management-gateway | compute-management-gateway.json |
 
-The current lab keeps `proxy.legacyApiEnabled=true` because its historical
-`compute`, `compute-resizer`, `proxy-api` objects remain release-owned. Fresh
-installs default to false and create no permanently running test Compute.
-Retained static VM `vm-neon-compute` is excluded from the default stack.
+Installations upgrading from before 0.1.3 must preserve the historical
+`proxy.legacyApiEnabled=true` overlay until ownership and route checks in
+section 6 have passed. The accepted current lab uses `false`; its completed
+legacy proxy/resizer workloads have been retired after retaining their records.
+Fresh installs also default to false and create no permanently running test
+Compute. Retained static VM `vm-neon-compute` is excluded from the default stack.
 
 ### Retire a finished static lab Compute
 
@@ -183,3 +185,49 @@ capture buffer (about 35 MB on the lab). Linux regression tests cover output
 above that boundary, failed exit preservation and exclusive destination behavior.
 A successful dump receipt records bytes/SHA256 and `restoreTested:false`;
 backup capture does not certify full DR or a restore rehearsal.
+
+Both sides of the export now have deadlines: the remote `pg_dump` is wrapped
+in GNU `timeout` (150 seconds, followed by a 10-second kill grace), while the
+local kubectl deadline is 180 seconds. The pinned PostgreSQL image must provide
+GNU `timeout`; absence fails the backup before rollout. Each export has a unique
+`PGAPPNAME` in its receipt and a PostgreSQL `idle_in_transaction_session_timeout`
+of 60 seconds. A lost client cannot retain an idle export transaction indefinitely.
+Slow exports fail with a retained partial file; never label them a valid backup.
+
+If a migration waits, inspect `pg_stat_activity`, `pg_blocking_pids` and
+`pg_locks` before changing anything. On 2026-10-07 a previous failed export left
+an idle `pg_dump` holding metadata table locks for over two hours; this blocked
+migration 014 even though all nodes were Ready and I/O PSI was zero. Retirement
+was limited to the identified idle export by PID **and backend_start**, after
+preserving lock evidence and verifying a new complete backup. Do not terminate
+unidentified sessions or business transactions. Record failed Helm status,
+then retry the reviewed upgrade; do not reset metadata or drop migrations.
+
+## 8. Retained deletion and recovery (0.1.4)
+
+Control-plane migrations 014–015 are forward-only and loaded by the compiled
+API. Keep migration 014 immutable; 015 replaces the admission function to permit
+retry of the original failed creation/recovery without allowing unrelated work
+on deleted resources. Chart version 0.1.4 pins the six control images to one
+verified source commit; component chart appVersion identifies runtime 0.8.1.
+
+After backup and reviewed rollout, verify 15 applied control migrations,
+independent API/Worker/Web readiness, preserved PVC/Secret UIDs and zero
+unexpected Compute. Run the lifecycle UI suite on a fresh owned fixture: root
+and child protection, active leaf retirement, two real read replicas, project
+retirement/recovery, original SQL credentials/data, Data API disabled after
+recovery and old Backend tokens permanently revoked. Preserve every Operation
+and failure report; only retire completed runtime resources.
+
+Project recovery restores the original live resource identities within seven
+days and keeps Computes suspended. Previously deleted branches remain deleted.
+Native timelines, WAL, objects, Secrets and evidence remain retained; physical
+GC is held. Do not implement purge or reduce retention as an upgrade shortcut.
+Recovery of a failed operation uses the original Operation retry endpoint and
+UI control, rather than another delete/create request. The explicit operator
+fault procedure lives in the pinned control source's docs/TESTING.md.
+
+Helm rollback does not downgrade PostgreSQL migrations or restore a full storage
+backup. Older control images do not implement these lifecycle/retry contracts;
+prefer a reviewed forward repair. Data restoration requires a separately tested
+recovery plan. These checks do not certify HA, distributed fencing or full DR.

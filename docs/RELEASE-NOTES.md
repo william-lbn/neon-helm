@@ -1,5 +1,25 @@
 # Neon Helm releases
 
+## 0.1.4
+
+Go API/Worker and React Console add protected project/leaf-branch retained
+deletion, dependency admission, UID/resourceVersion Compute retirement,
+seven-day project recovery and tombstones. OpenAPI 0.8.0 describes 50 paths
+and 69 operations; migrations 014–015 preserve existing metadata and data.
+Migration 015 keeps failed creation/recovery retryable under the original
+Operation, while denying unrelated work on deleted resources. The recovery
+dialog supports an explicit same-Operation retry after terminal failure.
+Real Linux UI exercises two independent read replicas, read-only enforcement,
+WAL visibility, original-selector cold wake, active Data API retirement and
+permanent Backend credential revocation. Physical Timeline/WAL/object purge,
+distributed connection fencing and production HA/TLS remain separate gates.
+
+All ten chart packages share version 0.1.4. Upgrades preserve complete current
+values, PVCs, Secrets and metadata. Backup export has a unique PGAPPNAME and
+remote/idle transaction deadlines so abandoned pg_dump cannot indefinitely
+block migrations; timeout output remains a private partial file and blocks
+rollout. Linux tests cover the timeout and retained partial evidence.
+
 ## 0.1.3
 
 The Proxy/Storage adapter is a compiled Go process from the same source revision

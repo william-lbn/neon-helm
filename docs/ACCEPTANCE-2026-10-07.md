@@ -22,17 +22,19 @@ unavailable services or establish HA/DR. See the explicit remaining gates below.
 | Five public image manifests/config/source labels | PASS: anonymous Linux verification | `locks/control-plane-f90c937.json`; Linux/amd64 |
 | Three-node image pull | PASS: 15 digest checks | five images on each node, anonymous pull, fixed revision |
 | Final chart quality/package | PASS: ten charts, six contracts, five negative cases | `helm-quality-1791350709` |
+| Helm public main Linux CI | PASS | `c20f468`; [37577518611](https://github.com/william-lbn/neon-helm/actions/runs/37577518611) |
 | Eight-release apply/live manifest audit | PASS | protected `unified-052543`: 29 declared image references, eight PVC bindings, external Secret identity/data and all installed manifests/hooks match |
 | Published native UI + Worker/read outage | PASS: 14 checks; zero managed VM/Pods | `publication-ui-20261007052713`; project `prj_70f16b783b534bc1`, same queued Operation succeeds, leader epoch 30→31, exactly one project POST after two 503s |
 | Published Data API UI/read outage | PASS: 21 checks; zero managed VM/Pods | `publication-ui-20261007052947`; project `prj_3f4041bd7237ef17`, RLS/invalid JWT/forged writes, same Operation, disable/re-enable, manual/automatic zero and first-request wake |
 | Published invitations UI | PASS: six checks; no Compute created | `publication-ui-20261007053408`: invited registration, existing account acceptance, no secret replay, Viewer/cross-org denial, revocation and immediate membership access loss |
 | Published Backend credential UI | PASS; no Compute created | `publication-ui-20261007053617`: one-time secret, replay redaction, branch lineage/model checks, rotation/revocation and reload; inference not tested |
 | Isolated metadata restore | PASS | `helm-restore-1791350159`: 26 projects, 69 branches, 76 Endpoints, 391 Operations, 12 migrations, 6 invitations/10 constraints, 26 tables |
-| Versioned chart release/anonymous consumer | Pending | `v0.1.1`, ten packages + index/checksums |
+| Versioned chart release | PASS: quality + release Jobs | [v0.1.1](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.1), source `c20f468`, tag object `35fbb254`; [37578114503](https://github.com/william-lbn/neon-helm/actions/runs/37578114503) |
+| Anonymous Helm consumer | PASS | repo add/update, all ten 0.1.1 packages and index SHA256 verified; no credentials required |
 | Final runtime cleanup | PASS: another 40 terminal Jobs archived/removed | UID/resourceVersion preconditions; zero managed VM/runner Pods and no static VM; all data/evidence preserved |
-| Exact public-source final audit | Pending publication | anonymous checkout must match all installed manifests/hooks, PVC and external Secret identities |
+| Exact public-source final audit | PASS | anonymous Linux checkout `c20f468c81d5f7cb89657ab6b2661db92d2fbd02`; all installed manifests/hooks, PVC/Secret identities and VM/runner zero gate match |
 
-Pending rows are not completed by an earlier commit, a build or a Ready Pod.
+Unrun production gates below are not completed by this release, a build or a Ready Pod.
 The final release report is updated from new immutable receipts, never by
 changing a failed attempt into a success. All private dumps/password fixtures,
 request/Pod details and masked screenshots remain in protected operator storage.
@@ -68,6 +70,12 @@ records were archived in protected storage, then removed with server-side
 UID/resourceVersion preconditions. No active Job was removed. This totals
 74 terminal test Jobs retired in this work period; project data, fixtures,
 private attempt directories, credential state and rollback images were retained.
+
+Git HTTPS tag transport failed twice. The official Git API uploaded the exact
+existing annotated object (`35fbb2541d97511ca90e1672eac58752369537cf`) and created
+its absent remote reference; SHA, source, tagger/time and message matched locally.
+No tag was overwritten. The normal push workflow then built/published the packages.
+The version tag remains fixed; this post-publication report update changes docs only.
 
 ## 4. Version and manual reproduction
 

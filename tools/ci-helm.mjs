@@ -37,10 +37,11 @@ for(const [chart,overlay] of [
   ['neon-core',{safekeeper:{replicas:2}}],
   ['neon-metadata',{developmentAcknowledged:false}],
   ['neon-adapter',{compatibilityAcknowledged:false}],
+  ['neon-control-plane',{api:{pitrEnabled:true,creationEnabled:false}}],
   ['neonvm',{controller:{qemuDiskCacheSettings:'cache.no-flush=on',labAcknowledged:false}}],
 ]) {
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:5,productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:5}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:6,productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:6}));

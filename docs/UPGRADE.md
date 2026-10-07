@@ -116,3 +116,23 @@ recovery; `helm rollback` cannot reverse them. Retain controller DB, metadata DB
 Safekeeper WAL and object-store consistency as one recovery set. Real HA/DR and
 PITR remain separately unqualified; never claim the automatic backups certify
 these features.
+
+## 5. Historical branch migration and recovery
+
+Version 0.1.2 requires the control product's forward migration 013. It adds
+historical provenance on `branches`; existing branches default to `current`.
+Quiesce API/Worker using the stack maintenance flow and retain the metadata
+dump and external Secret state. Do not reverse the migration with Helm rollback.
+
+Do not run a pre-restore Worker against pending historical operations: the
+older reconciler cannot enforce their fixed LSN lease/step contract. Drain or
+recover accepted operations with compatible code before changing versions.
+Keep exact source/digests and observe original Operation IDs after a failure.
+The `api.pitrEnabled` flag is shared by API and Worker; the production default
+remains false. Enable the narrow new-branch capability only after native
+retention API compatibility and release-specific real UI acceptance.
+
+Compute suspension is identified by the deleted VM UID. An owned same-name
+cold-wake successor proves the old generation is gone; it must survive the
+old operation. Never force-delete the new UID to make a pending operation
+finish. This correction is distinct from full distributed admission fencing.

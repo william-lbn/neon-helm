@@ -2,7 +2,7 @@ apiVersion: v2
 name: neon-metadata
 description: Retained single-instance control metadata PostgreSQL for development; use external HA PostgreSQL in production
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: '16'
 kubeVersion: '>=1.30.0-0'
 home: https://github.com/william-lbn/neon-helm

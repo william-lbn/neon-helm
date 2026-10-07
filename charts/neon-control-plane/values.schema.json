@@ -101,6 +101,9 @@
         "resources": {
           "type": "object",
           "additionalProperties": true
+        },
+        "pitrEnabled": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

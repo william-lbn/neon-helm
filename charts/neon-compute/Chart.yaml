@@ -1,6 +1,6 @@
 apiVersion: v2
 name: neon-compute
-version: 0.1.1
+version: 0.1.2
 description: Isolated Neon PG16 compute guest for the staged autoscaling laboratory
 home: https://github.com/william-lbn/neon-helm
 sources:

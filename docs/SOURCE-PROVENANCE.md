@@ -5,13 +5,13 @@
 | william-lbn/neon | `1f30cd02092dc151f5d00aef97e7c629105b454b` |
 | william-lbn/autoscaling | `c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93` |
 | william-lbn/postgres (v16) | `a42351fcd41ea01edede1daed65f651e838988fc` |
-| william-lbn/control-plane | `f90c9370db583e71796c4c6ad44e51c6ea354f43` |
+| william-lbn/control-plane | `ac94dfa2f8e00592bc0cc86fc2343494296fcdeb` |
 
 Data-plane release tag:
 `2026.09.30-162021-1f30cd02092d-r36742713551-a1`.
 Every deployment profile uses immutable registry digests. Consult
 `locks/neon-fork-20260930.json` for the full 46-image source/build distribution
-and `locks/control-plane-f90c937.json` for the five published control images.
+and `locks/control-plane-ac94dfa.json` for the five published control images.
 These are fixed current deployment versions, not an assertion of future latest.
 
 The initial chart imports came from the existing validated deployment bundle

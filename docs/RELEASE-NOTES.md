@@ -1,5 +1,30 @@
 # Neon Helm releases
 
+## 0.1.2
+
+Historical PostgreSQL recovery to a **new branch** is implemented in the Go
+control API/Worker and React Console. Timestamp/LSN resolution uses the native
+Pageserver retention boundary and LSN lease before accepting intent. Worker
+retry retains the resolved point and verifies exact timeline ancestry. Current
+catalog intents are not projected into historical data. Migration 013 stores
+restore provenance. OpenAPI 0.7.0 exposes 46 paths and 63 operations.
+
+The chart adds `api.pitrEnabled` (default false), shared by API and Worker;
+enabling it without resource creation is rejected. The locked lab profile opts
+in after real Linux restore tests. Ten chart packages share version 0.1.2;
+forked Neon/PostgreSQL/autoscaling sources and their 46-image lock are unchanged.
+The acceptance report records exact control-image source/digests and fresh
+regression results. In-place restore, Time Travel Assist, full Backend recovery,
+deletion/GC, HA/DR, fencing, fractional CPU, full RAM downscale and trusted TLS
+retain independent implementation or qualification gates.
+
+A real published-image UI test exposed a missed-404 race during suspend/cold
+wake. The Worker now observes deletion of the original VM generation: an owned
+successor UID is accepted without mutating it, and missing/foreign identities
+fail. The Linux Go gate includes this matrix; the live restore suite requires
+the original suspend Operation to succeed after the cold wake. This correction
+does not claim full cross-instance fencing.
+
 ## 0.1.1
 
 The control product is locked to `f90c9370db583e71796c4c6ad44e51c6ea354f43`:

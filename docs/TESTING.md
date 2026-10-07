@@ -49,7 +49,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout f90c9370db583e71796c4c6ad44e51c6ea354f43
+git checkout ac94dfa2f8e00592bc0cc86fc2343494296fcdeb
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium
@@ -125,6 +125,22 @@ without secret recovery, model/lineage positive and negative checks, rotation,
 revocation and refresh. Tokens stay in process memory. This is credential
 authorization, not AI provider inference.
 
+### Historical recovery sequence
+
+Enable `api.pitrEnabled:true` for API and Worker only on compatible managed
+storage; `api.creationEnabled:true` is required. Use new evidence/private
+directories and run `npm run test:e2e -- restore.spec.ts`. The UI sequence writes
+a before value, records a committed LSN and UTC timestamp, then writes an after
+value and creates a managed role/database. Restore to a new branch, verify the
+before value and absence of later table/role/database, cold-wake after suspension,
+prove the source remains unchanged, restore the explicit LSN, replay the same
+request and reject an expired history point. All owned Computes end at zero.
+
+The authoritative API/model/retention-lease rules and manual steps are in the
+control repository's `docs/HISTORICAL-BRANCH-RESTORE.md` at the pinned revision.
+This suite does not certify in-place restore or consistency of external Backend
+services. Native storage/SQL failures must stay visible in retained evidence.
+
 ## 4. Additional independent acceptance
 
 | Scenario | Required real assertions |
@@ -136,7 +152,7 @@ authorization, not AI provider inference.
 | Idle races | active long query/transaction/replication, incoming connection during suspend, old VM generation samples |
 | HA/DR/PITR/TLS | independent fault domains and complete recovery/trust evidence; see PRODUCTION-GATES.md |
 
-The four published UI slices do not automatically mark these additional rows
+The published UI slices do not automatically mark these additional rows
 passed. Copy source acceptance reports only as historical evidence and rerun
 each changed behavior explicitly. Final reports distinguish pass/fail/not run/
 not implemented with reasons and resource identities.

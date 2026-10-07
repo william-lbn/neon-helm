@@ -1,6 +1,6 @@
 {
   "image": {
-    "reference": "docker.io/williamluckyli/control-dataapi@sha256:8026f27bd3008f1a75a32310cfa8514538ddcaf158b6340f77d79477e33e581f"
+    "reference": "docker.io/williamluckyli/control-dataapi@sha256:c5fce51942b6d8013b2c2fb3125ca24e9e0ac1a187c64e73a561a9d6a6003238"
   },
   "configSecret": "standalone-data-api-config",
   "signingSecret": "standalone-data-api-signing",

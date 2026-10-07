@@ -85,6 +85,25 @@ HA, etcd latency, durability or cross-instance fencing qualification.
 
 ## 4. Final release gate
 
+### Read-only Linux pressure admission
+
+Run `bash tools/check-node-pressure.sh` on **every** candidate Linux node before
+the next build, image pull or Compute suite. The default requires I/O PSI some
+avg10 at most 5%, memory PSI some avg10 at most 0.10%, and at least 4096 MiB
+available memory. Save each JSON result privately. This leaves room for one
+bounded browser/Compute suite; it is not a storage throughput guarantee or a
+replacement for requests/reservations. Explicit operator threshold changes
+must be recorded, rather than silently accepting a failed check.
+
+Stop admission on failure, preserve the current operation and sample `iostat`,
+etcd/API readiness and host resources. Wait for a stable recovery; do not run
+fio/compilation or restart the quorum during the stall. Run suites serially and
+observe both VM and runner removal before admitting another. On 2026-10-07 the
+restore follow-up sampled guest write waits of 0.2–2.5 seconds while all guests
+had over 9 GiB available and the builder was inactive. The accepted Endpoint
+eventually reconciled with its original identity. The initiating shared storage
+stall is still unattributed; tests do not certify that it is permanently fixed.
+
 Run `audit-live --expect-zero --require-manifest-match` as documented in
 TESTING.md. Require zero managed VM/runner Pods, all foundation nodes/workloads
 healthy, unchanged PVC bindings and external credentials, and exact installed

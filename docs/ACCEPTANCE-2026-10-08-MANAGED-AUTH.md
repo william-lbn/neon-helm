@@ -182,3 +182,27 @@ short-connection races, distributed external SQL fencing, complete adversarial
 authorization, HA/DR, persistent SLO/alerts and whole-stack trusted TLS have
 implementation or qualification gaps. PRODUCTION-GATES.md remains authoritative;
 no successful lab test converts those rows into production availability.
+
+
+## 6. Immutable publication and final consumer receipts
+
+The immutable `v0.1.5` tag names Helm source
+`7a6c8ef5f8b9effec16af3a5d23dd83b520db5cd`.
+[Tag CI 37796404838](https://github.com/william-lbn/neon-helm/actions/runs/37796404838)
+passed quality and publication; [the release assets](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.5)
+contain ten chart archives, index, SHA256SUMS and source/image locks.
+A Linux operator anonymously cloned that exact commit and passed source
+contracts plus all eight installed-release manifest/image/PVC/Secret checks,
+with zero managed VM/runner resources. A separate anonymous Linux Helm
+consumer downloaded all ten packages and index and verified every checksum.
+No GitHub/registry credential was supplied to those consumers.
+
+Control recovery tests and acceptance documentation are in
+`599afb1b76e1c304a1ba370aee396a329002c003`;
+[CI 37796055203](https://github.com/william-lbn/control-plane/actions/runs/37796055203)
+passed all five quality gates and seven publications. That test/documentation
+increment does not change the accepted runtime lock from `2dcd7d2`.
+Temporary port 18790 forwards were confirmed closed on all three nodes, both
+owned lifecycle fault-controller processes exited, and no local legacy
+8787/8788 service was listening. Detailed private receipts remain with the
+operator. Documentation follow-ups never move the published release tag.

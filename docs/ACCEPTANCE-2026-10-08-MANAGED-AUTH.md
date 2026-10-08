@@ -206,3 +206,20 @@ Temporary port 18790 forwards were confirmed closed on all three nodes, both
 owned lifecycle fault-controller processes exited, and no local legacy
 8787/8788 service was listening. Detailed private receipts remain with the
 operator. Documentation follow-ups never move the published release tag.
+
+
+### Post-publication CI handoff correction
+
+The final control documentation push later exposed a nondeterministic immediate
+lease-takeover assertion in CI `37797382865`. Locked pgx 5.9.2 closes the client
+socket while PostgreSQL retires session advisory locks asynchronously. The
+production Worker already treats an unavailable lock as standby; its behavior,
+lease/timeout policy and accepted `2dcd7d2` runtime are unchanged. The corrected
+integration test observes the original PID's lock retirement with a five-second
+test deadline before the existing takeover/epoch/stale-generation assertions.
+Linux full Go/race/vet passed 354 checks, and ten fresh isolated PostgreSQL
+schemas passed 60 additional handoff checks with zero failure/skip. Failures
+and new evidence are retained. The additional disposable CI Job was archived
+before conditional retirement, bringing the total to **49 Jobs and five probe
+Pods**. The immutable v0.1.5 tag and its already accepted packages are unchanged.
+Reproduction is in the control repository's WORKER-SPLIT.md section 5.2.

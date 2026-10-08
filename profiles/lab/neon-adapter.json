@@ -1,4 +1,4 @@
 {
   "compatibilityAcknowledged": true,
-  "image": "docker.io/williamluckyli/control-adapter@sha256:6eaae96cfa460ec7ba54d134a22bb6a6562bb3a3065fc06e2bf2e5e765d90238"
+  "image": "ghcr.io/william-lbn/control-adapter@sha256:0313c1e5aafa41be0e6f1f536fbd561de94578344affc7a5310c4d2282b5d050"
 }

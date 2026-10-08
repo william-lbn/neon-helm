@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {root,readJSON,validatePlan,pinned,digest,documents} from './lib.mjs';
+import {root,readJSON,validatePlan,validateControlImagesLock,pinned,digest,documents} from './lib.mjs';
 const failures=[];
 function walk(dir) {
   return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e => {
@@ -21,6 +21,16 @@ for(const file of files) {
   if(/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{24,}|sk-[A-Za-z0-9]{32,}/.test(value))failures.push('Credential pattern '+name);
 }
 const plan=validatePlan(readJSON('stack/stack.json'));
+if(!/^locks\/control-plane-[a-f0-9]{7}\.json$/.test(plan.controlImagesLock||''))failures.push('Missing current control image lock');
+else {
+  const control=readJSON('profiles/lab/neon-control-plane.json');
+  try{validateControlImagesLock(readJSON(plan.controlImagesLock),{
+    api:control.api.image.reference,web:control.web.image.reference,auth:control.managedAuth.runtimeImage,
+    dataapi:control.dataAPI.gatewayImage,postgrest:control.dataAPI.postgrestImage,
+    gateway:readJSON('profiles/lab/compute-management-gateway.json').image.reference,
+    adapter:readJSON('profiles/lab/neon-adapter.json').image,
+  });}catch{failures.push('Control source/image lock disagrees with active profiles');}
+}
 if(readJSON('package.json').version!==plan.version)failures.push('Release package/stack version drift');
 for(const chart of [...plan.steps.map(s=>s.chart),...plan.optionalCharts]) {
   for(const name of ['Chart.yaml','values.yaml','values.schema.json','.helmignore'])if(!fs.existsSync(path.join(root,'charts',chart,name)))failures.push('Missing '+chart+'/'+name);

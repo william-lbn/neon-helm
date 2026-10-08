@@ -54,7 +54,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout 6e778bbc631f6fa30a7543dc274789beb70afb0f
+git checkout 2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium
@@ -204,3 +204,7 @@ Compute suite; a terminating runner can still consume capacity. The final
 `audit-live --expect-zero` gate checks both, and fails on remaining runners.
 Bound any observation wait (for example 120 seconds), retain the timeout evidence,
 and inspect finalizers/controller/guest shutdown instead of force-deleting it.
+
+## Managed Auth acceptance
+
+Run the public `managed-auth.spec.ts` suite serially using a fresh private/evidence directory. The browser URL must equal `managedAuth.publicOrigin`; the Node runtime requires the public Proxy CA Secret/key and exact certificate identity. Follow [the Auth contract](https://github.com/william-lbn/control-plane/blob/2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97/docs/MANAGED-AUTH.md) for the explicit database delegation, app registration, branch isolation, JWT/RLS, service dependencies and cold wake. No SMTP/OAuth/provider credentials are required for this basic slice. Preserve failed attempts and all SQL/Secret fixtures; only stop owned runtime workloads. Release-specific real acceptance is recorded separately.

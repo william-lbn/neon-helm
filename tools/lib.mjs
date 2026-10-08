@@ -9,6 +9,19 @@ export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const pinned = /^[^\s]+@sha256:[a-f0-9]{64}$/;
 export const readJSON = (name) => JSON.parse(fs.readFileSync(path.resolve(root, name), 'utf8'));
 export const digest = (value) => crypto.createHash('sha256').update(value).digest('hex');
+export function validateControlImagesLock(lock, references) {
+  const expected=['adapter','api','auth','dataapi','gateway','postgrest','web'];
+  if(!/^[a-f0-9]{40}$/.test(lock.source_commit)||lock.platform!=='linux/amd64'||
+     lock.anonymous_registry_verified!==true||!Number.isSafeInteger(lock.github_ci_run_id)||
+     JSON.stringify(Object.keys(lock.images||{}).sort())!==JSON.stringify(expected)||
+     JSON.stringify(Object.keys(references).sort())!==JSON.stringify(expected))throw new Error('Invalid control image distribution');
+  for(const component of expected) {
+    const image=lock.images[component];
+    if(image.source_commit!==lock.source_commit||image.anonymous_pull_verified!==true||
+       !pinned.test(image.reference)||image.reference!==references[component])throw new Error('Control source/image drift: '+component);
+  }
+  return true;
+}
 export function fileDigest(file) {
   const hash=crypto.createHash('sha256');
   const fd=fs.openSync(file,'r');

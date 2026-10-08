@@ -16,7 +16,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 4. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
 5. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
 6. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-7. [Current retained lifecycle / recovery / two Readers acceptance](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
+7. [Current Managed Auth and release acceptance](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
 8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 
 ```bash
@@ -46,8 +46,11 @@ the control-plane Drivers, not permanently installed by Helm.
 | `tests/` | Ownership, dependency, persistence and schema rejection contracts |
 | `docs/` | Deployment, upgrade, test and qualification runbooks |
 
-Images are pulled from the public `williamluckyli` Docker Hub repositories at
-fixed digests. The chart repository does not rebuild these images. GitHub CI
+Data-plane images use the public `williamluckyli` Docker Hub repositories;
+the seven current control images select public `william-lbn` GHCR mirrors of
+the same CI publication. All references are fixed digests. See the selected
+source/image lock for exact provenance. The chart repository does not rebuild
+these images. GitHub CI
 validates all charts on Linux; a version tag publishes chart packages and hashes
 as GitHub Release assets using the repository's own `GITHUB_TOKEN`.
 No Docker Hub publishing credential is needed for chart publication.
@@ -55,7 +58,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.4
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.5
 helm repo update
 helm search repo neon
 ```

@@ -1,0 +1,93 @@
+{
+  "source": "https://github.com/william-lbn/control-plane",
+  "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+  "github_ci_run_id": 37781056916,
+  "platform": "linux/amd64",
+  "images": {
+    "api": {
+      "name": "ghcr.io/william-lbn/control-api:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-api@sha256:001e78c38e5a78d76c0b76317ce551e5a815cc771833db031f41a590eabbe61b",
+      "digest": "sha256:001e78c38e5a78d76c0b76317ce551e5a815cc771833db031f41a590eabbe61b",
+      "platform_digest": "sha256:a259e950d7173466f6137b0917ca2accf5829092018c3d8916b4c9db7579751d",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:3fbde67a732850b53628853b85cc4c11b5de433b45739501c04feec2e24a4865",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "web": {
+      "name": "ghcr.io/william-lbn/control-web:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-web@sha256:b44e3bb1d587f04674c9b842ca341630fc6ac61b2dd2578b8a17e6209c440eb8",
+      "digest": "sha256:b44e3bb1d587f04674c9b842ca341630fc6ac61b2dd2578b8a17e6209c440eb8",
+      "platform_digest": "sha256:a8cb1c98f2f3bdaaafe81b3ccd0526dc123eaaf8009265f022f0418146b2f202",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:1b95dac8cbc0ddfd52868d8f95b78730aff27913799dd1b5cfec91d3d4ca64bc",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "gateway": {
+      "name": "ghcr.io/william-lbn/control-gateway:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-gateway@sha256:54f37f82e5952de0d273c226fe830286887a00e8ea4053a56bbd8f2f3f37ddd4",
+      "digest": "sha256:54f37f82e5952de0d273c226fe830286887a00e8ea4053a56bbd8f2f3f37ddd4",
+      "platform_digest": "sha256:adb5ed1b196c13664fe84d863bae6dc874e6502fdee7c72ce5dd1f84d45bfefa",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:363501874747f6e602814fa5754b9911199efc0ab8223fa16430a1c4594ac0b8",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "dataapi": {
+      "name": "ghcr.io/william-lbn/control-dataapi:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-dataapi@sha256:cf168f990f5bd27f44b7401f4d979dfd7adedb8bbdaf9c589df50bd55b718572",
+      "digest": "sha256:cf168f990f5bd27f44b7401f4d979dfd7adedb8bbdaf9c589df50bd55b718572",
+      "platform_digest": "sha256:70510abfc62214d88078116f48a613762f0a3c155084b54f1d7871f9d8f03c0a",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:a1b67d7e69d5cd8c828a45fbae9b0f78d36f47e1584a7cc1f54c0cdd69189068",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "postgrest": {
+      "name": "ghcr.io/william-lbn/control-postgrest:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-postgrest@sha256:2577801cec796f3f29379ef3d7dbc6496dfe184b93882dfbf90f7fcc8e9c258f",
+      "digest": "sha256:2577801cec796f3f29379ef3d7dbc6496dfe184b93882dfbf90f7fcc8e9c258f",
+      "platform_digest": "sha256:badb34d0c922baee1e4e6081f6d20d4b1730127eb195612b618366f993cc60f4",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:228cb1a268d7a1923133b7577a5a390eeb2e4be77f51c8abb23f77cc27f69bf9",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "MIT",
+      "anonymous_pull_verified": true
+    },
+    "adapter": {
+      "name": "ghcr.io/william-lbn/control-adapter:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-adapter@sha256:0313c1e5aafa41be0e6f1f536fbd561de94578344affc7a5310c4d2282b5d050",
+      "digest": "sha256:0313c1e5aafa41be0e6f1f536fbd561de94578344affc7a5310c4d2282b5d050",
+      "platform_digest": "sha256:f2b49373e360c73f13c7404844f81817839ef05440107637f326ad0b5a3b3e4f",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:9dac9c69e512bc78c37ce8d402b793660c436dbf0270bf667ca899daf7376e4c",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "auth": {
+      "name": "ghcr.io/william-lbn/control-auth:sha-2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97-r37781056916-a1",
+      "reference": "ghcr.io/william-lbn/control-auth@sha256:0f06765204e43c584b3b71612815ce05b35dc7e9e2b7441695dfdc03a9502dbe",
+      "digest": "sha256:0f06765204e43c584b3b71612815ce05b35dc7e9e2b7441695dfdc03a9502dbe",
+      "platform_digest": "sha256:c6cbc4235a470cbfe3bd7f5465a0a7c034e9094ff2bbb1b0af0048ce93613c99",
+      "source_commit": "2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:0297a18445844ec36c996114ccc28b704042f88065bd1b5bb4670b3662e284d0",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    }
+  },
+  "anonymous_registry_verified": true
+}

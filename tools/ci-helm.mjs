@@ -46,6 +46,19 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     assert.equal(retiredObjects.filter(obj=>obj.kind==='VirtualMachine').length,0,'Retirement must release the static VM');
     assert.equal(retiredObjects.filter(obj=>obj.kind==='Service').length,1,'Retirement must retain the service identity');
   }
+  if(chart==='neon-control-plane') {
+    for(const name of ['neon-control-api','neon-control-worker']) {
+      const deployment=objs.find(o=>o.kind==='Deployment'&&o.metadata.name===name);
+      assert.ok(deployment,'API and Worker must be independently deployed');
+      const env=deployment.spec.template.spec.containers[0].env;
+      assert.equal(env.find(v=>v.name==='NEON_AUTH_ENABLED')?.value,'true');
+      assert.equal(env.find(v=>v.name==='NEON_AUTH_LAB_HTTP')?.value,'true');
+      assert.equal(env.find(v=>v.name==='NEON_AUTH_PUBLIC_ORIGIN')?.value,profile.managedAuth.publicOrigin);
+      assert.match(env.find(v=>v.name==='NEON_AUTH_RUNTIME_IMAGE')?.value||'',pinned);
+      assert.equal(env.find(v=>v.name==='NEON_AUTH_PG_CA_SECRET')?.value,profile.managedAuth.pgCASecret);
+      assert.equal(env.find(v=>v.name==='NEON_AUTH_PG_SERVER_NAME')?.value,profile.managedAuth.pgServerName);
+    }
+  }
   const invalid=path.join(output,chart+'.invalid.json');fs.writeFileSync(invalid,JSON.stringify(merge(profile,{unknownSetting:true})));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',invalid,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unknown settings must fail schema validation');
   results.push({chart,lint:'pass',render:'pass',unknownSettingRejected:true,objects:objs.length});
@@ -60,10 +73,13 @@ for(const [chart,overlay] of [
   ['neon-adapter',{wakeTimeout:'301s'}],
   ['neon-adapter',{pageserverNodeID:0}],
   ['neon-control-plane',{api:{pitrEnabled:true,creationEnabled:false}}],
+  ['neon-control-plane',{managedAuth:{labHTTP:false}}],
+  ['neon-control-plane',{managedAuth:{runtimeImage:'williamluckyli/control-auth:latest'}}],
+  ['neon-control-plane',{managedAuth:{pgCASecret:''}}],
   ['neonvm',{controller:{qemuDiskCacheSettings:'cache.no-flush=on',labAcknowledged:false}}],
 ]) {
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:10,productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:10}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:13,productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:13}));

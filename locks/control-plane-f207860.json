@@ -1,0 +1,96 @@
+{
+  "source": "https://github.com/william-lbn/control-plane",
+  "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+  "github_ci_run_id": 37699936528,
+  "platform": "linux/amd64",
+  "images": {
+    "api": {
+      "name": "docker.io/williamluckyli/control-api:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-api@sha256:1bfbc06c57a032fdb5cda3e77649202e3efaac06173dcc3faae63c41a91bd2ff",
+      "digest": "sha256:1bfbc06c57a032fdb5cda3e77649202e3efaac06173dcc3faae63c41a91bd2ff",
+      "platform_digest": "sha256:614f56057b0e98c138b81ba4e36c90f66df728e5c7bde9796e50524550d748b6",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:b324c15dae231f62bf0f67f3e772fc9d4b47c46060fe5d698aed632d2681efe4",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "web": {
+      "name": "docker.io/williamluckyli/control-web:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-web@sha256:11ebca39b42dc8da05a4203a4b9a8f14ac669a7f8b9de12c8ae3ebc2371188c8",
+      "digest": "sha256:11ebca39b42dc8da05a4203a4b9a8f14ac669a7f8b9de12c8ae3ebc2371188c8",
+      "platform_digest": "sha256:60db48b1bf879b22ccd5a462ec5d4ee86a486dff1640c01f811e84b4c61589ca",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:9815b5adf1c67403438d105542ae63033a4e3c30dfc2a595fbe97d82a5bff19a",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "gateway": {
+      "name": "docker.io/williamluckyli/control-gateway:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-gateway@sha256:13ca4fbc67365e89a7a656b4ae0b18224f7b7315f3b71166947dcc62e441c269",
+      "digest": "sha256:13ca4fbc67365e89a7a656b4ae0b18224f7b7315f3b71166947dcc62e441c269",
+      "platform_digest": "sha256:7faae08694259dc38a80bbb4874eb6b358f59e730cc058a092df5801019045b6",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:0fe8e3d85d8fb619e7846c58cd9fd773d5bcf8e390d2573912d9d68c0f244790",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "dataapi": {
+      "name": "docker.io/williamluckyli/control-dataapi:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-dataapi@sha256:55ca788616c002e4f449f7523300b4ccb5c3d69ba1f5452ee154d3ce2a2f925d",
+      "digest": "sha256:55ca788616c002e4f449f7523300b4ccb5c3d69ba1f5452ee154d3ce2a2f925d",
+      "platform_digest": "sha256:ac8ba98c3f97a7ef681c71bffac90ed392907933c46ed42ffa22c9d8168f30f3",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:1b9eb02f51b54495064218796644ce2d26483dfda81d105bd9c1ec9f0f0a405b",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "postgrest": {
+      "name": "docker.io/williamluckyli/control-postgrest:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-postgrest@sha256:b970290de4b79de2a1224f504aa4db758bc7153c3fa3581fb4477d96d057c650",
+      "digest": "sha256:b970290de4b79de2a1224f504aa4db758bc7153c3fa3581fb4477d96d057c650",
+      "platform_digest": "sha256:886fac26473072cc024f4037baa3c131b063d255bcfba0a17e73617b804bf5e9",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:1e694ad007384912ae13987f2b96b4315413cfa890696a7c2ecd5f2a7a224bc7",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "MIT",
+      "anonymous_pull_verified": true
+    },
+    "adapter": {
+      "name": "docker.io/williamluckyli/control-adapter:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-adapter@sha256:80d72d2b541c5feb1ca644382b0c4e6af22f8d35c24adb46000896855f8b7fa3",
+      "digest": "sha256:80d72d2b541c5feb1ca644382b0c4e6af22f8d35c24adb46000896855f8b7fa3",
+      "platform_digest": "sha256:91b40d52f3fc04aea3b332ecb08c589af0cb79129d51b563bf737855eaef934b",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:63de4d65621b899ca292fb26ca344fad979d397d3378937309ca86006c889793",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "auth": {
+      "name": "docker.io/williamluckyli/control-auth:sha-f2078608e3860b61d5c898664b3ec51e6e05a8a5-r37699936528-a1",
+      "reference": "docker.io/williamluckyli/control-auth@sha256:9f1c3c4c97842e1a15323824f0c00ff1c782ffc1e39be84f4a032ab84953b9ba",
+      "digest": "sha256:9f1c3c4c97842e1a15323824f0c00ff1c782ffc1e39be84f4a032ab84953b9ba",
+      "platform_digest": "sha256:7a740f5975907b4527ad100a75a14a3a86da52688742db991e152ec42b72f523",
+      "source_commit": "f2078608e3860b61d5c898664b3ec51e6e05a8a5",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:ffce904d5f93a205f844a01e6c1fec9ef146121f52eda5d9820bd818207acb54",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    }
+  },
+  "anonymous_registry_verified": true,
+  "ui_acceptance": "failed",
+  "superseded_by": "64517ab453abd9ab54faeba49bac24a456bbf5a0",
+  "failure": "Auth registration rejected an untrusted self-signed Proxy certificate; CA/name verification added in successor"
+}

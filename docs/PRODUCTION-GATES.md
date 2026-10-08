@@ -22,12 +22,14 @@ fencing, TLS, IAM or DR gates pass.
 | Cross-instance suspend/wake fencing | not certified; Adapter remains one replica | multiple API/Worker/adapter races, crash expiry, stale generation rejection, admitted SQL leases |
 | Authorization | current membership/permission and invited Console registration implemented | complete adversarial access matrix, enterprise identity/email verification; branch Managed Auth separate |
 | HA/DR | not qualified; local-path and singleton DB/MinIO/Pageserver | node/zone failure, metadata failover, storage redundancy, recovery exercises and measured RPO/RTO |
+| Shared host storage stability | repeated simultaneous I/O stalls; 2026-10-08 etcd fdatasync maxima 21.875/30.589/26.358 seconds | host/driver/virtual-disk cause and mitigation, independent I/O/failure domains, sustained flush/SQL latency qualification; successful rerun is insufficient |
 | Historical new-branch restore | timestamp/LSN, native retention lease, durable intent and UI implemented | release-specific real storage/UI acceptance; long-window GC races, relocated/sharded storage |
 | Complete PITR and deletion | historical new-branch restore, protected retained deletion and seven-day project recovery implemented; in-place reset, physical GC, TTL and failed-resource deletion unfinished | release-specific UI service/credential retirement and recovery; endpoint cutover/rollback, Backend consistency, GC and distributed races separately |
 | Fractional CPU / full memory downscale | upstream capability must be separately qualified | guest/cgroup/QEMU reconciliation, low-memory load, OOM/coldboot recovery and quota accuracy |
-| Trusted TLS | internal gateway certificates exist; lab exceptions remain | trusted external DNS/certificate, Proxy verify-full, database/backend transport trust and rotation |
+| Trusted TLS | internal gateway certificates exist; Auth verifies an explicit Proxy CA and DNS identity; browser/control DB/storage lab exceptions remain | trusted external DNS/certificate, Proxy verify-full, database/backend transport trust and rotation |
 | Data API | first branch Driver/UI + real PostgREST/RLS present | broader production API/SQL isolation, complete backend lifecycle, trusted TLS |
-| Auth / Functions / product Object Storage | not implemented as Neon-equivalent product services | full Drivers/APIs/UI, service runtimes, branch semantics and independent tests |
+| Branch Managed Auth | Go Driver, maintained Better Auth runtime, React UI and dedicated PostgreSQL tests implemented; release-specific Neon UI acceptance is separate | trusted browser TLS, SMTP/OAuth/MFA, comprehensive isolation, branch/restore lifecycle and HA |
+| Functions / product Object Storage | not implemented as Neon-equivalent product services | full Drivers/APIs/UI, service runtimes, branch semantics and independent tests |
 | AI Gateway inference | application credentials and authorization checker only | real provider credential onboarding, model routing, inference/streaming, limits, billing and isolation |
 
 The core S3/MinIO layer stores Neon database pages/WAL; it is not the customer

@@ -36,6 +36,7 @@ Limiting a pull client does not necessarily limit the containerd daemon's I/O.
 |---|---|---|
 | Managed `cp-*` Compute | UI/API suspend, then wait for VM and Pod removal | project/branch/Endpoint/Operation IDs, password fixture, timeline and SQL rows |
 | Owned branch Data API | UI/API disable, then observe its Operation | application tables, service configuration, JWT fixture and evidence |
+| Owned branch Managed Auth | disable dependent Data API first, then UI/API disable Auth | branch users/accounts, SQL schema, immutable Secrets and private app credentials |
 | Optional imported static VM | graceful PostgreSQL shutdown and `compute.enabled=false`; see UPGRADE.md | complete values, config/SSH Secrets, Service UID and tenant/timeline |
 | Finished test Job | archive Job/Pod JSON and every container's logs, then delete the reviewed terminal Job UID | all attempt folders, success/failure receipts and screenshots |
 | Active or unknown workload | inspect owner and current work first | do not infer permission to retire it from a name alone |
@@ -55,6 +56,29 @@ supports a raw DELETE body through the configured authenticated transport.
 See [kubectl delete](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_delete/)
 and its [versioned implementation](https://github.com/kubernetes/kubectl/blob/v0.36.4/pkg/cmd/delete/delete.go).
 Never put a cluster token into a command argument or disable certificate verification.
+
+### Logical quota is separate from host resource pressure
+
+An idle retained project still consumes organization project/Endpoint quota.
+The default metadata limits are 50 live projects and 200 live Endpoints.
+On 2026-10-08, `local` reached 50/50 with only 102/200 Endpoints; a new
+project returned `429 organization_quota_exceeded` before any Operation was
+accepted. CPU/memory availability and suspended VMs do not release that quota.
+
+Keep an explicit reviewed allowlist of completed test projects and original
+passing receipts. Prefer already unprotected managed projects; do not guess
+ownership from a `ci-*` name or unset protection on unknown resources. Use
+the product lifecycle API, exact name confirmation, `If-Match` and one
+`Idempotency-Key`; observe the original Operation to success. Record the
+tombstone, `recover_until` and `physical_gc_state=held`. This closes public
+access and releases logical quota while retaining timeline, SQL, roles,
+Secrets and evidence. Product recovery is currently limited to seven days;
+data retention alone does not promise unlimited UI recovery. Protect any
+fixture that must stay directly accessible instead of silently retiring it.
+
+Four proven historical lifecycle fixtures were retired this way. The failed
+native attempt and the successful follow-up both remain in evidence. Never
+raise quotas, delete metadata rows or clear databases just to pass a test.
 
 ## 3. Diagnose stalls without masking them
 
@@ -82,6 +106,18 @@ The initiating stall remains unattributed. The accepted project Operation
 eventually succeeded, exposing a Console observation gap now covered by
 bounded read recovery. Keep the original failure. A successful retry is not
 HA, etcd latency, durability or cross-instance fencing qualification.
+
+On 2026-10-08, native cold SELECT encountered another SQL 503 during
+simultaneous I/O waits. The three guests' 14:03–14:17 UTC etcd logs recorded
+slow fdatasync maxima 21.875/30.589/26.358 seconds; all RKE2 processes
+automatically restarted once. Guest and Windows host available memory was
+ample; small sampled write volumes do not exclude severe flush latency.
+Pause admission, preserve the original fixture and recover its runtime
+normally when pressure returns below the gate. The fresh full native suite
+passed afterwards, but **the host storage cause remains unresolved**. Do not
+disable fsync, increase SQL timeouts or claim requests/priority fix a common
+physical failure domain. Host ETW/driver/virtual-disk evidence and independent
+storage remain needed for permanent qualification.
 
 ## 4. Final release gate
 

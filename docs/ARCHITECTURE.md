@@ -5,7 +5,7 @@
 The stack unifies the runtime components present in the locked open-source
 distribution and the current control product. Helm owns declarative base
 workloads; PostgreSQL owns desired product state; Drivers reconcile tenant,
-timeline, Endpoint, VM and branch Data API resources. End users connect through
+timeline, Endpoint, VM, branch Data API and branch Managed Auth resources. End users connect through
 Proxy, so suspended Computes can wake without exposing individual VM addresses.
 
 ```mermaid
@@ -33,6 +33,8 @@ flowchart TB
   Gateway --> Compute
   Scheduler[Autoscale Scheduler] --> Kube
   Agent[Autoscaler Agent per node] --> Compute
+  API --> Auth[Branch Better Auth runtime / isolated SQL role]
+  Auth --> Proxy
   DataAPI[Branch Data API gateway / PostgREST] --> Proxy
 ```
 
@@ -59,7 +61,7 @@ are namespaced; node plugins require documented host privileges.
 The 46-image build distribution also includes build/test utilities, alternate
 PostgreSQL majors and optional tools. They are recorded in the full image lock;
 deploying all 46 as resident workloads would be incorrect. The default stack
-deploys only the runtime roles above; Compute/runner and branch gateway images
+deploys only the runtime roles above; Compute/runner, branch Auth and branch gateway images
 are consumed dynamically when the user creates an Endpoint.
 
 ## 3. Creation and wake lifecycle

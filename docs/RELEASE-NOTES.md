@@ -1,5 +1,38 @@
 # Neon Helm releases
 
+## 0.1.5
+
+Branch Managed Auth adds the leased Go Driver, immutable generation-scoped
+Secrets, maintained Better Auth TypeScript runtime, public branch relay,
+restricted PostgreSQL schema/role, React Console and Data API JWT/RLS
+integration. OpenAPI 0.9.0 describes 52 paths / 73 operations; migration 016
+adds durable Auth state and an enabled-instance quota. Parent Timeline cloning
+inherits accounts but resets child sessions/JWKS; disable/re-enable retains
+users. HTTP Console remains an explicit laboratory exception.
+
+The unified stack locks seven public images from control source
+`2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97`, selecting GHCR mirrors of the same
+CI manifests published to Docker Hub. Source checks reject mixed revisions,
+missing public verification and profile/adapter drift. Auth SQL verifies the
+explicit Proxy CA and certificate identity; real pg STARTTLS regression
+rejects wrong names and unknown CA. Standard public JWK omission of optional
+`use` is accepted without permitting private keys or unsafe algorithms.
+
+All ten chart packages share version 0.1.5. The accepted eight-stage upgrade
+preserves complete values, external Secrets and PVC bindings. Linux Go/PG,
+Auth, Web, Helm, anonymous registry and all-node pull gates passed. The new
+Managed Auth UI passes 23 real checks including account/session/JWT branch
+isolation, RLS and manual/automatic zero/cold wake. See the versioned acceptance
+report for current-image regressions and the retained failed attempts.
+
+Terminal test resources are archived before UID/resourceVersion deletion;
+owned services/Computes stop through product APIs. A full logical project quota
+is handled by proven owned retained deletion, without raising quota or dropping
+data. The observed shared-host etcd fsync stalls remain unresolved production
+gates even after successful feature reruns. No forked Neon/autoscaling/PG source
+was changed; Functions, product Object Storage, AI inference and the other
+independent production gates remain explicitly unqualified/unimplemented.
+
 ## 0.1.4
 
 Go API/Worker and React Console add protected project/leaf-branch retained

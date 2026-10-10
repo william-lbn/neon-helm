@@ -16,13 +16,13 @@ Installing a chart does not implement Neon's proprietary Backend services.
 4. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
 5. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
 6. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-7. [Current Object Storage and release acceptance](docs/ACCEPTANCE-2026-10-09-OBJECT-STORAGE.md) / [Managed Auth baseline](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
+7. [Current Compute lifecycle and release acceptance](docs/ACCEPTANCE-2026-10-10-COMPUTE-LIFECYCLE.md) / [Object Storage baseline](docs/ACCEPTANCE-2026-10-09-OBJECT-STORAGE.md) / [Managed Auth baseline](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md)
 8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 9. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
-10. [Independent Compute deletion and replacement candidate](docs/COMPUTE-LIFECYCLE.md)
+10. [Independent Compute deletion and replacement](docs/COMPUTE-LIFECYCLE.md)
 
 ```bash
-git clone --branch v0.1.6 --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch v0.1.7 --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"
@@ -60,7 +60,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.6
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.7
 helm repo update
 helm search repo neon
 ```

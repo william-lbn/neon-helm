@@ -6,7 +6,9 @@ Neon's [Manage computes](https://neon.com/docs/manage/computes#delete-a-compute)
 describes a branch with one Writer and multiple Readers. Deleting any Compute
 retains branch data; adding a replacement changes its connection details.
 Control source `0ba173262d53d9bd634b52347ce417ae83033a85` implements this slice.
-Source CI passed; this candidate still requires live Linux browser acceptance.
+Source CI and nine serial Linux browser suites passed (146 checks). Four original
+failed Operations have 23 separate recovery checks. Exact Job identities,
+retained failures and boundaries are in [this acceptance](ACCEPTANCE-2026-10-10-COMPUTE-LIFECYCLE.md).
 
 The API/Worker lock is `locks/control-plane-0ba1732.json`. Migration 018 is forward
 only; no historical migration is edited. Kubernetes resource names, Timeline,

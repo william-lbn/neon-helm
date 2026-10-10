@@ -1,6 +1,6 @@
 # Neon Helm releases
 
-## 0.1.7 candidate
+## 0.1.7
 
 All ten charts select control source `0ba1732` from successful Linux CI
 38058862506. Go API/Worker and React Console add independent Compute retirement,
@@ -8,8 +8,9 @@ forward migration 018, OpenAPI 0.10.1 (58 paths / 87 operations), retained branc
 credentials and Writer recreation while surviving Readers keep their identity.
 The new browser slice covers lost-202 idempotency, explicit service dependency
 admission, normal Runner garbage collection and project recovery excluding
-previously deleted Endpoints. Runtime acceptance is pending; source and CI
-success alone do not qualify this feature. See [Compute lifecycle](COMPUTE-LIFECYCLE.md).
+previously deleted Endpoints. All nine current-source serial Linux UI suites
+passed 146 functional checks, with 23 separate original-operation recovery
+checks. See [Compute lifecycle](COMPUTE-LIFECYCLE.md) and the [version acceptance](ACCEPTANCE-2026-10-10-COMPUTE-LIFECYCLE.md).
 
 Seven image digests and their public source/CI provenance are immutable in
 `locks/control-plane-0ba1732.json`. Existing source locks remain available for
@@ -19,9 +20,21 @@ and retained query password on an error. SQL setup now issues separate prepared
 requests, successful/rejected submission clears its password, and public CI checks
 all nine advertised live suites against their protected shell admission.
 Live testing also exposed missing Worker Pod-list permission (403 after successful
-VM retirement). The candidate adds a namespace-scoped read-only Worker observer
+VM retirement). This release adds a namespace-scoped read-only Worker observer
 Role/Binding, preserves the split API's get-only Pod access and grants no Pod
 mutation. Rendering gates cover both split and legacy combined profiles.
+
+The eight-stage public-source upgrade preserved complete private overlays,
+metadata backup, PVC/Secret/CA identities and rollback locks. All seven anonymous
+registry checks and 21 actual three-node CRI pulls passed. Completed test Compute
+runtime and owned logical quota are released; data and failed evidence remain.
+The unknown CREATE DATABASE result required explicit OID/owner/marker-verified
+operator repair; automatic adoption guards remain. A later three-node I/O outage
+failed the original native Writer test; recovery used the original Operation and
+a new full native attempt passed. These failures prevent a stability/SLO claim.
+Functions and provider inference remain disabled. HA/DR, external fencing,
+trusted whole-chain TLS, physical GC, fractional CPU and complete memory return
+retain separate implementation/acceptance gates. No fork runtime source changed.
 
 ## 0.1.6
 

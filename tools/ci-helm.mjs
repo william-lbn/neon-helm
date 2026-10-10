@@ -65,6 +65,21 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     assert.equal(retiredObjects.filter(obj=>obj.kind==='Service').length,1,'Retirement must retain the service identity');
   }
   if(chart==='neon-control-plane') {
+    const observer=objs.find(o=>o.kind==='Role'&&o.metadata.name==='neon-control-worker-observer');
+    assert.ok(observer,'Independent retirement requires Worker-only Pod observation');
+    assert.deepEqual(observer.rules,[{apiGroups:[''],resources:['pods'],verbs:['get','list']}]);
+    const binding=objs.find(o=>o.kind==='RoleBinding'&&o.metadata.name==='neon-control-worker-observer');
+    assert.equal(binding.roleRef.name,observer.metadata.name);
+    assert.deepEqual(binding.subjects,[{kind:'ServiceAccount',name:'neon-control-worker',namespace:'neon'}]);
+    const apiRole=objs.find(o=>o.kind==='Role'&&o.metadata.name==='neon-control-api');
+    assert.deepEqual(apiRole.rules.find(r=>r.apiGroups.includes('')&&r.resources.includes('pods')).verbs,['get']);
+    for(const role of objs.filter(o=>o.kind==='Role'))for(const rule of role.rules) {
+      if(rule.apiGroups.includes('')&&rule.resources.includes('pods'))
+        assert.ok(rule.verbs.every(v=>['get','list','watch'].includes(v)),'No Pod mutation may be granted for retirement observation');
+    }
+    const combined=documents(helm(['template',chart,...args,'-n','neon','--set','worker.enabled=false','--kube-version','1.36.4']).stdout);
+    assert.ok(!combined.some(o=>o.metadata.name==='neon-control-worker-observer'),'Disabled Worker must not retain its observer RBAC');
+    assert.deepEqual(combined.find(o=>o.kind==='Role'&&o.metadata.name==='neon-control-api').rules.find(r=>r.apiGroups.includes('')&&r.resources.includes('pods')).verbs,['get','list']);
     for(const name of ['neon-control-api','neon-control-worker']) {
       const deployment=objs.find(o=>o.kind==='Deployment'&&o.metadata.name===name);
       assert.ok(deployment,'API and Worker must be independently deployed');

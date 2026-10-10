@@ -18,6 +18,10 @@ The superseded `85229d4` candidate exposed a multi-statement test fixture defect
 and retained query password on an error. SQL setup now issues separate prepared
 requests, successful/rejected submission clears its password, and public CI checks
 all nine advertised live suites against their protected shell admission.
+Live testing also exposed missing Worker Pod-list permission (403 after successful
+VM retirement). The candidate adds a namespace-scoped read-only Worker observer
+Role/Binding, preserves the split API's get-only Pod access and grants no Pod
+mutation. Rendering gates cover both split and legacy combined profiles.
 
 ## 0.1.6
 

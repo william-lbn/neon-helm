@@ -21,6 +21,14 @@ VM with UID/resourceVersion, observes normal Runner disappearance, then records
 a held tombstone. Unknown external write outcomes remain failures until observed
 or explicitly retried under the original Operation.
 
+Split deployment grants `get,list` of namespace Pods only to the Worker through
+`neon-control-worker-observer`; the API retains named Pod `get` only. Label
+selectors filter the actual retirement observation and the Go Driver checks
+project/Endpoint ownership of every result. Kubernetes RBAC cannot enforce label
+selectors on list. No Pod mutation/delete privilege is granted. The explicitly
+legacy combined API/Worker profile needs the same read observer on its API role.
+CI renders and checks both profiles and the absence of Pod mutation privileges.
+
 ## Upgrade and manual acceptance
 
 1. Follow [UPGRADE](UPGRADE.md) with full private overlays and metadata backup.

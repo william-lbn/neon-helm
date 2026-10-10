@@ -2,7 +2,7 @@ apiVersion: v2
 name: compute-management-gateway
 description: Endpoint-scoped TLS gateway for Neon compute_ctl management HTTP
 type: application
-version: 0.1.6
+version: 0.1.7
 appVersion: 0.3.0
 home: https://github.com/william-lbn/neon-helm
 sources:

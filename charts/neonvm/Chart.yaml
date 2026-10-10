@@ -1,6 +1,6 @@
 apiVersion: v2
 name: neonvm
-version: 0.1.6
+version: 0.1.7
 appVersion: c0052f5f2d38
 description: Experimental vendored upstream v0.49.1 10-neonvm
 home: https://github.com/william-lbn/neon-helm

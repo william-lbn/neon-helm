@@ -1,5 +1,20 @@
 # Neon Helm releases
 
+## 0.1.7 candidate
+
+All ten charts select control source `85229d4` from successful Linux CI
+38056684466. Go API/Worker and React Console add independent Compute retirement,
+forward migration 018, OpenAPI 0.10.1 (58 paths / 87 operations), retained branch
+credentials and Writer recreation while surviving Readers keep their identity.
+The new browser slice covers lost-202 idempotency, explicit service dependency
+admission, normal Runner garbage collection and project recovery excluding
+previously deleted Endpoints. Runtime acceptance is pending; source and CI
+success alone do not qualify this feature. See [Compute lifecycle](COMPUTE-LIFECYCLE.md).
+
+Seven image digests and their public source/CI provenance are immutable in
+`locks/control-plane-85229d4.json`. Existing source locks remain available for
+rollback. Neon, autoscaling and PostgreSQL data-plane source/images are unchanged.
+
 ## 0.1.6
 
 Branch Object Storage REST v1 adds a real Go manifest/immutable-blob Driver,

@@ -54,7 +54,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout 2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97
+git checkout 85229d49a20fe22b57a887c1e723611bfd20c85c
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium
@@ -147,6 +147,14 @@ This suite does not certify in-place restore or consistency of external Backend
 services. Native storage/SQL failures must stay visible in retained evidence.
 
 ## 4. Additional independent acceptance
+
+### Independent Compute retirement
+
+Use the same pinned control source with a new attempt/private/evidence directory
+and run `npm run test:e2e -- endpoint-deletion.spec.ts`. Follow
+[Compute lifecycle](COMPUTE-LIFECYCLE.md) for two Readers, Writer replacement,
+dependency rejection, retained data and previously deleted Endpoint recovery
+exclusion. This is independent of project/branch retained deletion below.
 
 ### Retained lifecycle and two Readers
 

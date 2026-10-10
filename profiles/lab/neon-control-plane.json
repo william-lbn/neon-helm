@@ -1,7 +1,7 @@
 {
   "api": {
     "image": {
-      "reference": "ghcr.io/william-lbn/control-api@sha256:a0082c77964bc9a16fb7bda4c3a041078a933f41ddf515a24a4c06c70646b0fd"
+      "reference": "ghcr.io/william-lbn/control-api@sha256:be371b3ff18b3716127a8307d2a6430ab6e4a5f2fb027e37be3d9f93c74ff0e9"
     },
     "pgTLSMode": "lab-insecure",
     "cookieSecure": false,
@@ -12,7 +12,7 @@
   },
   "web": {
     "image": {
-      "reference": "ghcr.io/william-lbn/control-web@sha256:573fae14b83385c4a0ab6619d8d65cd956154e1658d809eb803ebff6c9a65ec0"
+      "reference": "ghcr.io/william-lbn/control-web@sha256:5ddf3ff9f164dca74dd2430b9d9608206b4b12a3396a2b12bc92ce7b2d124d1a"
     }
   },
   "worker": {
@@ -26,8 +26,8 @@
   "dataAPI": {
     "enabled": true,
     "labHTTP": true,
-    "gatewayImage": "ghcr.io/william-lbn/control-dataapi@sha256:733f7a33ffc1a8c92359fdf62a8774948bd63a74f097d661649d5169d0f9ae69",
-    "postgrestImage": "ghcr.io/william-lbn/control-postgrest@sha256:f076eec8e735275621f828ebc34f3bfd86aced155f2338f78cc622f1ce6e7578"
+    "gatewayImage": "ghcr.io/william-lbn/control-dataapi@sha256:b2d4fd785a0e4d53ee52998cee7a9dcb02d3381af0c344a906f7114216b23458",
+    "postgrestImage": "ghcr.io/william-lbn/control-postgrest@sha256:df533a04f961ca998da10499ab12d3435354cc17665cdef33574795c0bf8dd50"
   },
   "backendCredentials": {
     "enabled": true,
@@ -37,7 +37,7 @@
   "managedAuth": {
     "enabled": true,
     "labHTTP": true,
-    "runtimeImage": "ghcr.io/william-lbn/control-auth@sha256:288a9ada60eee8ed4378857914447f2f5bc1cd5b94b38bea9e0d766ec8bada78",
+    "runtimeImage": "ghcr.io/william-lbn/control-auth@sha256:a2da137b85e0493eaa5eab94e0ad322df690c5fa1d39f5af0410a35a65e54f34",
     "publicOrigin": "http://192.168.146.100:30788",
     "pgCASecret": "neon-proxy-tls",
     "pgCAKey": "tls.crt",

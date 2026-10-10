@@ -19,6 +19,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 7. [Current Object Storage and release acceptance](docs/ACCEPTANCE-2026-10-09-OBJECT-STORAGE.md) / [Managed Auth baseline](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md) / [Historical branch restore](docs/ACCEPTANCE-2026-10-07-RESTORE.md)
 8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 9. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
+10. [Independent Compute deletion and replacement candidate](docs/COMPUTE-LIFECYCLE.md)
 
 ```bash
 git clone --branch v0.1.6 --single-branch https://github.com/william-lbn/neon-helm.git

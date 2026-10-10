@@ -37,7 +37,7 @@ production profile or automatic HA claim is introduced.
 * Standalone protected credential preparation and read-only real IAM verification
   are public Node tools. They never print or overwrite an existing Secret.
 
-The accepted Linux deployment receipt is `unified-154246`: eight stages passed,
+The final public-source Linux deployment receipt is `20261010/unified-125901`: eight stages passed,
 full previous values retained, metadata backup preserved, exact image locks and
 complete manifest/PVC/Secret audit passed. Existing Proxy CA certificate identity
 `lab.neon.local` was retained. Different control/controller PostgreSQL and
@@ -62,7 +62,7 @@ historical catalog isolation, replay and cold wake. Final VM/runner count was ze
 | Current `7162449` lifecycle UI | 23 passed, Job `publication-ui-20261010120808`; two Readers, WAL, independent zero/wake, retained delete/recovery and original Operation retry |
 | Current `7162449` Data API UI | 20 passed, Job `publication-ui-20261010121250`; real PostgREST/RLS and manual/automatic zero/cold wake |
 | Current `7162449` Managed Auth UI | 23 passed, Job `publication-ui-20261010121730`; registration/session/JWT/RLS, clone isolation and automatic zero/login wake |
-| Current `7162449` Console invitations | six passed, Job `publication-ui-20261010122324`; invited registration, organization isolation, Viewer and immediate revocation |
+| Current `7162449` Console invitations | six passed, Job `publication-ui-20261010130324` after final public-source deployment; invited registration, organization isolation, Viewer and immediate revocation |
 | Current `7162449` Object Storage UI | 19 passed, Job `publication-ui-20261010122440`; bytes/hash/CAS, native clone isolation, cold wake, ACL and retained recovery |
 | Current `7162449` native UI | 14 passed, Job `publication-ui-20261010122723`; initial retirement observer failed, later same-UID read-only observation verified all VM/Runner removal |
 | Current `7162449` application credentials | eight passed, Job `publication-ui-20261010124541`; scope, redacted replay, rotation and revocation, no inference claim |
@@ -146,5 +146,26 @@ TLS are unqualified. Shared physical NVMe supplies no independent failure domain
 
 ## 7. Immutable publication receipts
 
-Publication, anonymous package-consumer and exact public-source live audit
-receipts are added only after their successful runs. No existing tag is moved.
+* [Immutable release v0.1.6](https://github.com/william-lbn/neon-helm/releases/tag/v0.1.6)
+  selects chart source `ae2e9013172ccb6e50dd30f547d37f1106a7f3d4`.
+* [Main Linux CI 38053540900](https://github.com/william-lbn/neon-helm/actions/runs/38053540900)
+  and [tag CI/release 38053672551](https://github.com/william-lbn/neon-helm/actions/runs/38053672551)
+  succeeded; ten packages, index, SHA256SUMS and source locks are published.
+* Linux anonymous standard `helm repo add/update/pull` retrieved all ten 0.1.6
+  packages; every package and index checksum passed. No GitHub/registry credential
+  was required. Receipt: `storage-public-helm-consumer-attempt1`.
+* Linux anonymous clone at that exact chart SHA passed source checks and the
+  complete live manifest/hooks/PVC/Secret/images/zero audit. Receipt:
+  `storage-public-helm-audit-attempt2`; all eight releases match.
+* The first public audit correctly found one Web config-checksum annotation
+  mismatch caused by private Windows CRLF source bytes versus Git LF bytes.
+  Parsed ConfigMap content was identical; no application/data-plane code or
+  behavior was changed. The verified anonymous Git source was used for the full
+  standard upgrade, then the independent audit passed. Original failed audit
+  and redacted field hashes remain in evidence. Deploy from trusted Linux Git
+  or the released packages; do not substitute a Windows-created dirty source tar.
+* Post-upgrade Linux Chromium invitation/registration/permission/revocation
+  checks passed again (six checks), with no Compute activated.
+
+Documentation-only follow-up commits do not move this tag or change selected
+control source `7162449`. Initial failures and historical rollback locks remain.

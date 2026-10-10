@@ -2,6 +2,12 @@
 
 ## 1. Prerequisites and input contract
 
+Use an exact tagged Git checkout on Linux or the official release packages.
+Keep the tracked source clean; Windows-created source archives can change raw
+file bytes (CRLF versus LF) and therefore Helm configuration-checksum annotations,
+even when parsed YAML content looks identical. The 0.1.6 public-source deployment
+and independent exact-SHA audit verified this requirement; see its acceptance report.
+
 The current control images are pinned public GHCR mirrors of the same CI
 publication also pushed to Docker Hub. Verify the selected seven-image lock
 before deployment. A listening HTTP proxy does not prove its upstream is
@@ -122,7 +128,7 @@ values. Do not replace existing tenant/node IDs with sample values.
 node tools/stack.mjs render --overlay-dir /secure/neon-overlay --output /secure/neon-render-001
 node tools/stack.mjs preflight --overlay-dir /secure/neon-overlay --output /secure/neon-preflight-001
 node tools/stack.mjs apply --maintenance-window --overlay-dir /secure/neon-overlay --output /secure/neon-install-001
-node tools/stack.mjs verify --output /secure/neon-verify-001
+node tools/stack.mjs verify --overlay-dir /secure/neon-overlay --output /secure/neon-verify-001
 ```
 
 Each attempt directory is immutable. `apply` waits for each release before the

@@ -21,7 +21,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 9. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
 
 ```bash
-git clone https://github.com/william-lbn/neon-helm.git
+git clone --branch v0.1.6 --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"

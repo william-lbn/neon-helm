@@ -34,7 +34,7 @@ PVC identities before/after. `inspect` is a read-only ownership review:
 
 ```bash
 node tools/stack.mjs inspect --overlay-dir /secure/neon-overlay --output /secure/neon-inspect-001
-node tools/stack.mjs verify --output /secure/neon-runtime-001
+node tools/stack.mjs verify --overlay-dir /secure/neon-overlay --output /secure/neon-runtime-001
 node tools/audit-live.mjs --overlay-dir /secure/neon-overlay \
   --pvc-before /secure/pvc-before.private.json --state-before /secure/neon-upgrade-001 \
   --expect-zero --require-manifest-match --output /secure/neon-audit-001

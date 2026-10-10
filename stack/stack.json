@@ -129,5 +129,5 @@
     "persistent-storage"
   ],
   "productionQualified": false,
-  "controlImagesLock": "locks/control-plane-85229d4.json"
+  "controlImagesLock": "locks/control-plane-0ba1732.json"
 }

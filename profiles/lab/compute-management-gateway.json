@@ -1,6 +1,6 @@
 {
   "image": {
-    "reference": "ghcr.io/william-lbn/control-gateway@sha256:d5293cd693a174f42a111e2c028b85823a5f4cda68a25130cdd871163008b2b6"
+    "reference": "ghcr.io/william-lbn/control-gateway@sha256:8afa3d03be9a1dd4d1d92b1bf95b13ad2f42cbe2bc8b609b670202c3a108851c"
   },
   "runtime": {
     "mode": "image",

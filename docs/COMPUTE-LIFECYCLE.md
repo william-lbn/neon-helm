@@ -5,15 +5,15 @@
 Neon's [Manage computes](https://neon.com/docs/manage/computes#delete-a-compute)
 describes a branch with one Writer and multiple Readers. Deleting any Compute
 retains branch data; adding a replacement changes its connection details.
-Control source `85229d49a20fe22b57a887c1e723611bfd20c85c` implements this slice.
+Control source `0ba173262d53d9bd634b52347ce417ae83033a85` implements this slice.
 Source CI passed; this candidate still requires live Linux browser acceptance.
 
-The API/Worker lock is `locks/control-plane-85229d4.json`. Migration 018 is forward
+The API/Worker lock is `locks/control-plane-0ba1732.json`. Migration 018 is forward
 only; no historical migration is edited. Kubernetes resource names, Timeline,
 WAL, PVCs, external Secrets and original SQL credentials are retained.
 
 The authoritative model, API, diagrams and manual sequence are in
-[`docs/ENDPOINT-DELETION.md`](https://github.com/william-lbn/control-plane/blob/85229d49a20fe22b57a887c1e723611bfd20c85c/docs/ENDPOINT-DELETION.md).
+[`docs/ENDPOINT-DELETION.md`](https://github.com/william-lbn/control-plane/blob/0ba173262d53d9bd634b52347ce417ae83033a85/docs/ENDPOINT-DELETION.md).
 `DELETE /api/v1/projects/{project}/endpoints/{endpoint}` requires an exact
 Selector, quoted `If-Match` version, stable Idempotency-Key, authorization and
 session CSRF. The Worker closes only the target Proxy route, retires its owned

@@ -1,6 +1,6 @@
 {
   "image": {
-    "reference": "ghcr.io/william-lbn/control-dataapi@sha256:cf168f990f5bd27f44b7401f4d979dfd7adedb8bbdaf9c589df50bd55b718572"
+    "reference": "ghcr.io/william-lbn/control-dataapi@sha256:733f7a33ffc1a8c92359fdf62a8774948bd63a74f097d661649d5169d0f9ae69"
   },
   "configSecret": "standalone-data-api-config",
   "signingSecret": "standalone-data-api-signing",

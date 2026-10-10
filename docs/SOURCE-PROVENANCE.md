@@ -5,17 +5,17 @@
 | william-lbn/neon | `1f30cd02092dc151f5d00aef97e7c629105b454b` |
 | william-lbn/autoscaling | `c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93` |
 | william-lbn/postgres (v16) | `a42351fcd41ea01edede1daed65f651e838988fc` |
-| william-lbn/control-plane | `2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97` |
+| william-lbn/control-plane | `716244956d949120b319007affc1d31e5674540f` |
 
 Data-plane release tag:
 `2026.09.30-162021-1f30cd02092d-r36742713551-a1`.
 Every deployment profile uses immutable registry digests. Consult
 `locks/neon-fork-20260930.json` for the full 46-image source/build distribution
-and `locks/control-plane-2dcd7d2.json` for the seven published control images including the Better Auth runtime.
+and `locks/control-plane-7162449.json` for the seven published control images including the Better Auth runtime.
 These are fixed current deployment versions, not an assertion of future latest.
 
 The current control distribution uses public `ghcr.io/william-lbn/control-*`
-digests from Linux CI run `37781056916`. The same CI run also published the same
+digests from Linux CI run `37950048773`. The same CI run also published the same
 OCI manifests to `docker.io/williamluckyli/control-*`. GHCR was selected after
 the existing Windows/GOST egress path timed out reaching Docker Hub. Anonymous
 Linux verification checks manifest/config hashes, platform and source labels;
@@ -44,6 +44,12 @@ It does not modify forked Neon, PostgreSQL or autoscaling runtime source in
 this release. Future bug fixes must be reviewed against logs/source, committed
 in their owning fork, rebuilt with traceable digests, then updated here with
 compatibility and acceptance evidence.
+
+The operator workspace also retains older upstream `neondatabase/neon` and
+`neondatabase/autoscaling` checkouts. They are research copies, not proof that
+their HEAD matches these fork images. Use the revisions above and registry
+source labels when reproducing the runtime; verify a checkout's remote/HEAD
+before inspecting or changing its implementation.
 
 Helm/Node/actionlint are pinned in `locks/tools.json`; the lockfile contains npm
 package integrity. Linux local cached E2E Node may be a newer patch in the same

@@ -1,0 +1,61 @@
+{{- if .Values.minio.productStorage.enabled }}
+{{- if or (not .Values.minio.enabled) (eq .Values.minio.bucket .Values.minio.productStorage.bucket) }}
+{{- fail "Product storage requires MinIO and a bucket distinct from database page storage" }}
+{{- end }}
+# A one-shot privileged bootstrap; the steady-state control plane receives only
+# a bucket-restricted identity. Existing page/WAL buckets and policies are kept.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-product-storage-init
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: '10'
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, fsGroup: 65532, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: bootstrap
+          image: {{ .Values.minio.mcImage | quote }}
+          imagePullPolicy: IfNotPresent
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          # The pinned mc CLI was OOMKilled at 128 MiB during real bootstrap.
+          # Keep a soft Go heap budget and bound the temporary process to 512 MiB.
+          resources: {requests: {cpu: 25m, memory: 128Mi}, limits: {cpu: 200m, memory: 512Mi}}
+          env:
+            - {name: MC_CONFIG_DIR, value: /tmp/mc}
+            - {name: GOMEMLIMIT, value: 128MiB}
+            - {name: MINIO_ROOT_USER, valueFrom: {secretKeyRef: {name: {{ .Values.minio.existingSecret }}, key: accessKey}}}
+            - {name: MINIO_ROOT_PASSWORD, valueFrom: {secretKeyRef: {name: {{ .Values.minio.existingSecret }}, key: secretKey}}}
+            - {name: PRODUCT_ACCESS_KEY, valueFrom: {secretKeyRef: {name: {{ required "minio.productStorage.existingSecret is required" .Values.minio.productStorage.existingSecret }}, key: accessKey}}}
+            - {name: PRODUCT_SECRET_KEY, valueFrom: {secretKeyRef: {name: {{ .Values.minio.productStorage.existingSecret }}, key: secretKey}}}
+          command: [/bin/sh, -ec]
+          args:
+            - |
+              # Every command suppresses connection/credential output. Failed
+              # hooks are retained; never delete either bucket on rollback.
+              echo 'Product bootstrap: configure authenticated connection'
+              mc --config-dir /tmp/mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null
+              echo 'Product bootstrap: reconcile dedicated bucket'
+              mc --config-dir /tmp/mc mb --ignore-existing --region {{ .Values.minio.region | quote }} local/{{ .Values.minio.productStorage.bucket }} >/dev/null
+              cat > /tmp/policy.json <<'POLICY'
+              {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["s3:GetBucketLocation","s3:ListBucket"],"Resource":["arn:aws:s3:::{{ .Values.minio.productStorage.bucket }}"]},{"Effect":"Allow","Action":["s3:GetObject","s3:PutObject"],"Resource":["arn:aws:s3:::{{ .Values.minio.productStorage.bucket }}/*"]}]}
+              POLICY
+              echo 'Product bootstrap: reconcile restricted identity and policy'
+              mc --config-dir /tmp/mc admin user add local "$PRODUCT_ACCESS_KEY" "$PRODUCT_SECRET_KEY" >/dev/null
+              mc --config-dir /tmp/mc admin policy create local neon-product-storage-v1 /tmp/policy.json >/dev/null
+              mc --config-dir /tmp/mc admin policy attach local neon-product-storage-v1 --user "$PRODUCT_ACCESS_KEY" >/dev/null
+              echo 'Dedicated product bucket and restricted identity reconciled; database bucket retained.'
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      volumes: [{name: tmp, emptyDir: {sizeLimit: 16Mi}}]
+{{- end }}

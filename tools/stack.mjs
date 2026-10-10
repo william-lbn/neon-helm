@@ -35,7 +35,7 @@ function environment() {
     if (vms.some(v => v.metadata.name.startsWith('cp-'))) throw new Error('Suspend owned managed Computes through the control API before this maintenance upgrade');
   }
   for (const [name, keys] of Object.entries({
-    'neon-object-store':['accessKey','secretKey'], 'neon-controller-db':['password','url'],
+    'neon-product-blob-store':['accessKey','secretKey','config.json'], 'neon-object-store':['accessKey','secretKey'], 'neon-controller-db':['password','url'],
     'neon-proxy-auth':['proxyToken'], 'neon-proxy-tls':['tls.crt','tls.key'],
     'neon-control-hook-auth':['token'], 'neon-control-v2-db':['password'],
     'neon-control-plane-credentials':['database-url','admin-password','idempotency-key'],
@@ -113,7 +113,7 @@ function backupMetadata() {
 }
 function backupRuntimeState() {
   for (const name of ['neon-control-routes','neon-control-plane-credentials','neon-backend-credential-keys-v1',
-    'neon-control-v2-db','neon-controller-db','neon-proxy-auth','neon-proxy-tls','neon-control-hook-auth','neon-object-store']) {
+    'neon-control-v2-db','neon-controller-db','neon-proxy-auth','neon-proxy-tls','neon-control-hook-auth','neon-object-store','neon-product-blob-store']) {
     const obj=get('secret',name,'neon');
     if (obj) writePrivate(path.join(output,name+'.secret.private.json'),JSON.stringify(obj));
   }

@@ -29,7 +29,8 @@ fencing, TLS, IAM or DR gates pass.
 | Trusted TLS | internal gateway certificates exist; Auth verifies an explicit Proxy CA and DNS identity; browser/control DB/storage lab exceptions remain | trusted external DNS/certificate, Proxy verify-full, database/backend transport trust and rotation |
 | Data API | first branch Driver/UI + real PostgREST/RLS present | broader production API/SQL isolation, complete backend lifecycle, trusted TLS |
 | Branch Managed Auth | Go Driver, maintained Better Auth runtime, React UI and dedicated PostgreSQL tests implemented; release-specific Neon UI acceptance is separate | trusted browser TLS, SMTP/OAuth/MFA, comprehensive isolation, branch/restore lifecycle and HA |
-| Functions / product Object Storage | not implemented as Neon-equivalent product services | full Drivers/APIs/UI, service runtimes, branch semantics and independent tests |
+| Product Object Storage | branch REST Driver/UI, immutable backing bytes, clone directory, conditional writes and signed downloads implemented; real release acceptance recorded separately | external S3 interoperability, multipart, scoped storage credentials, verified physical GC, distributed isolation/TLS/HA/DR |
+| Functions | runtime/Driver/UI execution not implemented | Node.js 24 microVM isolation, branch deployment/inheritance, secret injection, HTTP/streaming, idle lifecycle, limits and independent real tests |
 | AI Gateway inference | application credentials and authorization checker only | real provider credential onboarding, model routing, inference/streaming, limits, billing and isolation |
 
 The core S3/MinIO layer stores Neon database pages/WAL; it is not the customer

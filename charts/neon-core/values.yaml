@@ -9,6 +9,11 @@ global:
     digest: ""                # sha256:<64hex>; resolve on real registry for chosen source revision
     pullPolicy: IfNotPresent
 minio:
+  # This bucket stores customer files; it must never be the page/WAL bucket.
+  productStorage:
+    enabled: false
+    bucket: neon-product-blobs
+    existingSecret: ''
   resources:
     requests: {cpu: 150m, memory: 512Mi}
     limits: {cpu: 2, memory: 2Gi}

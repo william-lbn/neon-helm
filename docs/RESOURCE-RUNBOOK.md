@@ -57,6 +57,22 @@ See [kubectl delete](https://kubernetes.io/docs/reference/kubectl/generated/kube
 and its [versioned implementation](https://github.com/kubernetes/kubectl/blob/v0.36.4/pkg/cmd/delete/delete.go).
 Never put a cluster token into a command argument or disable certificate verification.
 
+### Endpoint availability versus a running Compute
+
+An enabled route can retain `desired_state=active` while its observed Compute
+is `observed_state=suspended`. This allows the next authorized request to wake
+the same Endpoint; it does not mean the VM is still consuming resources. Confirm
+zero using the observed runtime **and** absence of its VM and runner Pod. Do not
+rewrite endpoint metadata or disable a valid route to make those fields equal.
+The final test gate checks all managed VMs and running runners, not just a button
+label or the desired state returned by the Endpoint list.
+
+The 2026-10-09 MinIO bootstrap failure was a container OOM at its 128 MiB limit
+while the nodes had approximately 9–10 GiB available. The hook now requests
+128 MiB, limits 512 MiB and sets the Go soft heap target to 128 MiB. A container
+limit failure, physical RAM exhaustion, project quota exhaustion and a shared
+disk fsync stall require different evidence and different remedies.
+
 ### Logical quota is separate from host resource pressure
 
 An idle retained project still consumes organization project/Endpoint quota.

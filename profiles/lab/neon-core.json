@@ -15,7 +15,12 @@
   },
   "minio": {
     "image": "docker.io/bitnamilegacy/minio@sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
-    "mcImage": "docker.io/bitnamilegacy/minio-client@sha256:73bd39f7899a0cef12b8dd5df13aa93a3ed1aaa44236542442e9ac76819ac158"
+    "mcImage": "docker.io/bitnamilegacy/minio-client@sha256:73bd39f7899a0cef12b8dd5df13aa93a3ed1aaa44236542442e9ac76819ac158",
+    "productStorage": {
+      "enabled": true,
+      "bucket": "neon-product-blobs",
+      "existingSecret": "neon-product-blob-store"
+    }
   },
   "proxy": {
     "enabled": true,

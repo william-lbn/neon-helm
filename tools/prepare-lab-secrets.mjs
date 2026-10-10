@@ -30,4 +30,6 @@ fs.chmodSync(path.join(output,'proxy.key'),0o600);
 records['neon-proxy-tls']={'tls.key':fs.readFileSync(path.join(output,'proxy.key'),'utf8'),'tls.crt':fs.readFileSync(path.join(output,'proxy.crt'),'utf8')};
 for(const [name,stringData] of Object.entries(records))writePrivate(path.join(output,name+'.private.json'),JSON.stringify({apiVersion:'v1',kind:'Secret',metadata:{name,namespace:'neon'},type:name==='neon-proxy-tls'?'kubernetes.io/tls':'Opaque',stringData},null,2));
 writePrivate(path.join(output,'admin-password'),admin);
-console.log('Prepared 8 external Secrets. Apply with kubectl create; preserve the directory securely. Laboratory transport only.');
+const productAccess='neon-product-'+randomBytes(12).toString('hex'),productSecret=password();
+writePrivate(path.join(output,'neon-product-blob-store.private.json'),JSON.stringify({apiVersion:'v1',kind:'Secret',type:'Opaque',immutable:true,metadata:{name:'neon-product-blob-store',namespace:'neon'},stringData:{accessKey:productAccess,secretKey:productSecret,'config.json':JSON.stringify({endpoint:'http://minio.neon.svc.cluster.local:9000',bucket:'neon-product-blobs',region:'us-east-1',access_key:productAccess,secret_key:productSecret,lab_http:true})}},null,2));
+console.log('Prepared 9 external Secrets. Apply with kubectl create; preserve the directory securely. Laboratory transport only.');

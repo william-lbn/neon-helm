@@ -1,5 +1,39 @@
 # Neon Helm releases
 
+## 0.1.6
+
+Branch Object Storage REST v1 adds a real Go manifest/immutable-blob Driver,
+React bucket/file UI, migration 017 and 13 new operations (OpenAPI 0.10.0,
+58 paths / 86 operations). Native child timelines inherit file directories;
+child writes and logical deletion preserve parent bytes. Private/public read,
+SHA-256 integrity, conditional writes, signed downloads, manual zero/cold wake
+and retained recovery are implemented. External S3 wire compatibility remains
+false; multipart, unified application storage scopes and physical GC are absent.
+
+All ten charts are 0.1.6; seven control images lock source `7162449` from successful
+Linux CI 37950048773. Dedicated product bucket/account/bootstrap, strict schemas,
+real IAM verification and edge download routes are included. Product policy
+cannot access database buckets; API/Worker receive no root credentials. Failed
+hook OOM and ownership defects were corrected with preserved original records
+and exact terminal UID/RV retirement, without weakening general adoption guards.
+Catalog completion clears only submitted fields, preserving another form edited
+during directory refresh. Exact original-project restore recovery passed 13
+checks, including the delayed-refresh regression, timestamp/LSN and cold wake.
+
+The actual eight-stage upgrade preserved complete values, metadata backups,
+PVCs/Secrets and certificate identities. Linux 367 Go checks, Web, Auth/TLS,
+15 Node/16 negative Helm checks, anonymous registry and 21 all-node pulls passed.
+Eight current-source UI slices pass 126 functional checks; Object Storage has
+19 checks and the original failed object fixture has four separate recovery
+checks. The native slice's initial cleanup observer failed; a later same-UID
+read-only observation confirmed normal retirement. See the acceptance report for
+the serial UI matrix and original hardware-related failures. Compute/service runtime
+is released; data, historical evidence and rollback locks are retained.
+
+No Neon/autoscaling/PostgreSQL fork runtime source was changed. Functions and AI
+inference are not implemented; HA/DR, external fencing, trusted whole-chain TLS,
+shared-host stability and other production gates remain open.
+
 ## 0.1.5
 
 Branch Managed Auth adds the leased Go Driver, immutable generation-scoped

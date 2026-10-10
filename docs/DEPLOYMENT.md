@@ -67,6 +67,7 @@ owned, backed up and restored independently of release manifests.
 | Secret (namespace neon) | Required keys |
 |---|---|
 | neon-object-store | accessKey, secretKey |
+| neon-product-blob-store | accessKey, secretKey, config.json; independent restricted product identity |
 | neon-controller-db | password, url (controller PostgreSQL DSN) |
 | neon-proxy-auth | proxyToken; legacy API additionally requires scramVerifier |
 | neon-proxy-tls | tls.crt, tls.key |

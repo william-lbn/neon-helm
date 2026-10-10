@@ -89,6 +89,46 @@
               "type": "string"
             }
           }
+        },
+        "productStorage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "bucket",
+            "existingSecret"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "bucket": {
+              "type": "string",
+              "pattern": "^neon-product-[a-z0-9-]{1,40}$"
+            },
+            "existingSecret": {
+              "type": "string",
+              "pattern": "^$|^[a-z0-9][a-z0-9.-]{0,252}$"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "existingSecret": {
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          ]
         }
       }
     },

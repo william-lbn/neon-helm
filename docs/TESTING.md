@@ -208,3 +208,42 @@ and inspect finalizers/controller/guest shutdown instead of force-deleting it.
 ## Managed Auth acceptance
 
 Run the public `managed-auth.spec.ts` suite serially using a fresh private/evidence directory. The browser URL must equal `managedAuth.publicOrigin`; the Node runtime requires the public Proxy CA Secret/key and exact certificate identity. Follow [the Auth contract](https://github.com/william-lbn/control-plane/blob/2dcd7d2dbac6edac9d7f2190ebf8c67db90ebb97/docs/MANAGED-AUTH.md) for the explicit database delegation, app registration, branch isolation, JWT/RLS, service dependencies and cold wake. No SMTP/OAuth/provider credentials are required for this basic slice. Preserve failed attempts and all SQL/Secret fixtures; only stop owned runtime workloads. Release-specific real acceptance is recorded separately.
+
+## Object Storage and the current serial matrix
+
+Use the active `stack.controlImagesLock` source revision for the Control Console
+and its public TypeScript tests. Follow [OBJECT-STORAGE.md](OBJECT-STORAGE.md)
+for the dedicated product credential/bootstrap and bounded real IAM test. A
+successful backing product listing and explicit database bucket AccessDenied are
+both required; a network timeout is not a permission-denial pass.
+
+```bash
+node tools/verify-product-storage-access.mjs --output /secure/evidence/storage-iam-001
+export NEON_E2E_BASE_URL=http://YOUR_CONSOLE
+export NEON_E2E_ADMIN_PASSWORD_FILE=/secure/e2e/admin-password
+export NEON_E2E_PRIVATE_DIR=/secure/e2e/storage-001
+export NEON_E2E_ARTIFACTS=/var/lib/neon-evidence/storage-001
+# In the matching public control-plane checkout, with Linux Chromium installed:
+npm --prefix web run test:e2e -- object-storage.spec.ts
+```
+
+Never run an image pull, build or another Compute suite concurrently. After each
+suite observe all owned service Operations and VM/runner removal, then start the
+next with a unique attempt. Run native-product, backend-credentials, data-api,
+restore, lifecycle, console-invitations and managed-auth serially as distinct
+receipts. Credentials use an explicitly authorized existing ready test project;
+invitations do not start a Compute. Managed Auth's BASE_URL must match its public
+Origin. Fault flags and protected recovery contracts are defined by control
+TESTING.md, not guessed from chart names.
+
+If a read-only collector loses the API, observe the **original Job/Pod UID** and
+retrieve its original report; do not rerun the mutations. An actual failed UI
+suite remains failed even after recovery. Retained fixtures can be resumed by
+their explicit recovery test only after checking current state and prerequisites.
+The Data API recovery rotates its lost ephemeral test issuer via UI while keeping
+SQL/RLS data; it does not pretend to reuse an unsaved signing key.
+
+Only exact-name test projects with reviewed ownership/evidence may be normally
+retained-deleted to release logical quota. Record recovery deadline and held
+tombstone; preserve blobs, WAL, SQL, password files and every original receipt.
+This is separate from deleting terminal Job objects with archived UID/RV proof.

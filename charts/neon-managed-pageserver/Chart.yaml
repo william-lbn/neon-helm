@@ -2,7 +2,7 @@ apiVersion: v2
 name: neon-managed-pageserver
 description: Helm ownership for the control-plane-managed Neon pageserver runtime
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: 1f30cd02092d
 home: https://github.com/william-lbn/neon-helm
 sources:

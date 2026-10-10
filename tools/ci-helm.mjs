@@ -21,6 +21,24 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     for(const c of [...containers,...(obj.spec?.template?.spec?.initContainers||[])])if(c.image)assert.match(c.image,pinned);
   }
   fs.writeFileSync(path.join(output,chart+'.yaml'),result.stdout);
+  if(chart==='neon-core') {
+    const hooks=objs.filter(o=>o.kind==='Job'&&o.metadata.annotations?.['helm.sh/hook']);
+    for(const hook of hooks) {
+      assert.equal(hook.metadata.annotations['meta.helm.sh/release-name'],'neon-core');
+      assert.equal(hook.metadata.annotations['meta.helm.sh/release-namespace'],'neon');
+      assert.equal(hook.metadata.labels['app.kubernetes.io/managed-by'],'Helm');
+    }
+    const product=hooks.find(o=>o.metadata.name==='neon-core-product-storage-init');
+    assert.ok(product,'Enabled profile requires the dedicated bucket bootstrap');
+    const pod=product.spec.template.spec,container=pod.containers[0];
+    assert.equal(pod.automountServiceAccountToken,false);
+    assert.equal(container.securityContext.readOnlyRootFilesystem,true);
+    assert.equal(container.resources.limits.memory,'512Mi');
+    assert.equal(container.env.find(v=>v.name==='GOMEMLIMIT').value,'128MiB');
+    const root=container.env.find(v=>v.name==='MINIO_ROOT_PASSWORD').valueFrom.secretKeyRef.name;
+    assert.notEqual(container.env.find(v=>v.name==='PRODUCT_SECRET_KEY').valueFrom.secretKeyRef.name,root);
+    assert.ok(!container.args[0].includes('"s3:*"'),'Product policy cannot grant wildcard actions');
+  }
   if(chart==='neon-adapter') {
     const deployment=objs.find(o=>o.kind==='Deployment');
     const pod=deployment.spec.template.spec;
@@ -76,10 +94,13 @@ for(const [chart,overlay] of [
   ['neon-control-plane',{managedAuth:{labHTTP:false}}],
   ['neon-control-plane',{managedAuth:{runtimeImage:'williamluckyli/control-auth:latest'}}],
   ['neon-control-plane',{managedAuth:{pgCASecret:''}}],
+  ['neon-control-plane',{objectStorage:{enabled:true,existingSecret:''}}],
+  ['neon-core',{minio:{productStorage:{enabled:true,existingSecret:''}}}],
+  ['neon-core',{minio:{bucket:'neon-product-blobs'}}],
   ['neonvm',{controller:{qemuDiskCacheSettings:'cache.no-flush=on',labAcknowledged:false}}],
 ]) {
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:13,productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:13}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:16,productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:16}));

@@ -307,3 +307,7 @@ unknown mutation replies and original retained resources need separate explicit
 continuations, whose scope/count/source must appear in the current receipt.
 Functions SQL permission/session tests are foundation acceptance; customer
 deployment/invocation is still disabled.
+
+The actual current matrix is now [134 checks](ACCEPTANCE-2026-10-12.md): nine
+normal scenarios (129) and original Data API recovery (5). Its original failures
+and transport collection errors remain preserved and qualified separately.

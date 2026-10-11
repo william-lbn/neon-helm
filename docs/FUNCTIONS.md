@@ -2,7 +2,7 @@
 
 ## Current contract
 
-The control-plane source selected by release 0.1.11 exposes branch-scoped,
+The control-plane source selected by release 0.1.12 exposes branch-scoped,
 authorized read-only Function definitions and deployment history. Its Console
 has a Functions page. Migration 019 installs definition, deployment and
 instance metadata constraints. The invocation ledger and route publication
@@ -13,9 +13,9 @@ migration adds a deployment/invocation route or enables execution.
 Execution remains disabled: installing this
 release does not create a Function VM or make a public invocation URL available.
 
-The selected source adds private Service/VM recovery and atomic PostgreSQL
-publication methods. Linux quality passed 593 checks; the same archived source
-passed three actual MinIO/Kubernetes checks, including a lost Service reply and
+The selected source includes private Service/VM recovery and atomic PostgreSQL
+publication methods. Their historical 0.1.11 foundation quality passed 593 checks;
+that same archived source passed three actual MinIO/Kubernetes checks, including a lost Service reply and
 own-fork CRD dry-run. Dry-run did not persist or start a VM. These internal
 methods are not registered as Worker execution actions or public deploy/invoke
 routes; SQL/manifest, artifact TLS, ingress/ledger and execution UI remain

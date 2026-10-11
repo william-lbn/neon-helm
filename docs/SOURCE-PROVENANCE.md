@@ -5,17 +5,17 @@
 | william-lbn/neon | `1f30cd02092dc151f5d00aef97e7c629105b454b` |
 | william-lbn/autoscaling | `c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93` |
 | william-lbn/postgres (v16) | `a42351fcd41ea01edede1daed65f651e838988fc` |
-| william-lbn/control-plane | `f256408c97bed15f5bf91b243e750d214cfe933a` |
+| william-lbn/control-plane | `fbff1b09f26f0840255b92b58428de1e9167689f` |
 
 Data-plane release tag:
 `2026.09.30-162021-1f30cd02092d-r36742713551-a1`.
 Every deployment profile uses immutable registry digests. Consult
 `locks/neon-fork-20260930.json` for the full 46-image source/build distribution
-and `locks/control-plane-f256408.json` for the seven published control images including the Better Auth runtime.
+and `locks/control-plane-fbff1b0.json` for the seven published control images including the Better Auth runtime.
 These are fixed current deployment versions, not an assertion of future latest.
 
 The current control distribution uses public `docker.io/williamluckyli/control-*`
-digests from Linux CI run `38103678537`. The same CI run also published the same
+digests from Linux CI run `38123437193`. The same CI run also published the same
 OCI manifests to `ghcr.io/william-lbn/control-*`. Earlier releases used GHCR when
 the laboratory egress path could not reach Docker Hub. Anonymous
 Linux verification checks manifest/config hashes, platform and source labels;

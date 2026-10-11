@@ -1,5 +1,26 @@
 # Neon Helm releases
 
+## 0.1.9
+
+All ten charts select control source `fbff1b0`, built by successful Linux CI
+38123437193. The seven public images have verified anonymous Linux manifest,
+configuration, platform, license and source provenance; old locks remain intact.
+This increment adds forward migration 020, exact immutable Functions backing
+receipts, conditional artifact storage and immutable environment recovery
+primitives. Execution is still disabled until the actual deployment Driver,
+branch SQL and invocation/browser acceptance are complete.
+
+Compute suspend retry now handles an already absent VM only after bounded
+observation of all owned Runner Pods and a second absent-VM read. A replacement
+VM is preserved and causes the operation to fail safely. This is local recovery
+and does not certify distributed scale-to-zero fencing. The original failing
+Storage/child-branch UI fixture can be resumed without creating another project
+or child branch. Neon/autoscaling/PostgreSQL fork source and images are unchanged.
+
+Linux chart quality, node pulls, ordered live upgrade and UI results must each
+be recorded independently. Publication is not live acceptance; historical
+failures remain retained and are not relabeled as passing.
+
 ## 0.1.8
 
 All ten charts select control source `f256408` from successful Linux CI

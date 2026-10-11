@@ -232,7 +232,7 @@ backup. Older control images do not implement these lifecycle/retry contracts;
 prefer a reviewed forward repair. Data restoration requires a separately tested
 recovery plan. These checks do not certify HA, distributed fencing or full DR.
 
-## Functions publication foundation: 0.1.10 to 0.1.11
+## Historical Functions publication foundation: 0.1.10 to 0.1.11
 
 0.1.11 selects control commit `932f5adbd9db5babce1ad05aa280cc34e452e193`
 and public Linux CI `38141439187`. All seven control images have immutable
@@ -250,3 +250,20 @@ control commit; previous 0.1.10 results are historical baseline evidence.
 Retain failed attempts and recover original accepted Operations rather than
 creating replacement fixtures. No data/Secret/WAL/object purge is part of
 this upgrade. This does not certify production TLS, external fencing or HA/DR.
+
+## Current SQL session/Worker recovery: 0.1.11 to 0.1.12
+
+0.1.12 selects control source `f0b63f5eed0fc412960b8b7dc7e8cda34abf916f`,
+Linux CI `38156200281` and `locks/control-plane-f0b63f5.json`. All ten charts
+advance together; the data-plane lock and metadata migrations remain unchanged.
+No credential rotation, database recreation or Function execution enablement is
+part of this increment. The independent Worker retries initial leadership
+acquisition while unready; loss of established leadership still drains/exits.
+
+Archive full values/manifests and actual Secret/PVC UIDs before applying the
+eight-step stack. Confirm zero test Compute VMs/runners and resolved original
+Operations. Check every new digest after rollout, migration 21/21, separate
+API/Worker readiness and unchanged persistent identities. Run the exact new
+revision's committed UI suites serially. Prior acceptance, startup retry unit
+tests and a successful Helm command do not substitute for these gates. Preserve
+original failures and unknown results before any explicit continuation.

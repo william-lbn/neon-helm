@@ -271,9 +271,9 @@ retained-deleted to release logical quota. Record recovery deadline and held
 tombstone; preserve blobs, WAL, SQL, password files and every original receipt.
 This is separate from deleting terminal Job objects with archived UID/RV proof.
 
-### 0.1.10 acceptance and original-fixture continuations
+### Historical 0.1.10 acceptance and original-fixture continuations
 
-The active control lock is `dda5d34`; metadata is 21/21 migrations. The serial
+That release selected control lock `dda5d34`; metadata was 21/21 migrations. Its serial
 Linux matrix has 135 passed checks: seven normal scenarios (97) and three
 explicit original-fixture continuations (38). This is not ten clean first-pass
 suites. Timestamp restore, Endpoint retirement and project lifecycle retain
@@ -291,3 +291,19 @@ unknown INSERT/DELETE results. Retain original passwords/data/evidence and
 confirm actual VM/runner disappearance after each suite. New Functions Service
 recovery and atomic-publication code is a separate implementation gate and does
 not enable Functions execution in this chart.
+
+### Current 0.1.12 acceptance requirements
+
+`stack.controlImagesLock` now selects `control-plane-f0b63f5.json`. Its Linux
+public CI has 610 Go/PostgreSQL checks and thirteen successful jobs. This does
+not qualify deployment or browser behavior. Verify all seven image digests and
+their exact source, pull serially on every target node, then follow the ordered
+upgrade and persistent identity audit. Run the ten committed browser suites
+from this exact control revision with unique protected evidence directories.
+
+The preceding 0.1.11 matrix (129 checks: 88 normal and 41 original-fixture
+continuations) remains historical. Never count it as a pass for 0.1.12. Failures,
+unknown mutation replies and original retained resources need separate explicit
+continuations, whose scope/count/source must appear in the current receipt.
+Functions SQL permission/session tests are foundation acceptance; customer
+deployment/invocation is still disabled.

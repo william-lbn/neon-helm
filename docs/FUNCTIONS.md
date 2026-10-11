@@ -2,7 +2,7 @@
 
 ## Current contract
 
-The control-plane source selected by release 0.1.10 exposes branch-scoped,
+The control-plane source selected by release 0.1.11 exposes branch-scoped,
 authorized read-only Function definitions and deployment history. Its Console
 has a Functions page. Migration 019 installs definition, deployment and
 instance metadata constraints. The invocation ledger and route publication
@@ -12,6 +12,14 @@ Migration 021 adds immutable instance bootstrap Secret identity receipts. Neithe
 migration adds a deployment/invocation route or enables execution.
 Execution remains disabled: installing this
 release does not create a Function VM or make a public invocation URL available.
+
+The selected source adds private Service/VM recovery and atomic PostgreSQL
+publication methods. Linux quality passed 593 checks; the same archived source
+passed three actual MinIO/Kubernetes checks, including a lost Service reply and
+own-fork CRD dry-run. Dry-run did not persist or start a VM. These internal
+methods are not registered as Worker execution actions or public deploy/invoke
+routes; SQL/manifest, artifact TLS, ingress/ledger and execution UI remain
+separate integration gates. This chart keeps execution disabled.
 
 Three metadata routes are documented in OpenAPI 0.11.0:
 
@@ -82,8 +90,9 @@ Driver owns per-Function NeonVM instances and their immutable deployment scope.
    full lifecycle. These are separate from the accepted guest primitives.
 
 See the authoritative control source
-[Backing contracts and evidence](https://github.com/william-lbn/control-plane/blob/dda5d34dc9bed7117950f31de0bc438b47dc2c02/docs/FUNCTIONS-BACKING.md),
-[Bootstrap contracts and evidence](https://github.com/william-lbn/control-plane/blob/dda5d34dc9bed7117950f31de0bc438b47dc2c02/docs/FUNCTIONS-BOOTSTRAP.md),
+[Backing contracts and evidence](https://github.com/william-lbn/control-plane/blob/932f5adbd9db5babce1ad05aa280cc34e452e193/docs/FUNCTIONS-BACKING.md),
+[Bootstrap contracts and evidence](https://github.com/william-lbn/control-plane/blob/932f5adbd9db5babce1ad05aa280cc34e452e193/docs/FUNCTIONS-BOOTSTRAP.md),
+[Runtime recovery and atomic publication](https://github.com/william-lbn/control-plane/blob/932f5adbd9db5babce1ad05aa280cc34e452e193/docs/FUNCTIONS-PUBLICATION.md),
 [Functions implementation](https://github.com/william-lbn/control-plane/blob/main/docs/FUNCTIONS-IMPLEMENTATION.md)
 and [model](https://github.com/william-lbn/control-plane/blob/main/docs/FUNCTIONS-MODEL.md).
 HA/DR, shared-storage stability and whole-chain TLS retain their independent

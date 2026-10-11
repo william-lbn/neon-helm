@@ -1,5 +1,34 @@
 # Neon Helm releases
 
+## 0.1.11
+
+All ten charts select control source
+`932f5adbd9db5babce1ad05aa280cc34e452e193`. Linux CI run `38141439187`
+completed all thirteen jobs. Seven public control images have independently
+verified anonymous OCI provenance and twenty-one serial CRI pulls across the
+three laboratory nodes. The Neon/autoscaling/PostgreSQL distribution is unchanged.
+
+This increment adds private Functions Service/VM recovery and atomic metadata
+publication primitives. Original object names, UIDs, complete runtime
+configuration, immutable bootstrap receipts, live operation leases and a fresh
+signed readiness observation are checked before publication. Dedicated Linux
+Go/PostgreSQL quality passed 593 checks. Three actual MinIO/Kubernetes foundation
+checks passed, including private Service recovery and server-side VM admission
+dry-run. No Function execution VM was persisted by that acceptance. The Worker
+deployment/invocation Driver and customer execution capability remain disabled.
+
+Committed browser tests now support explicit original-fixture continuation for
+timestamp restore, endpoint deletion and lifecycle recovery. An unknown SQL
+write reply is resolved by reading the exact original rows before any conditional
+write. An original failure is retained and a continuation is reported separately.
+
+Linux Helm quality passed fifteen tool tests, ten charts and sixteen negative
+cases; ten packages were built. Ordered live upgrade, persistent identity audit,
+anonymous release consumption and the new distribution's UI regression are
+separate acceptance gates. The prior 0.1.10 matrix is historical evidence and
+does not qualify these new images. Follow [UPGRADE.md](UPGRADE.md) and
+[TESTING.md](TESTING.md); this release does not assert production admission.
+
 ## 0.1.10
 
 All ten charts select control source `dda5d34`, with forward migration 021 for

@@ -231,3 +231,22 @@ Helm rollback does not downgrade PostgreSQL migrations or restore a full storage
 backup. Older control images do not implement these lifecycle/retry contracts;
 prefer a reviewed forward repair. Data restoration requires a separately tested
 recovery plan. These checks do not certify HA, distributed fencing or full DR.
+
+## Functions publication foundation: 0.1.10 to 0.1.11
+
+0.1.11 selects control commit `932f5adbd9db5babce1ad05aa280cc34e452e193`
+and public Linux CI `38141439187`. All seven control images have immutable
+Docker Hub digests and anonymous manifest/config/source-label verification.
+The Neon/autoscaling/PostgreSQL fork revisions and 46-image lock are unchanged.
+Metadata remains migration 021; this increment does not add a schema migration
+or a public Functions execution API. Review `locks/control-plane-932f5ad.json`.
+
+Before the eight-stage upgrade, archive current Helm values/manifests and
+Secrets/PVC identities in private evidence, complete original Operations and
+observe all test Compute VMs/runners gone. Preserve existing certificate,
+pepper/idempotency keys, metadata database and storage. Apply the standard
+stack plan and audit, then run each Linux UI suite serially with the exact new
+control commit; previous 0.1.10 results are historical baseline evidence.
+Retain failed attempts and recover original accepted Operations rather than
+creating replacement fixtures. No data/Secret/WAL/object purge is part of
+this upgrade. This does not certify production TLS, external fencing or HA/DR.

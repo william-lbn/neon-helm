@@ -23,7 +23,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 11. [Functions metadata, guest foundation and execution gates](docs/FUNCTIONS.md)
 
 ```bash
-git clone --branch v0.1.9 --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch v0.1.10 --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"
@@ -61,7 +61,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.9
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.10
 helm repo update
 helm search repo neon
 ```

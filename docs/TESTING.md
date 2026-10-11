@@ -54,7 +54,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout fbff1b09f26f0840255b92b58428de1e9167689f
+git checkout dda5d34dc9bed7117950f31de0bc438b47dc2c02
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium

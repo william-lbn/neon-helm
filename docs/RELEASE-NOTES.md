@@ -1,5 +1,28 @@
 # Neon Helm releases
 
+## 0.1.10
+
+All ten charts select control source `dda5d34`, with forward migration 021 for
+private immutable Functions bootstrap identity receipts. The receipt binds the
+actual Secret UID, complete instance scope, content MAC and key version; it does
+not contain credentials or authorize execution. Linux Go/PostgreSQL quality
+passed 553 checks, and three independent actual MinIO/Kubernetes checks passed.
+The deployment/invocation Driver is still disabled.
+
+The Console now rejects truncated JSON/HTML success replies as identifiable
+transient read failures. Accepted Operation polling can recover by reading the
+same identity; it never repeats the creating mutation. A well formed foreign
+Operation still fails. The native browser suite explicitly injects two 503
+reads, truncated JSON and HTML, checking exactly one project creation. The Auth
+suite can resume the original failed project, existing child and completed
+Operation, retaining accounts/data and the original failure.
+
+Linux source tests, registry verification, node pulls, ordered live upgrade and
+browser results are separate gates. Historical passing UI counts do not qualify
+this distribution. Migration 019 defines only definitions/deployments/instances,
+not an invocation ledger or active route table; the Functions document corrects
+that earlier overstatement. Neon/autoscaling/PostgreSQL sources remain unchanged.
+
 ## 0.1.9
 
 All ten charts select control source `fbff1b0`, built by successful Linux CI

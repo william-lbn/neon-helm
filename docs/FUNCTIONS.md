@@ -2,11 +2,14 @@
 
 ## Current contract
 
-The control-plane source selected by release 0.1.9 exposes branch-scoped,
+The control-plane source selected by release 0.1.10 exposes branch-scoped,
 authorized read-only Function definitions and deployment history. Its Console
-has a Functions page. Migration 019 installs deployment, instance, route and
-invocation metadata constraints. Migration 020 adds immutable private backing
+has a Functions page. Migration 019 installs definition, deployment and
+instance metadata constraints. The invocation ledger and route publication
+remain to be implemented. Migration 020 adds immutable private backing
 receipts for exact environment Secret UID/MAC/key version and deployment scope.
+Migration 021 adds immutable instance bootstrap Secret identity receipts. Neither
+migration adds a deployment/invocation route or enables execution.
 Execution remains disabled: installing this
 release does not create a Function VM or make a public invocation URL available.
 
@@ -42,7 +45,7 @@ Driver must still connect this library to branch credentials and the real Proxy.
 ## Upgrade and reproduction
 
 Follow [UPGRADE.md](UPGRADE.md) for metadata backup, complete private overlays,
-ordered maintenance and rollback. Preserve migrations 019/020 metadata and immutable
+ordered maintenance and rollback. Preserve migrations 019/020/021 metadata and immutable
 artifacts when rolling back a binary; a Helm rollback is not a database downgrade.
 No Function Secret, WAL, PVC, application row or artifact is deleted by upgrade.
 Use the exact seven-image lock, not a moving image tag.
@@ -60,10 +63,13 @@ Driver owns per-Function NeonVM instances and their immutable deployment scope.
 
 ## Remaining execution gates
 
-1. Connect the accepted immutable artifact/environment primitives and leased
+1. Connect the accepted immutable artifact/environment/bootstrap primitives and leased
    private backing receipt repository to the real deployment Driver. The real
    MinIO conditional-write collision and Kubernetes unknown-create recovery
-   checks passed independently; they do not constitute product deployment.
+   checks passed independently; the actual bootstrap Secret additionally retained
+   its original UID, certificate and keys after a lost POST acknowledgement.
+   They do not constitute product deployment. Migration 021 stores only the
+   private immutable bootstrap receipt, with no execution admission or route.
 2. Actual branch SQL through the Proxy, restricted role persistence across
    Compute cold wake and independently verified branch/PITR inheritance.
 3. Atomic publication only after a candidate is healthy; failed deployment keeps
@@ -76,7 +82,8 @@ Driver owns per-Function NeonVM instances and their immutable deployment scope.
    full lifecycle. These are separate from the accepted guest primitives.
 
 See the authoritative control source
-[Backing contracts and evidence](https://github.com/william-lbn/control-plane/blob/fbff1b09f26f0840255b92b58428de1e9167689f/docs/FUNCTIONS-BACKING.md),
+[Backing contracts and evidence](https://github.com/william-lbn/control-plane/blob/dda5d34dc9bed7117950f31de0bc438b47dc2c02/docs/FUNCTIONS-BACKING.md),
+[Bootstrap contracts and evidence](https://github.com/william-lbn/control-plane/blob/dda5d34dc9bed7117950f31de0bc438b47dc2c02/docs/FUNCTIONS-BOOTSTRAP.md),
 [Functions implementation](https://github.com/william-lbn/control-plane/blob/main/docs/FUNCTIONS-IMPLEMENTATION.md)
 and [model](https://github.com/william-lbn/control-plane/blob/main/docs/FUNCTIONS-MODEL.md).
 HA/DR, shared-storage stability and whole-chain TLS retain their independent

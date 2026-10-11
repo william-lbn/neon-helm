@@ -93,9 +93,18 @@ manual reconnection. Use a new private/evidence directory and attempt per suite.
    unknown current CPU/RAM, while retaining historic samples.
 7. With the documented split-Worker fault fixture, pause Worker after admission,
    retain queued Operation, restore it and prove the same Operation succeeds.
-8. With `NEON_E2E_POLL_FAULT=true`, require recovery after two observation 503s
-   with exactly one project POST; apply the same flag to Data API enable tests.
+8. With `NEON_E2E_POLL_FAULT=true`, the native suite requires recovery after two
+   observation 503s, truncated JSON and HTML success replies, with exactly one
+   project POST. Data API has its own two-503 enable observer test.
    Permission errors stop observation immediately; mutation requests are not replayed.
+
+If the original Auth child-create Operation succeeded but its UI observation
+failed, preserve the original result and both private passwords. The committed
+`managed-auth.spec.ts` supports `NEON_E2E_AUTH_RESUME_FIXTURE` with exact original
+project/branch/Writer/Operation identity. Follow the pinned control source's
+`docs/TESTING.md` for all protected fields and commands. It opens the original
+Operation and uses the retained accounts/data; it does not create a replacement
+fixture. Report recovery separately from fresh creation/registration acceptance.
 
 ### Console invitation sequence
 
@@ -261,3 +270,24 @@ Only exact-name test projects with reviewed ownership/evidence may be normally
 retained-deleted to release logical quota. Record recovery deadline and held
 tombstone; preserve blobs, WAL, SQL, password files and every original receipt.
 This is separate from deleting terminal Job objects with archived UID/RV proof.
+
+### 0.1.10 acceptance and original-fixture continuations
+
+The active control lock is `dda5d34`; metadata is 21/21 migrations. The serial
+Linux matrix has 135 passed checks: seven normal scenarios (97) and three
+explicit original-fixture continuations (38). This is not ten clean first-pass
+suites. Timestamp restore, Endpoint retirement and project lifecycle retain
+their original failures; each continuation verifies the original identities and
+actual SQL before new work. The invitations Job passed six checks; a Windows
+long-path collection failure was resolved by reading the original Job/Pod UID,
+without replaying registration. See the
+[versioned control acceptance](https://github.com/william-lbn/control-plane/blob/main/docs/DELIVERY-2026-10-11-FUNCTIONS-BACKING.md#33-当前运行发行与逐套回归)
+for exact scope and source versions.
+
+The public control tests include `restore-resume.spec.ts`,
+`NEON_E2E_ENDPOINT_RESUME_FIXTURE` and `NEON_E2E_LIFECYCLE_RESUME_FIXTURE`.
+Follow their documented protected fixture contracts; do not guess IDs or rerun
+unknown INSERT/DELETE results. Retain original passwords/data/evidence and
+confirm actual VM/runner disappearance after each suite. New Functions Service
+recovery and atomic-publication code is a separate implementation gate and does
+not enable Functions execution in this chart.

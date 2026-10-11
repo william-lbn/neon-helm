@@ -1,7 +1,7 @@
 {
   "api": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-api@sha256:93bd729c41944240af99b68c9fe0e5db3ec950e0b854ae3a4b3066e9eff36f6e"
+      "reference": "docker.io/williamluckyli/control-api@sha256:f10cce1e6b109a47120e6be1973ae3009784edbb10ea0b7f552c258997ca8939"
     },
     "pgTLSMode": "lab-insecure",
     "cookieSecure": false,
@@ -12,7 +12,7 @@
   },
   "web": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-web@sha256:fc38fadffaf24a2e34dc6b19863d8375946116548e8f68e957de2a2d21adab5e"
+      "reference": "docker.io/williamluckyli/control-web@sha256:4d44522da52dc4b67844d4a98022addd8dcc5d586d34bb57f23c7f1c6044081d"
     }
   },
   "worker": {
@@ -26,8 +26,8 @@
   "dataAPI": {
     "enabled": true,
     "labHTTP": true,
-    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:0202ef6ac5bd4d91afabee75b0fafaa97b79f21641a620639be48e92d24486be",
-    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:b29013f45d25bb5179153cc0ea30dae9b3427a3f46e2cdd24574b0bbf4885ea8"
+    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:8e7643c957d5caa1a42352c190fd10960b8632a6501952399a7e8363a01eadf6",
+    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:fb1c4b8593fcc7c6a01846de1214df604b7135a0d8a18c03405cc30b76cbec74"
   },
   "backendCredentials": {
     "enabled": true,
@@ -37,7 +37,7 @@
   "managedAuth": {
     "enabled": true,
     "labHTTP": true,
-    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:6945418322e683406d15d7d3485e86fd4fe1354869b8259ce82b5c41a3f632d8",
+    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:7b86bfb13a3c3c6d76af938565b54ecb10845801197bf31869a6bed8f6eddc87",
     "publicOrigin": "http://192.168.146.100:30788",
     "pgCASecret": "neon-proxy-tls",
     "pgCAKey": "tls.crt",

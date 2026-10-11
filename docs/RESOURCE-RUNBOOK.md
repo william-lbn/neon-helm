@@ -30,6 +30,23 @@ before activating a child or reader. Do not start a build, image import,
 backup stress test or disk benchmark concurrently with live UI/SQL acceptance.
 Limiting a pull client does not necessarily limit the containerd daemon's I/O.
 
+### NeonVM uses a separate accounting path
+
+A Runner with no ordinary CPU/memory `requests` is not proof that its VM has no
+reservation. In the pinned autoscaling fork, `pkg/plugin/state/pod.go` reads VM
+resource annotations in `podStateForVMRunner`: approved scaling is reserved;
+before an approval exists, guest CPU/memory `.use` is reserved. Normal Pods use
+container requests. Review both paths and the actual `schedulerName`, VM resource
+annotations, approved/requested scaling, overcommit and node capacity.
+
+`spec.podResources` is also copied into the Runner container by the NeonVM
+controller. Adding a fixed memory/CPU limit without checking QEMU overhead and
+the maximum hotplug envelope can kill or throttle a correctly scaled VM. Custom
+scheduler accounting does not itself prove kubelet eviction, overhead accounting,
+mixed scheduler behavior or production admission. These remain separate checks;
+do not change the fork or apply a fixed limit solely to make `kubectl describe`
+show a nonzero request.
+
 ## 2. Stop completed test runtime and retain reproducibility
 
 | Resource | Retirement | Preserve |

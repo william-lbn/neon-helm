@@ -1,5 +1,36 @@
 # Neon Helm releases
 
+## 0.1.12
+
+All ten charts select control source
+`f0b63f5eed0fc412960b8b7dc7e8cda34abf916f`. Linux CI run `38156200281`
+completed all thirteen jobs. Its downloaded Go/PostgreSQL receipt contains
+610 passing checks, zero failures and zero skips. Seven public control images
+have independently verified anonymous OCI provenance. Node pulls, ordered
+upgrade, persistent identity audit and browser acceptance remain separate gates.
+The Neon/autoscaling/PostgreSQL distribution is unchanged.
+
+The restricted Functions SQL role now rejects column privilege leaks, grant
+options, unsafe table kinds, sequence mutation and enabled write triggers. A
+fresh authenticated runtime session must pass the same permission checks,
+exact database/role/schema identity and transaction/GUC checks. This is a SQL
+foundation: it does not prove physical branch placement, an immutable query
+deadline, a customer Function invocation or protection from the database owner.
+The deployment/invocation Driver and customer execution remain disabled.
+
+An independent Worker now remains unready and retries initial controller lease
+acquisition after transient database unavailability. It starts controllers only
+after obtaining the actual lease. Loss of an already acquired leadership session
+still drains and exits. This does not certify HA or cross-instance fencing.
+
+Committed browser tests support explicit continuation of original accepted leaf
+creation and reader creation Operations, preserving original IDs, rows and
+failures. Only four fixed read-only SQL probes in explicit recovery may retry a
+503/504 once; creating mutations and unknown SQL writes are never repeated.
+The 0.1.11 browser matrix is historical evidence, not acceptance of these images.
+Follow [UPGRADE.md](UPGRADE.md) and [TESTING.md](TESTING.md). This release does not
+assert production admission or Neon feature parity.
+
 ## 0.1.11
 
 All ten charts select control source

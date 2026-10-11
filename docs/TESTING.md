@@ -54,7 +54,7 @@ revision from SOURCE-PROVENANCE.md, then run Linux Chromium serially:
 ```bash
 git clone https://github.com/william-lbn/control-plane.git /opt/neon-control-tests
 cd /opt/neon-control-tests
-git checkout 0ba173262d53d9bd634b52347ce417ae83033a85
+git checkout f256408c97bed15f5bf91b243e750d214cfe933a
 cd web
 npm ci --no-audit --fund=false
 npx playwright install --with-deps chromium
@@ -67,6 +67,12 @@ export NEON_E2E_EXPECT_SPLIT=true
 export NEON_E2E_POLL_FAULT=true
 npm run test:e2e -- native-product.spec.ts
 ```
+
+For the read-only Functions slice, select a real authorized project with
+`NEON_E2E_PROJECT_ID=prj_<16hex>` and run
+`npm run test:e2e -- functions-metadata.spec.ts`. This verifies Console navigation,
+actual metadata and disabled execution admission. It does not deploy or invoke
+a Function. See [FUNCTIONS.md](FUNCTIONS.md) for the separate execution gates.
 
 Copy the Console password from your secret manager into a mode-0600 file,
 never into shell history or GitHub logs. Tests use retries=0, workers=1,

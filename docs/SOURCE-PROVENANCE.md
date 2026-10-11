@@ -5,23 +5,29 @@
 | william-lbn/neon | `1f30cd02092dc151f5d00aef97e7c629105b454b` |
 | william-lbn/autoscaling | `c0052f5f2d38fce6c70e448f3f1ee2ee239a0a93` |
 | william-lbn/postgres (v16) | `a42351fcd41ea01edede1daed65f651e838988fc` |
-| william-lbn/control-plane | `0ba173262d53d9bd634b52347ce417ae83033a85` |
+| william-lbn/control-plane | `f256408c97bed15f5bf91b243e750d214cfe933a` |
 
 Data-plane release tag:
 `2026.09.30-162021-1f30cd02092d-r36742713551-a1`.
 Every deployment profile uses immutable registry digests. Consult
 `locks/neon-fork-20260930.json` for the full 46-image source/build distribution
-and `locks/control-plane-0ba1732.json` for the seven published control images including the Better Auth runtime.
+and `locks/control-plane-f256408.json` for the seven published control images including the Better Auth runtime.
 These are fixed current deployment versions, not an assertion of future latest.
 
-The current control distribution uses public `ghcr.io/william-lbn/control-*`
-digests from Linux CI run `38058862506`. The same CI run also published the same
-OCI manifests to `docker.io/williamluckyli/control-*`. GHCR was selected after
-the existing Windows/GOST egress path timed out reaching Docker Hub. Anonymous
+The current control distribution uses public `docker.io/williamluckyli/control-*`
+digests from Linux CI run `38103678537`. The same CI run also published the same
+OCI manifests to `ghcr.io/william-lbn/control-*`. Earlier releases used GHCR when
+the laboratory egress path could not reach Docker Hub. Anonymous
 Linux verification checks manifest/config hashes, platform and source labels;
 publication success alone is not a node pull or UI acceptance result. This does
 not change the locked Neon/autoscaling/PostgreSQL data-plane versions. Preserve
 older control locks as explicitly superseded failure/rollback records.
+
+`locks/functions-guest-86a9e07.json` records a separately accepted guest image
+whose source differs from the seven installed control images. It is an execution
+foundation artifact, not an enabled product service. Its actual default-entry VM
+acceptance covers isolation and Fetch/SSE; SQL, deployment and UI execution need
+their own Driver acceptance. See [Functions](FUNCTIONS.md).
 
 The initial chart imports came from the existing validated deployment bundle
 and the public control repository. `locks/source-imports.json` records baseline

@@ -1,5 +1,25 @@
 # Neon Helm releases
 
+## 0.1.8
+
+All ten charts select control source `f256408` from successful Linux CI
+38103678537. OpenAPI 0.11.0 has 61 paths / 90 operations. This increment adds
+branch-scoped Functions metadata/history APIs and a read-only React page,
+forward migration 019 and a separately tested restricted SQL identity library.
+Functions execution remains disabled pending the leased deployment Driver and
+real SQL, deployment/invocation and browser acceptance.
+
+PostgreSQL int32/int64 metadata is now converted correctly; generation ETags use
+exact bigint formatting, including values beyond JavaScript's safe integer
+range. Seven control images are locked by public CI provenance and anonymous
+Linux registry checks. The separately accepted Function guest image is recorded
+without installing it as an active service. Neon, autoscaling and PostgreSQL
+data-plane sources/images are unchanged. See [Functions boundaries](FUNCTIONS.md).
+
+This release requires the independent Linux chart, deployment and UI gates in
+[TESTING.md](TESTING.md). Successful image publication does not constitute live
+acceptance. Prior acceptance records remain version-specific historical evidence.
+
 ## 0.1.7
 
 All ten charts select control source `0ba1732` from successful Linux CI

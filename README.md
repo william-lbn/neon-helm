@@ -20,9 +20,10 @@ Installing a chart does not implement Neon's proprietary Backend services.
 8. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
 9. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
 10. [Independent Compute deletion and replacement](docs/COMPUTE-LIFECYCLE.md)
+11. [Functions metadata, guest foundation and execution gates](docs/FUNCTIONS.md)
 
 ```bash
-git clone --branch v0.1.7 --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch v0.1.8 --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"
@@ -49,8 +50,8 @@ the control-plane Drivers, not permanently installed by Helm.
 | `docs/` | Deployment, upgrade, test and qualification runbooks |
 
 Data-plane images use the public `williamluckyli` Docker Hub repositories;
-the seven current control images select public `william-lbn` GHCR mirrors of
-the same CI publication. All references are fixed digests. See the selected
+the seven current control images select public `williamluckyli` Docker Hub
+publications with equivalent GHCR mirrors. All references are fixed digests. See the selected
 source/image lock for exact provenance. The chart repository does not rebuild
 these images. GitHub CI
 validates all charts on Linux; a version tag publishes chart packages and hashes
@@ -60,7 +61,7 @@ No Docker Hub publishing credential is needed for chart publication.
 After a versioned release is published, the standard Helm repository endpoint is:
 
 ```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.7
+helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.8
 helm repo update
 helm search repo neon
 ```

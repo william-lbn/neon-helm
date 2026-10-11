@@ -1,9 +1,9 @@
 {
   "source": "https://github.com/william-lbn/control-plane",
-  "source_commit": "0ba173262d53d9bd634b52347ce417ae83033a85",
+  "source_commit": "f256408c97bed15f5bf91b243e750d214cfe933a",
   "source_path": "api/cmd/control-adapter",
-  "github_ci_run_id": 38058862506,
-  "image": "ghcr.io/william-lbn/control-adapter@sha256:06f984d83a4d2d5ccc98a2628f7e5ed63e6cd082edd3e7ae0eaf1946c33f5303",
+  "github_ci_run_id": 38103678537,
+  "image": "docker.io/williamluckyli/control-adapter@sha256:4784bcda35fc8d1de69c6045b6144c4b3810980393aedd39cbb81c2be93ac516",
   "language": "go",
   "runtime_code_only": true,
   "replicas_supported": 1,

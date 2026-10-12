@@ -2,15 +2,15 @@
 
 ## Current native execution preview
 
-Release candidate 0.1.15 selects control source
-`f1cd9597f228d3b951821d0a72251e4394b05b2e`. Native Go API/Worker and React UI
+Release candidate 0.1.16 selects control source
+`21eafbc53010e29dd4af1c4038dcbf88f17ad895`. Native Go API/Worker and React UI
 now implement definition creation, ZIP/environment deployment, private TLS
 artifact delivery, restricted SQL credentials, authenticated JSON Console
 invocation, explicit manual stop/redeploy and retained deletion. Execution
 defaults to disabled. Installing the chart alone does not qualify the product.
 
-Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/f1cd9597f228d3b951821d0a72251e4394b05b2e/docs/FUNCTIONS-NATIVE-PREVIEW.md)
-and [OpenAPI 0.12](https://github.com/william-lbn/control-plane/blob/f1cd9597f228d3b951821d0a72251e4394b05b2e/contracts/openapi-v1.json).
+Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/21eafbc53010e29dd4af1c4038dcbf88f17ad895/docs/FUNCTIONS-NATIVE-PREVIEW.md)
+and [OpenAPI 0.12](https://github.com/william-lbn/control-plane/blob/21eafbc53010e29dd4af1c4038dcbf88f17ad895/contracts/openapi-v1.json).
 Provision immutable common config/MAC/public CA and separate Worker-only issuer
 Secrets, then opt into `profiles/examples/functions-preview.json`. Never project
 the Proxy private key. Helm rejects missing configuration, absent backing storage,
@@ -35,7 +35,7 @@ Console origin, and unknown outcomes are not automatically replayed.
 Actual execution acceptance remains separate from source/CI/Ready Pods. The
 Linux `functions-native.spec.ts` must verify real UI -> Worker -> guest -> Proxy
 -> Neon SQL read/write, schema rejection, safe HTML, application errors, stop,
-redeploy and NOLOGIN/retained deletion. Its [0.1.15 original-fixture continuation](RELEASE-0.1.15.md)
+redeploy and NOLOGIN/retained deletion. Its [0.1.16 original-operation recovery](RELEASE-0.1.16.md)
 preserves the initial HTTP UI interruption and avoids repeating project/grant
 creation. Keep all original failures/checkpoints and normally retire only exact
 owned runtime resources. Do not mark pending live acceptance as passed.

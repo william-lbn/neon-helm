@@ -45,6 +45,12 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     const service=docs.find(o=>o.kind==='Service'&&o.metadata.name==='neon-control-functions-artifact');
     assert.equal(service.spec.type,'ClusterIP');assert.equal(service.spec.selector['app.kubernetes.io/component'],'worker');
     assert.deepEqual(service.spec.ports,[{name:'artifact-tls',port:8790,targetPort:'artifact-tls'}]);
+    const retirement=docs.find(o=>o.kind==='Role'&&o.metadata.name==='neon-control-functions-retirement');
+    assert.deepEqual(retirement?.rules,[{apiGroups:[''],resources:['services'],verbs:['delete']}]);
+    const binding=docs.find(o=>o.kind==='RoleBinding'&&o.metadata.name===retirement.metadata.name);
+    assert.deepEqual(binding?.subjects,[{kind:'ServiceAccount',name:'neon-control-worker',namespace:'neon'}]);
+    assert.deepEqual(binding?.roleRef,{apiGroup:'rbac.authorization.k8s.io',kind:'Role',name:retirement.metadata.name});
+    assert(!objs.some(o=>o.metadata.name==='neon-control-functions-retirement'),'Disabled Functions must not grant Service deletion');
     fs.writeFileSync(path.join(output,'functions-preview.yaml'),rendered.stdout);
   }
   if(chart==='neon-core') {

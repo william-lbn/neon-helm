@@ -2,7 +2,7 @@
 
 ## Current native execution preview
 
-Release candidate 0.1.17 selects control source
+Release candidate 0.1.18 selects control source
 `07c997b07b9e3e1f60c1ed9ccd34b5cc1cbf1a54`. Native Go API/Worker and React UI
 now implement definition creation, ZIP/environment deployment, private TLS
 artifact delivery, restricted SQL credentials, authenticated JSON Console

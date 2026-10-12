@@ -29,9 +29,10 @@ the resumed **read-only** audit documented those history records and confirmed
 business identities and the actual authorization boundary. Helm was not replayed
 for that audit. Private original values/manifests and test evidence are retained.
 
-**Native Functions UI invocation acceptance remains pending.** Continue from
+**Native Functions UI invocation acceptance passed.** See the exact continuation
+[receipt and limits](ACCEPTANCE-2026-10-12-FUNCTIONS.md). The accepted test continued from
 the completed-stop checkpoint, then independently verify guest publication,
 real Proxy SQL identity/read/write, schema denial, safe responses, manual stop,
 configuration-only redeploy and NOLOGIN/retained deletion. Source/CI/chart gates
-are not substitutes for that live result. All unrelated production and official
+were not substitutes for that live result. All unrelated production and official
 parity gates remain as defined in [the recovery contract](RELEASE-0.1.17.md).

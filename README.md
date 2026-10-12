@@ -21,7 +21,7 @@ Installing a chart does not implement Neon's proprietary Backend services.
 9. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
 10. [Independent Compute deletion and replacement](docs/COMPUTE-LIFECYCLE.md)
 11. [Native Functions deployment, operator inputs and execution gates](docs/FUNCTIONS.md)
-12. [Historical 0.1.12 UI acceptance](docs/ACCEPTANCE-2026-10-12.md) / [Functions recovery](docs/RELEASE-0.1.17.md) / [Current complete environment hydration](docs/RELEASE-0.1.19.md)
+12. [Historical 0.1.12 UI acceptance](docs/ACCEPTANCE-2026-10-12.md) / [Native Functions actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS.md) / [Current release](docs/RELEASE-0.1.19.md)
 
 ```bash
 git clone --branch v0.1.17 --single-branch https://github.com/william-lbn/neon-helm.git

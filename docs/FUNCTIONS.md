@@ -1,6 +1,52 @@
 # Functions: deployment boundaries and verification
 
-## Current contract
+## Current native execution preview
+
+Release candidate 0.1.15 selects control source
+`f1cd9597f228d3b951821d0a72251e4394b05b2e`. Native Go API/Worker and React UI
+now implement definition creation, ZIP/environment deployment, private TLS
+artifact delivery, restricted SQL credentials, authenticated JSON Console
+invocation, explicit manual stop/redeploy and retained deletion. Execution
+defaults to disabled. Installing the chart alone does not qualify the product.
+
+Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/f1cd9597f228d3b951821d0a72251e4394b05b2e/docs/FUNCTIONS-NATIVE-PREVIEW.md)
+and [OpenAPI 0.12](https://github.com/william-lbn/control-plane/blob/f1cd9597f228d3b951821d0a72251e4394b05b2e/contracts/openapi-v1.json).
+Provision immutable common config/MAC/public CA and separate Worker-only issuer
+Secrets, then opt into `profiles/examples/functions-preview.json`. Never project
+the Proxy private key. Helm rejects missing configuration, absent backing storage,
+combined Worker mode and multiple API/Worker instances before external fencing.
+
+New mutation suffixes after the branch-scoped `/functions` collection:
+
+| Method/path | Purpose |
+|---|---|
+| POST `/` | Metadata definition with idempotent create Operation |
+| POST `/{slug}/deployments` | ZIP/environment plus key/version, queued native execution |
+| POST `/{slug}/console-invoke` | Bounded authenticated non-executable JSON envelope |
+| POST `/{slug}/suspend` | Explicitly acknowledged original-instance retirement |
+| DELETE `/{slug}` | Retire original instance, disable owned SQL login; retain data/history |
+
+Active updates require explicit stop; config-only deployments retain completed
+code and original SQL identity/data. Environment input is a patch: omitted/empty
+dictionary preserves it; empty string removes the named variable. Deleted slugs
+can be reused only with a new identity. Customer HTML never executes on the
+Console origin, and unknown outcomes are not automatically replayed.
+
+Actual execution acceptance remains separate from source/CI/Ready Pods. The
+Linux `functions-native.spec.ts` must verify real UI -> Worker -> guest -> Proxy
+-> Neon SQL read/write, schema rejection, safe HTML, application errors, stop,
+redeploy and NOLOGIN/retained deletion. Its [0.1.15 original-fixture continuation](RELEASE-0.1.15.md)
+preserves the initial HTTP UI interruption and avoids repeating project/grant
+creation. Keep all original failures/checkpoints and normally retire only exact
+owned runtime resources. Do not mark pending live acceptance as passed.
+
+Public raw HTTP/SSE/WebSockets, automatic idle zero/wake, triggers, complete
+function branch/PITR inheritance, issuer renewal (current guest leaf lifetime two
+hours), external fencing, HA/DR and full production transport remain independent
+gates. Current-database grants do not prove exclusive access across instance-wide
+PostgreSQL roles and PUBLIC CONNECT defaults.
+
+## Historical 0.1.12 foundation contract
 
 The control-plane source selected by release 0.1.12 exposes branch-scoped,
 authorized read-only Function definitions and deployment history. Its Console

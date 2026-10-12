@@ -29,8 +29,9 @@ reads, activity after one real SQL read invocation, old health removal, no SQL
 wake when paused, normal owned deletion and final Compute zero. It does not
 repeat the previous whole native suite or its writes/grants.
 
-**New runtime monitoring live acceptance is pending.** Use the exact Linux
-receipt before promoting it. The protected Linux workflow now exposes native
+**New runtime monitoring live acceptance passed by original-checkpoint continuation.**
+See the [exact result, corrected desired/observed assertion and limits](ACCEPTANCE-2026-10-12-FUNCTIONS-MONITORING.md).
+The protected Linux workflow now exposes native
 and monitoring suites and packages the pinned example outside the checkout;
 monitoring requires an operator-controlled private owner fixture path. No
 password, Python transport or private evidence is shipped in the public code.

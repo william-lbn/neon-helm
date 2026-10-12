@@ -2,15 +2,15 @@
 
 ## Current native execution preview
 
-Release candidate 0.1.19 selects control source
-`bf0dd9e41f9d3d65e321958d16c0c255f8a8b2ad`. Native Go API/Worker and React UI
+Release candidate 0.1.20 selects control source
+`be557e0742ca8d2fb9030aa5f17a6f9936811acb`. Native Go API/Worker and React UI
 now implement definition creation, ZIP/environment deployment, private TLS
 artifact delivery, restricted SQL credentials, authenticated JSON Console
 invocation, explicit manual stop/redeploy and retained deletion. Execution
 defaults to disabled. Installing the chart alone does not qualify the product.
 
-Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/bf0dd9e41f9d3d65e321958d16c0c255f8a8b2ad/docs/FUNCTIONS-NATIVE-PREVIEW.md)
-and [OpenAPI 0.12](https://github.com/william-lbn/control-plane/blob/bf0dd9e41f9d3d65e321958d16c0c255f8a8b2ad/contracts/openapi-v1.json).
+Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/be557e0742ca8d2fb9030aa5f17a6f9936811acb/docs/FUNCTIONS-NATIVE-PREVIEW.md)
+and [OpenAPI 0.13](https://github.com/william-lbn/control-plane/blob/be557e0742ca8d2fb9030aa5f17a6f9936811acb/contracts/openapi-v1.json).
 Provision immutable common config/MAC/public CA and separate Worker-only issuer
 Secrets, then opt into `profiles/examples/functions-preview.json`. Never project
 the Proxy private key. Helm rejects missing configuration, absent backing storage,
@@ -25,6 +25,7 @@ New mutation suffixes after the branch-scoped `/functions` collection:
 | POST `/{slug}/console-invoke` | Bounded authenticated non-executable JSON envelope |
 | POST `/{slug}/suspend` | Explicitly acknowledged original-instance retirement |
 | DELETE `/{slug}` | Retire original instance, disable owned SQL login; retain data/history |
+| GET `/{slug}/runtime` | Explicit original-identity supervisor observation; no SQL wake/invocation |
 
 Active updates require explicit stop; config-only deployments retain completed
 code and original SQL identity/data. Environment input is a patch: omitted/empty

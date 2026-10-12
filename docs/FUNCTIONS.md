@@ -2,15 +2,15 @@
 
 ## Current native execution preview
 
-Release candidate 0.1.20 selects control source
-`be557e0742ca8d2fb9030aa5f17a6f9936811acb`. Native Go API/Worker and React UI
+Release candidate 0.1.21 selects control source
+`0198f7c8249d4d3755f62b685a0db0c15ff7301c`. Native Go API/Worker and React UI
 now implement definition creation, ZIP/environment deployment, private TLS
 artifact delivery, restricted SQL credentials, authenticated JSON Console
 invocation, explicit manual stop/redeploy and retained deletion. Execution
 defaults to disabled. Installing the chart alone does not qualify the product.
 
-Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/be557e0742ca8d2fb9030aa5f17a6f9936811acb/docs/FUNCTIONS-NATIVE-PREVIEW.md)
-and [OpenAPI 0.13](https://github.com/william-lbn/control-plane/blob/be557e0742ca8d2fb9030aa5f17a6f9936811acb/contracts/openapi-v1.json).
+Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/0198f7c8249d4d3755f62b685a0db0c15ff7301c/docs/FUNCTIONS-NATIVE-PREVIEW.md)
+and [OpenAPI 0.14](https://github.com/william-lbn/control-plane/blob/0198f7c8249d4d3755f62b685a0db0c15ff7301c/contracts/openapi-v1.json).
 Provision immutable common config/MAC/public CA and separate Worker-only issuer
 Secrets, then opt into `profiles/examples/functions-preview.json`. Never project
 the Proxy private key. Helm rejects missing configuration, absent backing storage,
@@ -26,6 +26,7 @@ New mutation suffixes after the branch-scoped `/functions` collection:
 | POST `/{slug}/suspend` | Explicitly acknowledged original-instance retirement |
 | DELETE `/{slug}` | Retire original instance, disable owned SQL login; retain data/history |
 | GET `/{slug}/runtime` | Explicit original-identity supervisor observation; no SQL wake/invocation |
+| POST `/{slug}/resume` | Explicit new boot from successfully retained source/env; key/version and `{}` |
 
 Active updates require explicit stop; config-only deployments retain completed
 code and original SQL identity/data. Environment input is a patch: omitted/empty
@@ -118,23 +119,23 @@ Driver owns per-Function NeonVM instances and their immutable deployment scope.
 
 ## Remaining execution gates
 
-1. Connect the accepted immutable artifact/environment/bootstrap primitives and leased
-   private backing receipt repository to the real deployment Driver. The real
-   MinIO conditional-write collision and Kubernetes unknown-create recovery
-   checks passed independently; the actual bootstrap Secret additionally retained
-   its original UID, certificate and keys after a lost POST acknowledgement.
-   They do not constitute product deployment. Migration 021 stores only the
-   private immutable bootstrap receipt, with no execution admission or route.
-2. Actual branch SQL through the Proxy, restricted role persistence across
-   Compute cold wake and independently verified branch/PITR inheritance.
-3. Atomic publication only after a candidate is healthy; failed deployment keeps
-   the previous version; retirement confirms the old Runner is absent.
-4. Console upload/configuration/invocation and real Response/SSE regression,
-   version rollback, zero/wake and normal capacity release.
-5. Independent public origin, application authorization, trusted TLS, invocation
-   ledger and distributed fencing before admitting multiple instances.
-6. Independent runtime budgets, background work, WebSocket/event semantics and
-   full lifecycle. These are separate from the accepted guest primitives.
+Native Driver, Console deployment/invocation, real restricted SQL, acknowledged
+stop/redeployment/deletion and normal Runner retirement passed the
+[0.1.19 native slice](ACCEPTANCE-2026-10-12-FUNCTIONS.md). Original-identity
+monitoring and no SQL wake passed the
+[0.1.20 observation slice](ACCEPTANCE-2026-10-12-FUNCTIONS-MONITORING.md).
+
+1. Explicit retained-version wake API/UI passed its exact
+   [0.1.21 receipt](ACCEPTANCE-2026-10-12-FUNCTIONS-WAKE.md); this does not qualify
+   automatic request-triggered cold wake.
+2. Automatic idle eviction/cold wake needs background semantics, request admission
+   and durable drain/fencing. Counters alone never authorize deletion.
+3. Independent public HTTP origin, streaming SSE/WebSocket ingress, application
+   authorization, whole-chain trusted TLS and invocation ledger remain missing.
+4. Deployment inheritance, rollback/PITR coordination and atomic Backend restore
+   remain separate from database-only historical branches.
+5. Triggers, logs/metering/budgets, issuer rotation and distributed HA/DR still
+   require implementation and independent qualification.
 
 See the authoritative control source
 [Backing contracts and evidence](https://github.com/william-lbn/control-plane/blob/932f5adbd9db5babce1ad05aa280cc34e452e193/docs/FUNCTIONS-BACKING.md),

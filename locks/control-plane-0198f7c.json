@@ -1,0 +1,93 @@
+{
+  "source": "https://github.com/william-lbn/control-plane",
+  "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+  "github_ci_run_id": 38223473074,
+  "platform": "linux/amd64",
+  "images": {
+    "api": {
+      "name": "docker.io/williamluckyli/control-api:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-api@sha256:b6a09929c101af6259d8de2de94c83faa8484553c1ee0739a40c9aecf0766947",
+      "digest": "sha256:b6a09929c101af6259d8de2de94c83faa8484553c1ee0739a40c9aecf0766947",
+      "platform_digest": "sha256:031b16cb522b326d0c44458eef3e56f0fe123f569777eef82bc9e763e108185a",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:9327ac5cc16ea485e9c80cc040602fd5419cc3c4d4a9ead825a440931c44ea41",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "web": {
+      "name": "docker.io/williamluckyli/control-web:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-web@sha256:650e52ac90525632abdcf7f261f451a483c0c314d1937bced4561ac22c571a5e",
+      "digest": "sha256:650e52ac90525632abdcf7f261f451a483c0c314d1937bced4561ac22c571a5e",
+      "platform_digest": "sha256:83a4b5ba14b261e637566d0e539d09397cc93ad83d1f997ac97cc6679364077b",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:29bed7f44b60340beb9bb9d1540f3a4ed520fabdeab9d1b2189c581cb5650ec5",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "gateway": {
+      "name": "docker.io/williamluckyli/control-gateway:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-gateway@sha256:bdf8c62f8b173a9b183b76ddb54c2d07e67acb066244c5096434665120603281",
+      "digest": "sha256:bdf8c62f8b173a9b183b76ddb54c2d07e67acb066244c5096434665120603281",
+      "platform_digest": "sha256:ce92604f65d7513e104bdc9488123a69c4fbc36fe9d3e80bb1a62b9b3ab1d874",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:d9fdf920417319b19b9403b8deda25c80e63b4e1acd9ead1ad96a32f8876e269",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "dataapi": {
+      "name": "docker.io/williamluckyli/control-dataapi:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-dataapi@sha256:0c1e7c054d65098a3dced9ee1954018fe0bbadabd3898271bad943311ad23ba9",
+      "digest": "sha256:0c1e7c054d65098a3dced9ee1954018fe0bbadabd3898271bad943311ad23ba9",
+      "platform_digest": "sha256:11f7b9a9813ff6db8f718d5f57cd347a89b797c068c1811b0079de84e3054685",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:1990fef2ddf4a31654bb0ec0df6fe267e72f28f760dd59184c6c8ed013077a0a",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "postgrest": {
+      "name": "docker.io/williamluckyli/control-postgrest:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-postgrest@sha256:d1c7d19a147b8f938a1127c14032394da629273a8eec27504ef6517e1eed7ece",
+      "digest": "sha256:d1c7d19a147b8f938a1127c14032394da629273a8eec27504ef6517e1eed7ece",
+      "platform_digest": "sha256:fd82d06c2554b068b4bc3314cf7fbb2c964f43855ec41ccbc0817059e6b0c106",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:644cca03cc79daa67e51ae4e5d40a1104685647886bbaa668506fbf38c9140a0",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "MIT",
+      "anonymous_pull_verified": true
+    },
+    "adapter": {
+      "name": "docker.io/williamluckyli/control-adapter:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-adapter@sha256:73763c2c564fd0de290c20e45dd93f75888f89f4aa39e6242fae644716e14b04",
+      "digest": "sha256:73763c2c564fd0de290c20e45dd93f75888f89f4aa39e6242fae644716e14b04",
+      "platform_digest": "sha256:05a333d4c8a85613c36ad5751adbfcfcc21cefc167ec139a9cc524650ff5c9ec",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:b9e3409df0d706b0a463bc4e51680ad60dad5012f4da8c2f682cf058d7a0617c",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    },
+    "auth": {
+      "name": "docker.io/williamluckyli/control-auth:sha-0198f7c8249d4d3755f62b685a0db0c15ff7301c-r38223473074-a1",
+      "reference": "docker.io/williamluckyli/control-auth@sha256:6e9dbbcecd8be9352deec27238ad6da16eedcfc346d371b8deab87c20a638bbe",
+      "digest": "sha256:6e9dbbcecd8be9352deec27238ad6da16eedcfc346d371b8deab87c20a638bbe",
+      "platform_digest": "sha256:3faf49cb7fdd68ff31ab58c497c45141e616a2301b46b5e6fc744457d7800926",
+      "source_commit": "0198f7c8249d4d3755f62b685a0db0c15ff7301c",
+      "platform": "linux/amd64",
+      "config_sha256": "sha256:ca445ceb21cb0361c1892fdbcd63d2ca0c10ee5405214473f4c13ca460ed2a8c",
+      "source_label": "https://github.com/william-lbn/control-plane",
+      "licenses": "Apache-2.0",
+      "anonymous_pull_verified": true
+    }
+  },
+  "anonymous_registry_verified": true
+}

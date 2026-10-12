@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {root,readJSON,helm,documents,merge,pinned} from './lib.mjs';
 const output=path.join(root,'artifacts/helm');fs.mkdirSync(output,{recursive:true});
 const results=[];
+const functionsFixture={enabled:true,existingConfigSecret:'functions-common-ci',existingIssuerSecret:'functions-issuer-ci',proxyCASecret:'proxy-public-ca-ci',proxyCAKey:'ca.crt'};
 for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
   const profile=readJSON('profiles/lab/'+chart+'.json');
   // Optional static Compute needs actual tenant identities at deployment time.
@@ -21,6 +22,31 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     for(const c of [...containers,...(obj.spec?.template?.spec?.initContainers||[])])if(c.image)assert.match(c.image,pinned);
   }
   fs.writeFileSync(path.join(output,chart+'.yaml'),result.stdout);
+  if(chart==='neon-control-plane') {
+    const enabled=merge(profile,{functions:functionsFixture});
+    const enabledFile=path.join(output,'functions-preview.json');fs.writeFileSync(enabledFile,JSON.stringify(enabled));
+    const rendered=helm(['template','neon-control','charts/'+chart,'-f',enabledFile,'-n','neon','--kube-version','1.36.4']);
+    const docs=documents(rendered.stdout);
+    const api=docs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-api');
+    const worker=docs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-worker');
+    const web=docs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-web');
+    assert(api&&worker&&web);
+    for(const deployment of [api,web]) {
+      assert(!(deployment.spec.template.spec.volumes||[]).some(v=>v.secret?.secretName==='functions-issuer-ci'),'Issuer private keys must never be mounted into API/Web');
+    }
+    const issuer=worker.spec.template.spec.volumes.find(v=>v.name==='functions-issuer');
+    assert.equal(issuer.secret.secretName,'functions-issuer-ci');
+    assert.deepEqual(issuer.secret.items.map(i=>i.key),['guest-ca.key','artifact-tls.crt','artifact-tls.key']);
+    for(const deployment of [api,worker]) {
+      const env=deployment.spec.template.spec.containers[0].env;
+      assert.equal(env.find(v=>v.name==='NEON_FUNCTIONS_PREVIEW_ENABLED')?.value,'true');
+      assert.equal(env.find(v=>v.name==='NEON_FUNCTIONS_CONFIG_FILE')?.value,'/run/functions-common/config.json');
+    }
+    const service=docs.find(o=>o.kind==='Service'&&o.metadata.name==='neon-control-functions-artifact');
+    assert.equal(service.spec.type,'ClusterIP');assert.equal(service.spec.selector['app.kubernetes.io/component'],'worker');
+    assert.deepEqual(service.spec.ports,[{name:'artifact-tls',port:8790,targetPort:'artifact-tls'}]);
+    fs.writeFileSync(path.join(output,'functions-preview.yaml'),rendered.stdout);
+  }
   if(chart==='neon-core') {
     const hooks=objs.filter(o=>o.kind==='Job'&&o.metadata.annotations?.['helm.sh/hook']);
     for(const hook of hooks) {
@@ -110,6 +136,11 @@ for(const [chart,overlay] of [
   ['neon-control-plane',{managedAuth:{runtimeImage:'williamluckyli/control-auth:latest'}}],
   ['neon-control-plane',{managedAuth:{pgCASecret:''}}],
   ['neon-control-plane',{objectStorage:{enabled:true,existingSecret:''}}],
+  ['neon-control-plane',{functions:{enabled:true}}],
+  ['neon-control-plane',{functions:functionsFixture,worker:{enabled:false}}],
+  ['neon-control-plane',{functions:functionsFixture,objectStorage:{enabled:false}}],
+  ['neon-control-plane',{functions:functionsFixture,api:{replicaCount:2}}],
+  ['neon-control-plane',{functions:functionsFixture,worker:{replicaCount:2}}],
   ['neon-core',{minio:{productStorage:{enabled:true,existingSecret:''}}}],
   ['neon-core',{minio:{bucket:'neon-product-blobs'}}],
   ['neonvm',{controller:{qemuDiskCacheSettings:'cache.no-flush=on',labAcknowledged:false}}],
@@ -117,5 +148,5 @@ for(const [chart,overlay] of [
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:16,productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:16}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:21,functionsPreviewRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:21,functionsPreviewRender:'pass'}));

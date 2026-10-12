@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "enabled": true,
+    "existingConfigSecret": "neon-functions-common-v1",
+    "existingIssuerSecret": "neon-functions-issuer-v1",
+    "proxyCASecret": "neon-proxy-tls",
+    "proxyCAKey": "tls.crt"
+  },
+  "worker": { "enabled": true, "replicaCount": 1 },
+  "api": { "replicaCount": 1 },
+  "objectStorage": { "enabled": true, "existingSecret": "neon-product-blob-store" }
+}

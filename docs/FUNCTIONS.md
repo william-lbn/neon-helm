@@ -2,15 +2,15 @@
 
 ## Current native execution preview
 
-Release candidate 0.1.18 selects control source
-`07c997b07b9e3e1f60c1ed9ccd34b5cc1cbf1a54`. Native Go API/Worker and React UI
+Release candidate 0.1.19 selects control source
+`bf0dd9e41f9d3d65e321958d16c0c255f8a8b2ad`. Native Go API/Worker and React UI
 now implement definition creation, ZIP/environment deployment, private TLS
 artifact delivery, restricted SQL credentials, authenticated JSON Console
 invocation, explicit manual stop/redeploy and retained deletion. Execution
 defaults to disabled. Installing the chart alone does not qualify the product.
 
-Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/07c997b07b9e3e1f60c1ed9ccd34b5cc1cbf1a54/docs/FUNCTIONS-NATIVE-PREVIEW.md)
-and [OpenAPI 0.12](https://github.com/william-lbn/control-plane/blob/07c997b07b9e3e1f60c1ed9ccd34b5cc1cbf1a54/contracts/openapi-v1.json).
+Follow the detailed [native operator/API/SQL guide](https://github.com/william-lbn/control-plane/blob/bf0dd9e41f9d3d65e321958d16c0c255f8a8b2ad/docs/FUNCTIONS-NATIVE-PREVIEW.md)
+and [OpenAPI 0.12](https://github.com/william-lbn/control-plane/blob/bf0dd9e41f9d3d65e321958d16c0c255f8a8b2ad/contracts/openapi-v1.json).
 Provision immutable common config/MAC/public CA and separate Worker-only issuer
 Secrets, then opt into `profiles/examples/functions-preview.json`. Never project
 the Proxy private key. Helm rejects missing configuration, absent backing storage,

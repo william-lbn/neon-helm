@@ -1,7 +1,7 @@
 {
   "api": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-api@sha256:bde2ee3da965172766dfd8a567ec8f91d452adb8d43bfd9c0f85fc702926ab41"
+      "reference": "docker.io/williamluckyli/control-api@sha256:5d52172af124d19968f37cca8be5228df3ab078f6c2e42bf6a4e7c402801fe51"
     },
     "pgTLSMode": "lab-insecure",
     "cookieSecure": false,
@@ -12,7 +12,7 @@
   },
   "web": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-web@sha256:d09895b7315a5ac1aa96374994b89860a9068f7a20bf0a820f2d127ea70bd52c"
+      "reference": "docker.io/williamluckyli/control-web@sha256:1b36c281e102a3aac90e2d141105b218247996fe76f79294e445e38b7700e1cd"
     }
   },
   "worker": {
@@ -26,8 +26,8 @@
   "dataAPI": {
     "enabled": true,
     "labHTTP": true,
-    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:a0189134f5ba6d7f8a8743391a46728b2ca41d18b979a75b2eb2c1999cada2c9",
-    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:18a72f139798e7c6634d1850a56a8480af8783ac4e482dbe829b675ea16556ce"
+    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:993ac7974fb97014a9304dd178f19394367c0cc6e4daafe4816cef3c523005de",
+    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:dcd386a132699c45776de56d2606d16782062a304a3e01851f10bd92a3655e6b"
   },
   "backendCredentials": {
     "enabled": true,
@@ -37,7 +37,7 @@
   "managedAuth": {
     "enabled": true,
     "labHTTP": true,
-    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:79f062315b693bc190fee5162e04347bdbbe359b131a8d7b8b2efd30b7da0595",
+    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:c5d029d4d4dfb130830ad2c50f8a5cb45c965be1f69f26b8a425b1b4d3384fcd",
     "publicOrigin": "http://192.168.146.100:30788",
     "pgCASecret": "neon-proxy-tls",
     "pgCAKey": "tls.crt",
@@ -49,6 +49,6 @@
   },
   "aiGateway": {
     "enabled": false,
-    "image": "docker.io/williamluckyli/control-ai@sha256:8f5a9d0905b5c3a5846b6a38fe50771be4ed6bdd3ef1d0a4472f38dffc1cbd38"
+    "image": "docker.io/williamluckyli/control-ai@sha256:9a878542e05b86990158d101ef3628580b22a8d716d2cd761a4421280f5fe4c1"
   }
 }

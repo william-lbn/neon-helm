@@ -52,6 +52,18 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     assert.deepEqual(binding?.roleRef,{apiGroup:'rbac.authorization.k8s.io',kind:'Role',name:retirement.metadata.name});
     assert(!objs.some(o=>o.metadata.name==='neon-control-functions-retirement'),'Disabled Functions must not grant Service deletion');
     fs.writeFileSync(path.join(output,'functions-preview.yaml'),rendered.stdout);
+    const publicHTTP={enabled:true,origin:'http://192.168.146.101:30892',labHTTP:true,serviceType:'NodePort',nodePort:30892};
+    const publicFile=path.join(output,'functions-public.json');
+    fs.writeFileSync(publicFile,JSON.stringify(merge(enabled,{managedAuth:{publicOrigin:'http://192.168.146.100:30788'},functions:{publicHTTP}})));
+    const publicRender=helm(['template','neon-control','charts/'+chart,'-f',publicFile,'-n','neon','--kube-version','1.36.4']);
+    const publicDocs=documents(publicRender.stdout);
+    const publicService=publicDocs.find(o=>o.kind==='Service'&&o.metadata.name==='neon-control-functions-http');
+    assert.equal(publicService.spec.type,'NodePort');
+    assert.deepEqual(publicService.spec.ports,[{name:'functions-http',port:8792,targetPort:'functions-http',nodePort:30892}]);
+    assert.equal(publicService.spec.selector['app.kubernetes.io/component'],'api');
+    const publicAPI=publicDocs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-api');
+    assert.equal(publicAPI.spec.template.spec.containers[0].env.find(e=>e.name==='NEON_FUNCTIONS_PUBLIC_ORIGIN')?.value,publicHTTP.origin);
+    fs.writeFileSync(path.join(output,'functions-public.yaml'),publicRender.stdout);
   }
   if(chart==='neon-core') {
     const hooks=objs.filter(o=>o.kind==='Job'&&o.metadata.annotations?.['helm.sh/hook']);
@@ -147,6 +159,10 @@ for(const [chart,overlay] of [
   ['neon-control-plane',{functions:functionsFixture,objectStorage:{enabled:false}}],
   ['neon-control-plane',{functions:functionsFixture,api:{replicaCount:2}}],
   ['neon-control-plane',{functions:functionsFixture,worker:{replicaCount:2}}],
+  ['neon-control-plane',{managedAuth:{publicOrigin:'http://192.168.146.100:30788'},functions:{...functionsFixture,publicHTTP:{enabled:true,origin:'http://192.168.146.100:30892',labHTTP:true}}}],
+  ['neon-control-plane',{functions:{...functionsFixture,publicHTTP:{enabled:true,origin:'http://192.168.146.101:30892/path',labHTTP:true}}}],
+  ['neon-control-plane',{functions:{enabled:false,publicHTTP:{enabled:true}}}],
+  ['neon-control-plane',{managedAuth:{publicOrigin:'http://192.168.146.100:30788'},functions:{...functionsFixture,publicHTTP:{enabled:true,origin:'http://192.168.146.101:30892',labHTTP:false}}}],
   ['neon-core',{minio:{productStorage:{enabled:true,existingSecret:''}}}],
   ['neon-core',{minio:{bucket:'neon-product-blobs'}}],
   ['neonvm',{controller:{qemuDiskCacheSettings:'cache.no-flush=on',labAcknowledged:false}}],
@@ -154,5 +170,5 @@ for(const [chart,overlay] of [
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:21,functionsPreviewRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:21,functionsPreviewRender:'pass'}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:25,functionsPreviewRender:'pass',functionsPublicRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:25,functionsPreviewRender:'pass',functionsPublicRender:'pass'}));

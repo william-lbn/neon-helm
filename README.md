@@ -8,6 +8,11 @@ The repository applies production-oriented deployment discipline, but the
 underlying product still has independent [production gates](docs/PRODUCTION-GATES.md).
 Installing a chart does not implement Neon's proprietary Backend services.
 
+Current `0.1.28` adds a separate Functions HTTP/SSE origin and opt-in idle
+eviction/cold wake. [Exact Linux/UI acceptance](docs/ACCEPTANCE-2026-10-14-FUNCTIONS-HTTP.md)
+records source, image locks, lifecycle evidence and remaining gates; see
+[Functions deployment and API contract](docs/FUNCTIONS-PUBLIC-HTTP.md).
+
 ## Start here
 
 1. [Architecture and component coverage](docs/ARCHITECTURE.md)

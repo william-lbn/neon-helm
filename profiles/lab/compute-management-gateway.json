@@ -1,6 +1,6 @@
 {
   "image": {
-    "reference": "docker.io/williamluckyli/control-gateway@sha256:1faba6827978d7fedbd0f9ec036c4206cffd755cd1699b8da8005d8c39c4f21a"
+    "reference": "docker.io/williamluckyli/control-gateway@sha256:59f21e186de82961e526e36e43556b311a81360c2bde14fdf8cd9604d6f4f0d7"
   },
   "runtime": {
     "mode": "image",

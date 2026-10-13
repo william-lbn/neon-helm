@@ -1,7 +1,7 @@
 {
   "api": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-api@sha256:90079e0f10c4534910f4b85202acd249eb3b4168e7f4dc37382ceb3863c6845d"
+      "reference": "docker.io/williamluckyli/control-api@sha256:1e95e68c2b15cd44fb33538388c4ffadba3f8a8dd30faba95b1fca71d7b22055"
     },
     "pgTLSMode": "lab-insecure",
     "cookieSecure": false,
@@ -12,7 +12,7 @@
   },
   "web": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-web@sha256:1c6b5acbdd21d73c93ea5b8f3088e829265929cbf5a9388a73915799a9eb9783"
+      "reference": "docker.io/williamluckyli/control-web@sha256:f7f5092716ac9e06c06d3991d2d789cbfada1e165d824acc9c6b2de3dd48e83a"
     }
   },
   "worker": {
@@ -26,8 +26,8 @@
   "dataAPI": {
     "enabled": true,
     "labHTTP": true,
-    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:4fd9d73b18971601f7e5d3e35b7acc0e94080d3d949760cee3328b6319257be0",
-    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:74173bf7f35944ca9478da791f0fff20d7410578996b8c9a90c5bd3149aeb421"
+    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:7645e5c91675b093e205f60396b34c9a3a8098d13fe1c6ba9af7d173be7cdc5c",
+    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:afaff154fa3a93a7d1fa6db7d9f8891d365e0aad031cb09445131aa38218cc4d"
   },
   "backendCredentials": {
     "enabled": true,
@@ -37,7 +37,7 @@
   "managedAuth": {
     "enabled": true,
     "labHTTP": true,
-    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:6c004014fe08166ab64f2e58ef30a9add092ff578a17e77602cb0e101123d110",
+    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:ef474810943bd0f5397e7cbfba4cf56b72639ff873e3c6155436baaaf2d9af57",
     "publicOrigin": "http://192.168.146.100:30788",
     "pgCASecret": "neon-proxy-tls",
     "pgCAKey": "tls.crt",
@@ -46,5 +46,9 @@
   "objectStorage": {
     "enabled": true,
     "existingSecret": "neon-product-blob-store"
+  },
+  "aiGateway": {
+    "enabled": false,
+    "image": "docker.io/williamluckyli/control-ai@sha256:da6c525a8e6094f78b1f59476d08f16a6bab2a90a96d6032d964df1805e7c1c4"
   }
 }

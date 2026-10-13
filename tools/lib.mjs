@@ -10,7 +10,7 @@ export const pinned = /^[^\s]+@sha256:[a-f0-9]{64}$/;
 export const readJSON = (name) => JSON.parse(fs.readFileSync(path.resolve(root, name), 'utf8'));
 export const digest = (value) => crypto.createHash('sha256').update(value).digest('hex');
 export function validateControlImagesLock(lock, references) {
-  const expected=['adapter','api','auth','dataapi','gateway','postgrest','web'];
+  const expected=['adapter','ai','api','auth','dataapi','gateway','postgrest','web'];
   if(!/^[a-f0-9]{40}$/.test(lock.source_commit)||lock.platform!=='linux/amd64'||
      lock.anonymous_registry_verified!==true||!Number.isSafeInteger(lock.github_ci_run_id)||
      JSON.stringify(Object.keys(lock.images||{}).sort())!==JSON.stringify(expected)||

@@ -4,7 +4,7 @@
 
 The branch Auth service uses pinned Better Auth and Nodemailer with the actual branch PostgreSQL database. This phase implements email delivery, optional mandatory verification before password login, password recovery, and invalidation of server sessions after reset. It extends application identity; it does not register Console administrators.
 
-Implementation and disposable PostgreSQL/SMTP tests are present. Real Linux UI acceptance and immutable-image deployment remain required before marking this phase accepted. The local mailbox is an operator test receiver, not a production email provider. SMTP TLS, deliverability, abuse prevention, mailbox privacy, and HA have separate production gates.
+Runtime 374a38b / Helm 0.1.30 has actual Linux UI acceptance: ten recorded checks, 790 public Go/PG checks and protected SMTP delivery. See [the exact delivery receipt](DELIVERY-2026-10-14-AUTH-MAIL.md). The local mailbox is an operator test receiver, not a production email provider. SMTP TLS, deliverability, abuse prevention, mailbox privacy, and HA have separate production gates.
 
 ## Architecture and trust boundaries
 

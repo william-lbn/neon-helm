@@ -1,8 +1,8 @@
 # Neon Helm releases
 
-## 0.1.30 candidate
+## 0.1.30
 
-Source `374a38b0f1e3b91456c8a9313a19ad3e2921feb3`, OpenAPI 0.22.0. Adds immutable operator SMTP configuration, branch required-email policy, real password recovery, session invalidation and a protected, retained local Mailpit receiver. Receiver is disabled by default, explicitly acknowledged, separately authenticated and internal; its reader credentials never enter API/Worker/Web/Auth mounts. Conditional readiness is verified by stack tools. See [mail contract](AUTH-EMAIL-RECOVERY.md). Runtime UI acceptance and release publication are still required.
+Source `374a38b0f1e3b91456c8a9313a19ad3e2921feb3`, OpenAPI 0.22.0. Adds immutable operator SMTP configuration, branch required-email policy, real password recovery, session invalidation and a protected, retained local Mailpit receiver. Receiver is disabled by default, explicitly acknowledged, separately authenticated and internal; its reader credentials never enter API/Worker/Web/Auth mounts. Conditional readiness is verified by stack tools. See [mail contract](AUTH-EMAIL-RECOVERY.md). Ten actual Linux UI checks pass with retained original account/operations and normal Compute retirement. Final chart fixes denied-egress SMTP reverse lookup with `MP_SMTP_DISABLE_RDNS=true`; the narrow upgrade changes only receiver Deployment and retains its PVC. See [exact receipt](DELIVERY-2026-10-14-AUTH-MAIL.md).
 
 [CNI recovery](DELIVERY-2026-10-14-ENVIRONMENT-RECOVERY.md) and the read-only `tools/audit-node-cni.mjs` help distinguish failing host executables from resource pressure. No database or upstream Neon source was changed by that incident repair.
 

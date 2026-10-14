@@ -1,3 +1,5 @@
+当前 Auth 邮件切片见 [真实 Linux UI 交付](docs/DELIVERY-2026-10-14-AUTH-MAIL.md)：十组检查，实际 SMTP、原账号续测与 Compute 0。运行源码 374a38b，Helm 0.1.30；当前仍未完成全部生产门槛。
+
 # Neon Helm
 
 Versioned deployment source for self-hosted Neon, NeonVM, upstream autoscaling,
@@ -39,7 +41,7 @@ records source, image locks, lifecycle evidence and remaining gates; see
 16. [Function history restoration actual UI acceptance and SDK correction](docs/ACCEPTANCE-2026-10-13-FUNCTIONS-ROLLBACK.md)
 
 ```bash
-git clone --branch v0.1.29 --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch v0.1.30 --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"

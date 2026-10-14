@@ -125,6 +125,13 @@ function wait(step) {
     const [kind,ns,name] = item.split('/');
     kube(['-n',ns,'rollout','status',kind.toLowerCase()+'/'+name,'--timeout=300s'],{timeout:330000});
   }
+  if (step.chart === 'neon-control-plane') {
+    const values=lockedValues(step,flags['overlay-dir']);
+    if(values.managedAuth?.labMailbox?.enabled) {
+      const name=(values.fullnameOverride||step.release+'-control').slice(0,50).replace(/-$/,'')+'-auth-mailbox';
+      kube(['-n',step.namespace,'rollout','status','deployment/'+name,'--timeout=180s'],{timeout:210000});
+    }
+  }
   if (step.chart === 'neonvm') kube(['-n','neonvm-system','wait','certificate/neonvm-serving-cert','--for=condition=Ready','--timeout=120s'],{timeout:150000});
 }
 

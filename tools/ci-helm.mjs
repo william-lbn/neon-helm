@@ -76,6 +76,23 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     assert.equal(s3API.spec.template.spec.containers[0].env.find(e=>e.name==='NEON_S3_PUBLIC_ORIGIN')?.value,s3Fixture.origin);
     assert(!objs.some(o=>o.kind==='Service'&&o.metadata.name==='neon-control-s3'),'Disabled S3 must not expose a listener Service');
     fs.writeFileSync(path.join(output,'storage-s3.yaml'),s3Render.stdout);
+    const mailProfile=merge(profile,{managedAuth:{mail:{enabled:true,existingSecret:'operator-smtp-ci'},labMailbox:{enabled:true,acknowledged:true,existingAuthSecret:'independent-inbox-ci'}}});
+    const mailFile=path.join(output,'auth-mail-preview.json');fs.writeFileSync(mailFile,JSON.stringify(mailProfile));
+    const mailRender=helm(['template','neon-control','charts/'+chart,'-f',mailFile,'-n','neon','--kube-version','1.36.4']);
+    const mailDocs=documents(mailRender.stdout);
+    const mailbox=mailDocs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-auth-mailbox').spec.template.spec;
+    assert.equal(mailbox.automountServiceAccountToken,false);
+    assert.equal(mailbox.containers[0].securityContext.readOnlyRootFilesystem,true);
+    assert.equal(mailbox.volumes.find(v=>v.name==='auth').secret.secretName,'independent-inbox-ci');
+    assert.equal(mailbox.containers[0].env.find(e=>e.name==='MP_MAX_MESSAGES').value,'0');
+    assert.equal(mailDocs.find(o=>o.kind==='Service'&&o.metadata.name==='neon-auth-mailbox').spec.type,'ClusterIP');
+    assert.equal(mailDocs.find(o=>o.kind==='PersistentVolumeClaim'&&o.metadata.name==='neon-control-auth-mailbox').metadata.annotations['helm.sh/resource-policy'],'keep');
+    const mailPolicy=mailDocs.find(o=>o.kind==='NetworkPolicy'&&o.metadata.name==='neon-control-auth-mailbox');
+    assert.deepEqual(mailPolicy.spec.egress,[]);
+    assert.equal(mailPolicy.spec.ingress[1].from[0].podSelector.matchLabels['neon-control/test-fixture'],'auth-mail');
+    for(const d of mailDocs.filter(o=>o.kind==='Deployment'&&!o.metadata.name.endsWith('-auth-mailbox')))assert(!d.spec.template.spec.volumes?.some(v=>v.secret?.secretName==='independent-inbox-ci'));
+    fs.writeFileSync(path.join(output,'auth-mail-preview.yaml'),mailRender.stdout);
+
   }
   if(chart==='neon-core') {
     const hooks=objs.filter(o=>o.kind==='Job'&&o.metadata.annotations?.['helm.sh/hook']);
@@ -172,6 +189,10 @@ for(const [chart,overlay] of [
   ['neon-control-plane',{objectStorage:{s3:{...s3Fixture,origin:'http://user@192.168.146.100:30893'}}}],
   ['neon-control-plane',{objectStorage:{s3:{...s3Fixture,labHTTP:false}}}],
   ['neon-control-plane',{functions:{enabled:true}}],
+  ['neon-control-plane',{managedAuth:{mail:{enabled:true,existingSecret:''}}}],
+  ['neon-control-plane',{managedAuth:{mail:{enabled:true,existingSecret:'smtp-ci'},labMailbox:{enabled:true,acknowledged:false,existingAuthSecret:'inbox-ci'}}}],
+  ['neon-control-plane',{managedAuth:{mail:{enabled:true,existingSecret:'smtp-ci'},labMailbox:{enabled:true,acknowledged:true,existingAuthSecret:''}}}],
+  ['neon-control-plane',{managedAuth:{mail:{enabled:true,existingSecret:'smtp-ci'},labMailbox:{enabled:true,acknowledged:true,existingAuthSecret:'inbox-ci',image:'example.invalid/mail:latest'}}}],
   ['neon-control-plane',{functions:functionsFixture,worker:{enabled:false}}],
   ['neon-control-plane',{functions:functionsFixture,objectStorage:{enabled:false}}],
   ['neon-control-plane',{functions:functionsFixture,api:{replicaCount:2}}],
@@ -187,5 +208,5 @@ for(const [chart,overlay] of [
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:30,functionsPreviewRender:'pass',functionsPublicRender:'pass',s3CoreRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:30,functionsPreviewRender:'pass',functionsPublicRender:'pass',s3CoreRender:'pass'}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:34,functionsPreviewRender:'pass',functionsPublicRender:'pass',s3CoreRender:'pass',authMailPreviewRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:34,functionsPreviewRender:'pass',functionsPublicRender:'pass',s3CoreRender:'pass',authMailPreviewRender:'pass'}));

@@ -25,7 +25,7 @@ if(!/^locks\/control-plane-[a-f0-9]{7}\.json$/.test(plan.controlImagesLock||''))
 else {
   const control=readJSON('profiles/lab/neon-control-plane.json');
   try{validateControlImagesLock(readJSON(plan.controlImagesLock),{
-    api:control.api.image.reference,web:control.web.image.reference,auth:control.managedAuth.runtimeImage,ai:control.aiGateway.image,ai:control.aiGateway.image,ai:control.aiGateway.image,ai:control.aiGateway.image,
+    api:control.api.image.reference,web:control.web.image.reference,auth:control.managedAuth.runtimeImage,ai:control.aiGateway.image,
     dataapi:control.dataAPI.gatewayImage,postgrest:control.dataAPI.postgrestImage,
     gateway:readJSON('profiles/lab/compute-management-gateway.json').image.reference,
     adapter:readJSON('profiles/lab/neon-adapter.json').image,

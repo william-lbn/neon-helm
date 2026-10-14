@@ -1,7 +1,7 @@
 {
   "api": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-api@sha256:0a159f1363ad37ef4c3f2aa5f5ef296447dc689a4c08f309f51e9c5e87109b0a"
+      "reference": "docker.io/williamluckyli/control-api@sha256:ed03a54ea4f489b5980baf5c4808351f199e2d296633501a2cc96c54f69ebdfe"
     },
     "pgTLSMode": "lab-insecure",
     "cookieSecure": false,
@@ -12,7 +12,7 @@
   },
   "web": {
     "image": {
-      "reference": "docker.io/williamluckyli/control-web@sha256:436339a5f7219ae07e7ef9ef03f9c82a173cb5e7c3ddf828790c22339e777393"
+      "reference": "docker.io/williamluckyli/control-web@sha256:af20d4c0c4bd9900d0f087c3ec77a9cf251b69edad55466eaec4bc2dde0ca7bd"
     }
   },
   "worker": {
@@ -26,8 +26,8 @@
   "dataAPI": {
     "enabled": true,
     "labHTTP": true,
-    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:9a95a68c6ed81f397698399959dac837ed1e4509a0a0ca3aba695a1fe664aa3d",
-    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:189c1b1d7cf3c610a59c72468cb065bea875d77a458d8a69ef077b46f3ff374a"
+    "gatewayImage": "docker.io/williamluckyli/control-dataapi@sha256:f149cbb24665ed40363a46836cedf9f2b135ba6ec4877363bde6db57c9112373",
+    "postgrestImage": "docker.io/williamluckyli/control-postgrest@sha256:c71574b738228d81c8a7b3e1b587ff8ef2c1a7309e50e5ef6b70508fff4eeb1d"
   },
   "backendCredentials": {
     "enabled": true,
@@ -37,11 +37,25 @@
   "managedAuth": {
     "enabled": true,
     "labHTTP": true,
-    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:32e1f2f2b833c2e83d7eb1a368f2f1ab7fa3276033279912393b1606118ba3e3",
+    "runtimeImage": "docker.io/williamluckyli/control-auth@sha256:e34815b8a25364f1b1c1abc40c00daed0f06fe9d73ad878b43e4d966a62addfa",
     "publicOrigin": "http://192.168.146.100:30788",
     "pgCASecret": "neon-proxy-tls",
     "pgCAKey": "tls.crt",
-    "pgServerName": "lab.neon.local"
+    "pgServerName": "lab.neon.local",
+    "mail": {
+      "enabled": false,
+      "existingSecret": ""
+    },
+    "labMailbox": {
+      "enabled": false,
+      "acknowledged": false,
+      "image": "docker.io/axllent/mailpit@sha256:eee7db19e7518ffe47d9b38e46fab655a4edf7e6cb5e664d1b5fde6c9dc49010",
+      "existingAuthSecret": "",
+      "existingClaim": "",
+      "storageClass": "",
+      "storageSize": "512Mi",
+      "nodeSelector": {}
+    }
   },
   "objectStorage": {
     "enabled": true,
@@ -49,6 +63,6 @@
   },
   "aiGateway": {
     "enabled": false,
-    "image": "docker.io/williamluckyli/control-ai@sha256:e477fee68747e2a6e5f12160427aacb26fe95d938f38aa7cfcb3c4d194322fd2"
+    "image": "docker.io/williamluckyli/control-ai@sha256:03b256e91927ee8357b0e2eabf1b5050480d41ce8535a45e7f8bd83bff99e423"
   }
 }

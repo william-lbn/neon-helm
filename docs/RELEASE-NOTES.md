@@ -1,5 +1,16 @@
 # Neon Helm releases
 
+## 0.1.29
+
+Eight control images select source `be04cb41d4be029cd59bb1c291f02e683d26ce46`.
+Linux CI `38517735954` passes all 14 jobs and 788 Go/PostgreSQL checks with zero failures/skips.
+Scoped S3 core, signed chunk verification, UTF-8/fetch-owner pagination, range/presigned bytes,
+rotation/revocation and account password/session UI have actual local acceptance.
+[Exact receipt](ACCEPTANCE-2026-10-14-AUTH-S3.md) retains original failures and recovery.
+Ten charts/15 tool checks/30 negative values pass. Defaults keep optional public services disabled;
+lab cleartext needs explicit acknowledgement. Neon/autoscaling/PostgreSQL fork images are unchanged.
+Full S3, email/OAuth/MFA, HA/DR, external fencing and trusted end-to-end TLS remain independent gates.
+
 ## 0.1.12
 
 All ten charts select control source

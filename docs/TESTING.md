@@ -311,3 +311,10 @@ deployment/invocation is still disabled.
 The actual current matrix is now [134 checks](ACCEPTANCE-2026-10-12.md): nine
 normal scenarios (129) and original Data API recovery (5). Its original failures
 and transport collection errors remain preserved and qualified separately.
+
+## 0.1.29 focused local product acceptance
+
+See [Auth/S3](ACCEPTANCE-2026-10-14-AUTH-S3.md) for the exact browser/SDK, private inputs,
+original fixture continuation and retirement procedure. Ten charts, 15 tool tests,
+30 invalid values and positive separate Functions/S3 listener renders pass on Linux.
+Do not repeat unrelated historical suites or overwrite failed evidence.

@@ -8,7 +8,11 @@ The repository applies production-oriented deployment discipline, but the
 underlying product still has independent [production gates](docs/PRODUCTION-GATES.md).
 Installing a chart does not implement Neon's proprietary Backend services.
 
-Current `0.1.28` adds a separate Functions HTTP/SSE origin and opt-in idle
+Current `0.1.29` adds scoped S3 credentials, authenticated signed chunk uploads,
+real SDK list/range/presigned reads and application account security.
+[Auth/S3 Linux/UI acceptance](docs/ACCEPTANCE-2026-10-14-AUTH-S3.md) records
+the exact source, eight image digests and original-fixture recovery.
+The preceding `0.1.28` adds a separate Functions HTTP/SSE origin and opt-in idle
 eviction/cold wake. [Exact Linux/UI acceptance](docs/ACCEPTANCE-2026-10-14-FUNCTIONS-HTTP.md)
 records source, image locks, lifecycle evidence and remaining gates; see
 [Functions deployment and API contract](docs/FUNCTIONS-PUBLIC-HTTP.md).
@@ -35,7 +39,7 @@ records source, image locks, lifecycle evidence and remaining gates; see
 16. [Function history restoration actual UI acceptance and SDK correction](docs/ACCEPTANCE-2026-10-13-FUNCTIONS-ROLLBACK.md)
 
 ```bash
-git clone --branch v0.1.25 --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch v0.1.29 --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"

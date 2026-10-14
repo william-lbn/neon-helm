@@ -1,6 +1,6 @@
 {
   "apiVersion": "neon-helm/v1",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "platform": "linux/amd64",
   "kubernetesMinimum": "1.30.0",
   "oneStackPerCluster": true,
@@ -129,5 +129,5 @@
     "persistent-storage"
   ],
   "productionQualified": false,
-  "controlImagesLock": "locks/control-plane-e3e9d04.json"
+  "controlImagesLock": "locks/control-plane-be04cb4.json"
 }

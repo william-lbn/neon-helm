@@ -5,6 +5,7 @@ import {root,readJSON,helm,documents,merge,pinned} from './lib.mjs';
 const output=path.join(root,'artifacts/helm');fs.mkdirSync(output,{recursive:true});
 const results=[];
 const functionsFixture={enabled:true,existingConfigSecret:'functions-common-ci',existingIssuerSecret:'functions-issuer-ci',proxyCASecret:'proxy-public-ca-ci',proxyCAKey:'ca.crt'};
+const s3Fixture={enabled:true,origin:'http://192.168.146.100:30893',region:'us-east-2',labHTTP:true,serviceType:'NodePort',nodePort:30893};
 for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
   const profile=readJSON('profiles/lab/'+chart+'.json');
   // Optional static Compute needs actual tenant identities at deployment time.
@@ -64,6 +65,17 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     const publicAPI=publicDocs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-api');
     assert.equal(publicAPI.spec.template.spec.containers[0].env.find(e=>e.name==='NEON_FUNCTIONS_PUBLIC_ORIGIN')?.value,publicHTTP.origin);
     fs.writeFileSync(path.join(output,'functions-public.yaml'),publicRender.stdout);
+    const s3File=path.join(output,'storage-s3.json');
+    fs.writeFileSync(s3File,JSON.stringify(merge(profile,{backendCredentials:{enabled:true},objectStorage:{s3:s3Fixture}})));
+    const s3Render=helm(['template','neon-control','charts/'+chart,'-f',s3File,'-n','neon','--kube-version','1.36.4']);
+    const s3Docs=documents(s3Render.stdout);
+    const s3Service=s3Docs.find(o=>o.kind==='Service'&&o.metadata.name==='neon-control-s3');
+    assert.equal(s3Service.spec.selector['app.kubernetes.io/component'],'api');
+    assert.deepEqual(s3Service.spec.ports,[{name:'s3',port:8793,targetPort:'s3',nodePort:30893}]);
+    const s3API=s3Docs.find(o=>o.kind==='Deployment'&&o.metadata.name==='neon-control-api');
+    assert.equal(s3API.spec.template.spec.containers[0].env.find(e=>e.name==='NEON_S3_PUBLIC_ORIGIN')?.value,s3Fixture.origin);
+    assert(!objs.some(o=>o.kind==='Service'&&o.metadata.name==='neon-control-s3'),'Disabled S3 must not expose a listener Service');
+    fs.writeFileSync(path.join(output,'storage-s3.yaml'),s3Render.stdout);
   }
   if(chart==='neon-core') {
     const hooks=objs.filter(o=>o.kind==='Job'&&o.metadata.annotations?.['helm.sh/hook']);
@@ -154,6 +166,11 @@ for(const [chart,overlay] of [
   ['neon-control-plane',{managedAuth:{runtimeImage:'williamluckyli/control-auth:latest'}}],
   ['neon-control-plane',{managedAuth:{pgCASecret:''}}],
   ['neon-control-plane',{objectStorage:{enabled:true,existingSecret:''}}],
+  ['neon-control-plane',{objectStorage:{enabled:false,s3:s3Fixture}}],
+  ['neon-control-plane',{backendCredentials:{enabled:false},objectStorage:{s3:s3Fixture}}],
+  ['neon-control-plane',{objectStorage:{s3:{...s3Fixture,origin:'http://192.168.146.100:30893/path'}}}],
+  ['neon-control-plane',{objectStorage:{s3:{...s3Fixture,origin:'http://user@192.168.146.100:30893'}}}],
+  ['neon-control-plane',{objectStorage:{s3:{...s3Fixture,labHTTP:false}}}],
   ['neon-control-plane',{functions:{enabled:true}}],
   ['neon-control-plane',{functions:functionsFixture,worker:{enabled:false}}],
   ['neon-control-plane',{functions:functionsFixture,objectStorage:{enabled:false}}],
@@ -170,5 +187,5 @@ for(const [chart,overlay] of [
   const file=path.join(output,chart+'.negative.json');fs.writeFileSync(file,JSON.stringify(merge(readJSON('profiles/lab/'+chart+'.json'),overlay)));
   assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',file,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unsafe configuration must fail: '+chart);
 }
-fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:25,functionsPreviewRender:'pass',functionsPublicRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
-console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:25,functionsPreviewRender:'pass',functionsPublicRender:'pass'}));
+fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({result:'pass',charts:results,negativeCases:30,functionsPreviewRender:'pass',functionsPublicRender:'pass',s3CoreRender:'pass',workerOnlyIssuer:'pass',productionQualified:false},null,2)+'\n');
+console.log(JSON.stringify({result:'pass',charts:results.length,negativeCases:30,functionsPreviewRender:'pass',functionsPublicRender:'pass',s3CoreRender:'pass'}));

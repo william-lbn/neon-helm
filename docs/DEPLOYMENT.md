@@ -9,7 +9,7 @@ even when parsed YAML content looks identical. The 0.1.6 public-source deploymen
 and independent exact-SHA audit verified this requirement; see its acceptance report.
 
 The current control images are pinned public GHCR mirrors of the same CI
-publication also pushed to Docker Hub. Verify the selected seven-image lock
+publication also pushed to Docker Hub. Verify the selected eight-image lock
 before deployment. A listening HTTP proxy does not prove its upstream is
 working: this lab's chain is Linux `127.0.0.1:7890` → Windows VMnet
 `192.168.146.1:11121` → Windows `127.0.0.1:11119`. After a host reboot the last

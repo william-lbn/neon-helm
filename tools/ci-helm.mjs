@@ -85,6 +85,7 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     assert.equal(mailbox.containers[0].securityContext.readOnlyRootFilesystem,true);
     assert.equal(mailbox.volumes.find(v=>v.name==='auth').secret.secretName,'independent-inbox-ci');
     assert.equal(mailbox.containers[0].env.find(e=>e.name==='MP_MAX_MESSAGES').value,'0');
+    assert.equal(mailbox.containers[0].env.find(e=>e.name==='MP_SMTP_DISABLE_RDNS').value,'true');
     assert.equal(mailDocs.find(o=>o.kind==='Service'&&o.metadata.name==='neon-auth-mailbox').spec.type,'ClusterIP');
     assert.equal(mailDocs.find(o=>o.kind==='PersistentVolumeClaim'&&o.metadata.name==='neon-control-auth-mailbox').metadata.annotations['helm.sh/resource-policy'],'keep');
     const mailPolicy=mailDocs.find(o=>o.kind==='NetworkPolicy'&&o.metadata.name==='neon-control-auth-mailbox');

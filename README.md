@@ -1,5 +1,3 @@
-当前 Auth 邮件切片见 [真实 Linux UI 交付](docs/DELIVERY-2026-10-14-AUTH-MAIL.md)：十组检查，实际 SMTP、原账号续测与 Compute 0。运行源码 374a38b，Helm 0.1.30；当前仍未完成全部生产门槛。
-
 # Neon Helm
 
 Versioned deployment source for self-hosted Neon, NeonVM, upstream autoscaling,
@@ -10,7 +8,15 @@ The repository applies production-oriented deployment discipline, but the
 underlying product still has independent [production gates](docs/PRODUCTION-GATES.md).
 Installing a chart does not implement Neon's proprietary Backend services.
 
-Current `0.1.29` adds scoped S3 credentials, authenticated signed chunk uploads,
+Current source candidate `0.1.31` aligns all ten chart versions and pins the eight
+public control images from source `5449a11` (OpenAPI 0.23.0). It includes branch
+[email OTP acceptance](docs/DELIVERY-2026-10-14-AUTH-OTP.md) and the explicit
+[NeonVM runner cgroup switch](docs/NEONVM-RUNNER-CGROUP.md).
+[Publication boundaries](docs/PUBLICATION-2026-10-16.md) distinguish these public
+image locks from the newer, locally accepted control-plane source and runner.
+This candidate has no `v0.1.31` release tag yet.
+
+The preceding `0.1.29` adds scoped S3 credentials, authenticated signed chunk uploads,
 real SDK list/range/presigned reads and application account security.
 [Auth/S3 Linux/UI acceptance](docs/ACCEPTANCE-2026-10-14-AUTH-S3.md) records
 the exact source, eight image digests and original-fixture recovery.
@@ -41,7 +47,7 @@ records source, image locks, lifecycle evidence and remaining gates; see
 16. [Function history restoration actual UI acceptance and SDK correction](docs/ACCEPTANCE-2026-10-13-FUNCTIONS-ROLLBACK.md)
 
 ```bash
-git clone --branch v0.1.30 --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch main --single-branch https://github.com/william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"
@@ -68,7 +74,7 @@ the control-plane Drivers, not permanently installed by Helm.
 | `docs/` | Deployment, upgrade, test and qualification runbooks |
 
 Data-plane images use the public `williamluckyli` Docker Hub repositories;
-the seven current control images select public `williamluckyli` Docker Hub
+the eight current control images select public `williamluckyli` Docker Hub
 publications with equivalent GHCR mirrors. All references are fixed digests. See the selected
 source/image lock for exact provenance. The chart repository does not rebuild
 these images. GitHub CI

@@ -1,5 +1,21 @@
 # Neon Helm releases
 
+## 0.1.31 source candidate
+
+All ten charts and stack/package metadata use 0.1.31. Eight public control images
+pin source `5449a11a8809767aca0ea934ef94cf7d7e7db10d`, OpenAPI 0.23.0 and successful
+image CI run `38581455583`. Branch email OTP has eight actual Linux SMTP/UI
+acceptance groups; see [receipt](DELIVERY-2026-10-14-AUTH-OTP.md).
+
+NeonVM adds the typed `controller.runnerCgroupEnabled` opt-in. The default remains
+compatible with the existing public runner. Actual dynamic QEMU cgroup updates
+require the separately fixed runner from own autoscaling branch
+`fix/runner-cgroup-cpu-limits`; its accepted local image is not a public image
+lock. See [upgrade contract](NEONVM-RUNNER-CGROUP.md) and
+[source/image publication boundaries](PUBLICATION-2026-10-16.md).
+No 0.1.31 tag, new cluster rollout or production qualification is implied by
+pushing this source candidate.
+
 ## 0.1.30
 
 Source `374a38b0f1e3b91456c8a9313a19ad3e2921feb3`, OpenAPI 0.22.0. Adds immutable operator SMTP configuration, branch required-email policy, real password recovery, session invalidation and a protected, retained local Mailpit receiver. Receiver is disabled by default, explicitly acknowledged, separately authenticated and internal; its reader credentials never enter API/Worker/Web/Auth mounts. Conditional readiness is verified by stack tools. See [mail contract](AUTH-EMAIL-RECOVERY.md). Ten actual Linux UI checks pass with retained original account/operations and normal Compute retirement. Final chart fixes denied-egress SMTP reverse lookup with `MP_SMTP_DISABLE_RDNS=true`; the narrow upgrade changes only receiver Deployment and retains its PVC. See [exact receipt](DELIVERY-2026-10-14-AUTH-MAIL.md).

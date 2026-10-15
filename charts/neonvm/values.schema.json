@@ -82,6 +82,10 @@
               "minimum": 0
             }
           }
+        },
+        "runnerCgroupEnabled": {
+          "type": "boolean",
+          "description": "Enable native runner cgroup management; false explicitly preserves historical dummy/laboratory mode and cannot qualify fractional CPU."
         }
       }
     },

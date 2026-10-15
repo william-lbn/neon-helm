@@ -3,6 +3,8 @@ compatibility:
   expectedKubernetesMinor: "31"
   allowUntestedKubernetes: false
 controller:
+  # False preserves historical labs; true requires a validated cgroup-capable runner.
+  runnerCgroupEnabled: false
   # Existing labs explicitly preserve their original unsafe disk cache setting.
   # New installs retain flushes; neither option is a durability/DR certification.
   qemuDiskCacheSettings: cache.writeback=on,cache.direct=on,cache.no-flush=off

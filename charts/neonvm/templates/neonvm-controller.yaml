@@ -305,7 +305,9 @@ spec:
         - --k8s-client-burst={{ .Values.controller.apiClient.burst }}
         - --concurrency-limit={{ .Values.controller.apiClient.concurrency }}
         - --skip-update-validation-for=
+        {{- if not .Values.controller.runnerCgroupEnabled }}
         - --disable-runner-cgroup
+        {{- end }}
         - --default-cpu-scaling-mode=QmpScaling
         - --use-virtio-console=true
         - --qemu-disk-cache-settings={{ .Values.controller.qemuDiskCacheSettings }}

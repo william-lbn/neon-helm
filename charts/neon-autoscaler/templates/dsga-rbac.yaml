@@ -1,0 +1,109 @@
+{{- if .Values.dsga.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-agent-runtime
+  namespace: {{ .Values.dsga.vmNamespace }}
+rules:
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [get, create, update]
+- apiGroups: [""]
+  resources: [configmaps]
+  {{- if gt (len .Values.dsga.agent.prepareQualifications) 0 }}
+  verbs: [get, create]
+  {{- else }}
+  verbs: [get]
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-agent-runtime
+  namespace: {{ .Values.dsga.vmNamespace }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-agent-runtime}
+subjects:
+- {kind: ServiceAccount, name: autoscaler-agent, namespace: kube-system}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: neon-dsga-scheduler-node-ledger
+rules:
+- apiGroups: [""]
+  resources: [nodes]
+  resourceNames: {{ toJson .Values.placement.allowedNodeNames }}
+  verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: neon-dsga-scheduler-node-ledger
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: neon-dsga-scheduler-node-ledger}
+subjects:
+- {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-scheduler-runtime
+  namespace: {{ .Values.dsga.vmNamespace }}
+rules:
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [get, patch]
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [get, list, create, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-scheduler-runtime
+  namespace: {{ .Values.dsga.vmNamespace }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-scheduler-runtime}
+subjects:
+- {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
+{{- range $n := .Values.dsga.scheduler.nodes }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-host-{{ $n.binding.node_name }}
+  namespace: {{ $n.binding.namespace }}
+rules:
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  resourceNames: [{{ $n.binding.lease_name | quote }}]
+  verbs: [get, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-host-{{ $n.binding.node_name }}
+  namespace: {{ $n.binding.namespace }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-host-{{ $n.binding.node_name }}}
+subjects:
+- {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-host-read-{{ $n.binding.node_name }}
+  namespace: {{ $n.binding.namespace }}
+rules:
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  resourceNames: [{{ $n.binding.lease_name | quote }}]
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-host-read-{{ $n.binding.node_name }}
+  namespace: {{ $n.binding.namespace }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-host-read-{{ $n.binding.node_name }}}
+subjects:
+- {kind: ServiceAccount, name: autoscaler-agent, namespace: kube-system}
+{{- end }}
+{{- end }}

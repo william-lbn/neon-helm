@@ -1,0 +1,86 @@
+{
+  "refereshStateIntervalSeconds": 5,
+  "scaling": {
+    "computeUnit": {
+      "vCPUs": 0.25,
+      "mem": "1Gi"
+    },
+    "defaultConfig": {
+      "loadAverageFractionTarget": 0.9,
+      "memoryUsageFractionTarget": 0.75,
+      "memoryTotalFractionTarget": 0.9,
+      "enableLFCMetrics": false,
+      "lfcUseLargestWindow": false,
+      "lfcToMemoryRatio": 0.75,
+      "lfcWindowSizeMinutes": 5,
+      "lfcMinWaitBeforeDownscaleMinutes": 5,
+      "cpuStableZoneRatio": 0,
+      "cpuMixedZoneRatio": 0
+    }
+  },
+  "billing": {
+    "cpuMetricName": "effective_compute_seconds",
+    "activeTimeMetricName": "active_time_seconds",
+    "collectEverySeconds": 4,
+    "accumulateEverySeconds": 24,
+    "clients": {}
+  },
+  "scalingEvents": {
+    "cuMultiplier": 0.25,
+    "rereportThreshold": 0.25,
+    "regionName": "replaceme",
+    "clients": {}
+  },
+  "monitor": {
+    "serverPort": 10301,
+    "responseTimeoutSeconds": 5,
+    "connectionTimeoutSeconds": 4,
+    "connectionRetryMinWaitSeconds": 5,
+    "unhealthyAfterSilenceDurationSeconds": 20,
+    "unhealthyStartupGracePeriodSeconds": 20,
+    "maxHealthCheckSequentialFailuresSeconds": 30,
+    "retryDeniedDownscaleSeconds": 5,
+    "requestedUpscaleValidSeconds": 10,
+    "retryFailedRequestSeconds": 3,
+    "maxFailedRequestRate": {
+      "intervalSeconds": 120,
+      "threshold": 2
+    }
+  },
+  "metrics": {
+    "system": {
+      "port": 9100,
+      "requestTimeoutSeconds": 2,
+      "secondsBetweenRequests": 5
+    },
+    "lfc": {
+      "port": 9499,
+      "requestTimeoutSeconds": 5,
+      "secondsBetweenRequests": 15
+    }
+  },
+  "scheduler": {
+    "schedulerName": "autoscale-scheduler",
+    "requestTimeoutSeconds": 2,
+    "requestAtLeastEverySeconds": 15,
+    "retryFailedRequestSeconds": 3,
+    "retryDeniedUpscaleSeconds": 2,
+    "requestPort": 10299,
+    "maxFailedRequestRate": {
+      "intervalSeconds": 120,
+      "threshold": 5
+    }
+  },
+  "dumpState": {
+    "port": 10300,
+    "timeoutSeconds": 5
+  },
+  "neonvm": {
+    "requestTimeoutSeconds": 10,
+    "retryFailedRequestSeconds": 5,
+    "maxFailedRequestRate": {
+      "intervalSeconds": 120,
+      "threshold": 2
+    }
+  }
+}

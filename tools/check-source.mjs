@@ -16,7 +16,8 @@ for(const file of files) {
   if(/\.(pem|key|dump|etl|db|pyc|ps1|tgz)$/.test(name)||/\.private\.|(^|\/)\.env/.test(name))failures.push('Private artifact '+name);
   // Two disabled legacy laboratory compatibility tools remain for old deployments.
   // The active Proxy/Storage adapter must be the compiled, source-locked Go image.
-  if(name.endsWith('.py')&&!['charts/neon-core/files/compute_resizer.py','charts/neon-core/files/proxy_api.py'].includes(name))failures.push('Verification Python '+name);
+  // 本轮只增加明确的 PG17 Helm 离线门槛，不允许其他验证 Python 混入源码。
+  if(name.endsWith('.py')&&!['charts/neon-core/files/compute_resizer.py','charts/neon-core/files/proxy_api.py','tools/check-pg17-helm.py','tools/check-pg17-dsga.py'].includes(name))failures.push('Verification Python '+name);
   const value=fs.readFileSync(file,'utf8');
   if(/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{24,}|sk-[A-Za-z0-9]{32,}/.test(value))failures.push('Credential pattern '+name);
 }

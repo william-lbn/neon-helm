@@ -19,6 +19,7 @@ spec:
       labels:
         name: neonvm-runner-image-loader
     spec:
+      {{- include "neonvm.placement.pod" $ | nindent 6 }}
       containers:
       - command:
         - sh

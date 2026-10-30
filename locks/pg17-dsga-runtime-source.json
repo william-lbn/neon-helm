@@ -1,0 +1,32 @@
+{
+  "repository": "https://github.com/william-lbn/autoscaling",
+  "commit": "79ec6501da167e6ae7abb47a48065e722865e611",
+  "credentialAudience": "neon-dsga-credential-broker",
+  "pgVersion": 17,
+  "interfaceFiles": {
+    "pkg/agent/config.go": "90f9dd71e2a3a866db4352cfeb991b063a9759408367a5d32213d8bff833be88",
+    "pkg/agent/dsga.go": "e1f2a15f1080020d7705ab2be9bed9916489f9a6bf12ec9a3db18d1ed650f592",
+    "pkg/agent/entrypoint.go": "161c856b56d2e846748aec02b6107380e2fc250ee05d9fc5d526149c935f0ab8",
+    "pkg/plugin/config.go": "40c8f5cf6088d4282183609244f90f2d8b387e2c5fc4c8b17ff02d3aa7034284",
+    "pkg/plugin/entrypoint.go": "0dc8a0b18d2d4cfd52bf5a88e3f47fec3787ac8c20efa8074f71675621969376",
+    "pkg/dsga/hostscheduler/config.go": "68c4f5139bafaff68a1ce4edd5e408d58cb36472c6ddd0f7ad57b0662a8c7b93",
+    "pkg/dsga/hostguard/model.go": "f4467c0bda04bde3cbd962ab758b5540e499289e8241f8f0fe0ede190088ded6",
+    "pkg/dsga/hostguard/placement.go": "de7fc2a4be85718259bdfb23f2b0d8e3c937ebc2b6b2131792612027107274ca",
+    "pkg/dsga/hostguard/lease.go": "eabf37ab56b4a55da3679a494d4e0910c002a4d1b560637004afedf6f61d34b1",
+    "pkg/dsga/owner/pod.go": "1d7480747afa42e487285418b8b4f2f6a69f743275a847f7080f2545b7d3da6e",
+    "pkg/dsga/budget/qualification.go": "ca938dff56ea89616b4f892ffbd8b773398716bce67dff7744842246083e5851",
+    "pkg/dsga/policy/memory.go": "065045691598388e20cd25680a63325da6f48970c9044e675142ac423a47d115",
+    "pkg/api/dsga/json.go": "5489bbc79614d8a0e4548fbf5c602282cfa463044807d63add897671b8a769b2",
+    "pkg/dsga/hostguard/store.go": "1faca279a60e95a8db7946662dfe645c2dc7b11aae4b0398112b15dadf3347f5",
+    "pkg/dsga/hostexec/source_gc.go": "997e6a2b5d3f1e7cc9ae68e951bb41f0efaa85dfd34caefb0eb2f6645f4d7c59",
+    "pkg/dsga/hostscheduler/service.go": "f1b46d908837d5bb4f4cab57debf1974a777cc730a03260a6a8077d224e76242",
+    "pkg/dsga/hostscheduler/work.go": "439198c731e488c30cdd4eddf44885dc037b644803fcf79ed8b161e8837aae25",
+    "pkg/dsga/hostscheduler/retirement.go": "c1bc0ef3755781522ae554a9369e23dc911e6459d8adba7d93e950f44fd2e82a",
+    "pkg/dsga/owner/lease.go": "fb5fe1b4e1b329c56e3c6566844574a04a66eb88a20b73fb97fea603ec80e654",
+    "pkg/dsga/vmguard/publication.go": "1f722aad5845e3da4b6e7a1961eb45577b4334fe7d465c829cd132d594543d17",
+    "pkg/dsga/budget/settlement.go": "294ae21f9184d1c0d564157edad5ef43eae50501c5abe1e3fcbbaf988a166601"
+  },
+  "observedNodeIdentityFile": "charts/neon-autoscaler/files/pg17-node-identities.json",
+  "observedNodeIdentitySha256": "f9c0dc3613f02ec65de113fdca93443e6548ecd72a2ad4b17936722e2e4e50a9",
+  "runtimeCertification": "not-executed; original Host Leases, profiles, sustained system budget and per-VM qualifications still absent"
+}

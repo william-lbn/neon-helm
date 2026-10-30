@@ -57,11 +57,13 @@ spec:
       labels:
         app.kubernetes.io/component: vxlan-controller
     spec:
+      {{- include "neonvm.placement.selector" $ | nindent 6 }}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
+              {{- include "neonvm.placement.hostMatch" $ | nindent 14 }}
               - key: kubernetes.io/arch
                 operator: In
                 values:

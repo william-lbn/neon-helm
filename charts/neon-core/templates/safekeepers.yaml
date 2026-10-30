@@ -28,14 +28,16 @@ spec:
     metadata:
       labels: { app: safekeeper{{ $n }}, neon-role: safekeeper }
     spec:
-      {{- if $root.Values.safekeeper.requireNodeSeparation }}
+      {{- include "neon-core.placement.selector" $ | nindent 6 }}
       affinity:
+        {{- include "neon-core.placement.nodeAffinity" $ | nindent 8 }}
+        {{- if $root.Values.safekeeper.requireNodeSeparation }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchLabels: { neon-role: safekeeper }
             topologyKey: kubernetes.io/hostname
-      {{- end }}
+        {{- end }}
       containers:
       - name: safekeeper
         image: "{{ include "neon-lab.component-image" (list $root "safekeeper") }}"

@@ -24,6 +24,7 @@ spec:
     metadata:
       labels: { app: controller-db }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
@@ -64,6 +65,7 @@ spec:
     metadata:
       labels: { app: storage-controller }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}

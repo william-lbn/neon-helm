@@ -11,7 +11,9 @@
     "check": "node tools/check-source.mjs",
     "helm": "node tools/ci-helm.mjs",
     "plan": "node tools/stack.mjs plan",
-    "package": "node tools/stack.mjs package"
+    "package": "node tools/stack.mjs package",
+    "helm:pg17": "python3 tools/check-pg17-helm.py",
+    "helm:pg17-dsga": "python3 tools/check-pg17-dsga.py"
   },
   "dependencies": {
     "yaml": "2.8.1"

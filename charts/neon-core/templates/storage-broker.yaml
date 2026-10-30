@@ -10,6 +10,7 @@ spec:
     metadata:
       labels: { app: storage-broker }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}

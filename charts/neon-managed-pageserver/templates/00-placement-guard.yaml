@@ -1,0 +1,1 @@
+{{- include "neon-managed-pageserver.placement.guard" . -}}

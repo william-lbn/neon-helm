@@ -1,0 +1,9 @@
+{
+  "placement": {
+    "allowedNodeNames": [
+      "worker-117",
+      "worker-118",
+      "worker-119"
+    ]
+  }
+}

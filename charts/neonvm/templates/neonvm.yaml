@@ -165,6 +165,7 @@ spec:
       labels:
         app.kubernetes.io/name: device-plugin
     spec:
+      {{- include "neonvm.placement.pod" $ | nindent 6 }}
       containers:
       - args:
         - --log-level
@@ -175,7 +176,7 @@ spec:
         - "name: kvm\ngroups:\n  - count: 1000\n    paths:\n      - path: /dev/kvm\n"
         - --device
         - "name: vhost-net\ngroups:\n  - count: 1000\n    paths:\n      - path: /dev/vhost-net\n"
-        image: docker.io/squat/generic-device-plugin@sha256:dc192e164c69b03f156765793a1be62ca437709ae477b27ca7d8f3dcf5021576
+        image: {{ .Values.images.devicePlugin | quote }}
         name: generic-device-plugin
         ports:
         - containerPort: 8080

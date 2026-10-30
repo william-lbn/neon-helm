@@ -1,0 +1,175 @@
+{
+  "sourceInputsSha256": "941cc1fb2680946aa00c9a8ed7788d044ada1c2aa3e8014894c0cbf01d8ee077",
+  "suite": "PG17 Helm foundation",
+  "mode": "offline-only-no-cluster-access",
+  "startedAt": "20261030T134629.642060Z",
+  "kubeVersion": "1.31.2",
+  "helmVersion": "v3.12.1+gf32a527",
+  "branch": "codex/dsga-neon-helm-v3-20261019",
+  "baseCommit": "648488adb88125b57a85044a9050762a819994e8",
+  "status": "pass",
+  "results": [
+    {
+      "id": "PG17-U-H01",
+      "description": "七个 chart 拒绝空、缺项、重复、116、未知节点及未知 placement 字段",
+      "status": "pass",
+      "detail": {
+        "schemaRejections": 63
+      },
+      "seconds": 3.074
+    },
+    {
+      "id": "PG17-U-H02",
+      "description": "即使移除测试副本 schema，模板也拒绝越界节点",
+      "status": "pass",
+      "detail": {
+        "schemaIndependentTemplateRejections": 7
+      },
+      "seconds": 0.355
+    },
+    {
+      "id": "PG17-U-H03",
+      "description": "静态 VM 参数只接受整数 PG17",
+      "status": "pass",
+      "detail": {
+        "rejectedVersions": [
+          16,
+          18,
+          "17"
+        ]
+      },
+      "seconds": 0.148
+    },
+    {
+      "id": "PG17-U-H04",
+      "description": "外部 device-plugin digest 可覆盖且 tag 被拒绝",
+      "status": "pass",
+      "detail": {
+        "digestOverrideWired": true,
+        "tagRejected": true
+      },
+      "seconds": 0.158
+    },
+    {
+      "id": "PG17-U-H05",
+      "description": "节点快照防错及 VM 独立 selector 的 OR 绕过保护",
+      "status": "pass",
+      "detail": {
+        "fixtureOnly": true,
+        "negativeSnapshotsRejected": 5,
+        "controllerBroadOrStillConfined": [
+          "worker-117",
+          "worker-118",
+          "worker-119"
+        ],
+        "controlPlaneRoleOn119Accepted": true,
+        "actualClusterMembership": "pending"
+      },
+      "seconds": 0.001
+    },
+    {
+      "id": "PG17-U-H06",
+      "description": "准确 AS 三 CRD/schema/CEL 与保留 webhook 的来源比对",
+      "status": "pass",
+      "detail": {
+        "source": "02a1b0c90e58e3dfed2bb9f2c7c44e98a207ca28",
+        "crdCount": 3,
+        "CELRuleCount": 6,
+        "bootstrapFields": [
+          "computeInstanceID",
+          "configSecretUID",
+          "incarnation",
+          "protocolVersion",
+          "ready",
+          "vmUID"
+        ],
+        "serverSideCRDValidation": "pending"
+      },
+      "seconds": 0.661
+    },
+    {
+      "id": "PG17-S-H01",
+      "description": "七个相关 chart 的严格离线 lint",
+      "status": "pass",
+      "detail": {
+        "charts": [
+          "neonvm",
+          "neon-autoscaler",
+          "neon-core",
+          "neon-compute",
+          "neon-adapter",
+          "neon-managed-pageserver",
+          "compute-management-gateway"
+        ],
+        "strict": true,
+        "kubeVersion": "1.31.2"
+      },
+      "seconds": 0.487
+    },
+    {
+      "id": "PG17-S-H02",
+      "description": "所有基本 PodSpec/VM/hook selector 与每个 affinity 分支及反亲和",
+      "status": "pass",
+      "detail": {
+        "workloads": [
+          "DaemonSet/neonvm-runner-image-loader",
+          "DaemonSet/neonvm-vxlan-controller",
+          "DaemonSet/neonvm-device-plugin",
+          "Deployment/neonvm-controller",
+          "DaemonSet/autoscaler-agent",
+          "Deployment/autoscale-scheduler",
+          "Deployment/minio",
+          "Deployment/pageserver",
+          "Deployment/safekeeper1",
+          "Deployment/safekeeper2",
+          "Deployment/safekeeper3",
+          "Deployment/storage-broker",
+          "Job/release-name-minio-init",
+          "VirtualMachine/vm-neon-compute",
+          "Deployment/neon-control-adapter",
+          "Deployment/pageserver-managed",
+          "Deployment/neon-compute-management-gateway"
+        ],
+        "hookJobs": [
+          "release-name-minio-init"
+        ],
+        "actualRuntimePlacement": "pending"
+      },
+      "seconds": 0.494
+    },
+    {
+      "id": "PG17-S-H03",
+      "description": "仅离线启用旧可选分支以穷尽 PodSpec/hook；本轮运行不启用这些功能",
+      "status": "pass",
+      "detail": {
+        "fixtureOnly": true,
+        "workloads": [
+          "Deployment/compute-resizer",
+          "Deployment/compute",
+          "Deployment/minio",
+          "Deployment/pageserver",
+          "Deployment/proxy-api",
+          "Deployment/proxy",
+          "Deployment/safekeeper1",
+          "Deployment/safekeeper2",
+          "Deployment/safekeeper3",
+          "Deployment/storage-broker",
+          "Deployment/controller-db",
+          "Deployment/storage-controller",
+          "Job/release-name-minio-init",
+          "Job/release-name-product-storage-init"
+        ],
+        "unrelatedFeaturesEnabledOnlyOfflineForPlacementCoverage": true,
+        "separationDisabledStillConfined": true,
+        "allowlistOrderCanonicalized": true
+      },
+      "seconds": 0.301
+    }
+  ],
+  "liveGatesPending": [
+    "PG17-S-H04 actual NodeList pool/Ready/taint validation",
+    "server-side CRD/CEL dry-run and existing storedVersions adoption",
+    "real source-built image provenance and CRI digest verification",
+    "DSGA runtime wiring and PG17 autoscaling E2E"
+  ]
+}

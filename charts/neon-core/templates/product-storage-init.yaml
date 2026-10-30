@@ -21,6 +21,7 @@ spec:
   activeDeadlineSeconds: 180
   template:
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       restartPolicy: Never
       automountServiceAccountToken: false
       securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, fsGroup: 65532, seccompProfile: {type: RuntimeDefault}}

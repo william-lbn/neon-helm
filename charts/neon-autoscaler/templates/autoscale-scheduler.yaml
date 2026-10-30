@@ -94,13 +94,8 @@ metadata:
 ---
 apiVersion: v1
 data:
-  autoscale-enforcer-config.json: "{\n  \"watermark\": 0.9,\n  \"scoring\": {\n  \
-    \  \"minUsageScore\": 0.5,\n    \"maxUsageScore\": 0,\n    \"scorePeak\": 0.8,\n\
-    \    \"randomize\": true\n  },\n  \"schedulerName\": \"autoscale-scheduler\",\n\
-    \  \"reconcileWorkers\": 16,\n  \"logSuccessiveFailuresThreshold\": 10,\n  \"\
-    startupEventHandlingTimeoutSeconds\": 15,\n  \"patchRetryWaitSeconds\": 1,\n \
-    \ \"k8sCRUDTimeoutSeconds\": 1,\n  \"nodeMetricLabels\": {},\n  \"ignoredNamespaces\"\
-    : []\n}\n"
+  autoscale-enforcer-config.json: |
+    {{- include "neon-autoscaler.dsga.schedulerConfig" . | nindent 4 }}
 kind: ConfigMap
 metadata:
   name: scheduler-plugin-config
@@ -127,7 +122,10 @@ spec:
         component: scheduler
         name: autoscale-scheduler
         tier: control-plane
+      annotations:
+        checksum/runtime-config: {{ include "neon-autoscaler.dsga.schedulerConfig" . | sha256sum }}
     spec:
+      {{- include "neon-autoscaler.placement.pod" $ | nindent 6 }}
       containers:
       - command:
         - /usr/bin/kube-scheduler

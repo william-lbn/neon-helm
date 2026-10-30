@@ -47,6 +47,7 @@ spec:
       annotations:
         checksum/code: {{ .Files.Get "files/compute_resizer.py" | sha256sum }}
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       serviceAccountName: compute-resizer
       containers:
       - name: resizer

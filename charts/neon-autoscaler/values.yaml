@@ -23,3 +23,29 @@ agent:
     requests:
       cpu: 1000m
       memory: 600Mi
+
+# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+placement:
+  allowedNodeNames:
+  - worker-117
+  - worker-118
+  - worker-119
+
+# 只有真实原节点/Lease/预算/CA 输入齐全才启用；无推测的资格或系统预算。
+dsga:
+  enabled: false
+  pgVersion: 17
+  vmNamespace: neon
+  agent:
+    gatewayURL: ''
+    managementCASecret: ''
+    managementCAKey: ca.crt
+    tokenAudience: neon-dsga-credential-broker
+    tokenExpirationSeconds: 600
+    requestTimeoutSeconds: 10
+    computeTimeoutSeconds: 100
+    pollIntervalSeconds: 5
+    prepareQualifications: {}
+    automaticMemory: {}
+  scheduler:
+    nodes: []

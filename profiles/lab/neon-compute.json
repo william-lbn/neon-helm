@@ -3,6 +3,8 @@
   "compute": {
     "image": "docker.io/williamluckyli/vm-compute-node-v16@sha256:4716bf4c0d5437b05977787398b764b5638ab42bbc657dcc6909fd39c095744d",
     "tenantId": "",
-    "timelineId": ""
+    "timelineId": "",
+    "enabled": false,
+    "pgVersion": 17
   }
 }

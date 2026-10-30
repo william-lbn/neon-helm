@@ -14,3 +14,10 @@ service:
 resources:
   requests: {cpu: 100m, memory: 64Mi}
   limits: {cpu: 500m, memory: 192Mi}
+
+# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+placement:
+  allowedNodeNames:
+  - worker-117
+  - worker-118
+  - worker-119

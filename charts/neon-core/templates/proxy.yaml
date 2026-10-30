@@ -46,6 +46,7 @@ spec:
       annotations:
         checksum/code: {{ .Files.Get "files/proxy_api.py" | sha256sum }}
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
@@ -107,6 +108,7 @@ spec:
     metadata:
       labels: { app: proxy }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}

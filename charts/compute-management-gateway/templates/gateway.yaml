@@ -41,6 +41,7 @@ spec:
       annotations:
         neon-control/binary-sha256: {{ .Values.runtime.binarySha256 | quote }}
     spec:
+      {{- include "compute-management-gateway.placement.pod" $ | nindent 6 }}
       serviceAccountName: {{ $name }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 8 }}

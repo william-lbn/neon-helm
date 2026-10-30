@@ -1,0 +1,198 @@
+{
+  "scope": "Linux PG17 Helm基础及最小DSGA Agent/Scheduler配置",
+  "branch": "codex/dsga-neon-helm-v3-20261019",
+  "baseCommit": "648488adb88125b57a85044a9050762a819994e8",
+  "clusterMutation": false,
+  "deployed": false,
+  "foundation": {
+    "status": "pass",
+    "ids": [
+      "PG17-U-H01",
+      "PG17-U-H02",
+      "PG17-U-H03",
+      "PG17-U-H04",
+      "PG17-U-H05",
+      "PG17-U-H06",
+      "PG17-S-H01",
+      "PG17-S-H02",
+      "PG17-S-H03"
+    ],
+    "evidence": "artifacts/pg17-helm/20261030T134629.642060Z",
+    "sourceInputsSha256": "941cc1fb2680946aa00c9a8ed7788d044ada1c2aa3e8014894c0cbf01d8ee077"
+  },
+  "dsgaConfiguration": {
+    "status": "pass",
+    "ids": [
+      "PG17-U-H07",
+      "PG17-U-H08",
+      "PG17-U-H09",
+      "PG17-U-H10",
+      "PG17-U-H11",
+      "PG17-S-H06"
+    ],
+    "evidence": "artifacts/pg17-dsga-committed-79ec650",
+    "sourceInputsSha256": "035b3e0cb5671ed36d77fbd4a779ddc875991d41b1cb1d4835da3f0558d8d3d0",
+    "typedContract": {
+      "actualAgentNegativeConfigsRejected": 3,
+      "agentReadConfig": "pass",
+      "goVersion": "go1.24.3",
+      "hostConfigValidate": "pass",
+      "immutableASGoContextFileCount": 673,
+      "immutableASGoContextManifestSha256": "2e704eebe025fbf204b85d89148101805898d2061b9c34b4edfdcb7151ee997d",
+      "missingPodUIDRejectedBeforeKubeAccess": true,
+      "mode": "actual-linux-go-typed-contract",
+      "networkAccess": "disabled",
+      "platformQualification": "not-certified; synthetic offline inputs only",
+      "hostASGoInputsChangedDuringBuild": false,
+      "preBuildHostASGoInputsSha256": "d5c458b01f5303edcb204c58d142944dcf80b7b8f504832b72ca10b77c42e60d",
+      "loadedDockerfileSha256": "edbad627665f0dff445f167b4034861bb7038fad2fd0f3df1afe4e4f546997ae",
+      "goCacheSharing": "shared",
+      "goModuleCacheID": "autoscaling-gomod-amd64-shared-v2"
+    },
+    "committedAutoscalingSource": "79ec6501da167e6ae7abb47a48065e722865e611",
+    "sourceIsolation": "independent clean Linux worktree; concurrent normal implementation excluded"
+  },
+  "environmentPreparation": {
+    "id": "PG17-ENV-H01",
+    "status": "pass",
+    "evidence": "artifacts/pg17-dsga-cache/20261030T133051.735805Z",
+    "testsExecuted": false,
+    "sourceModSumChanges": "none: readonly plus before/after cmp",
+    "originalPrintedID": "PG17-E-H01"
+  },
+  "actualClusterRead": {
+    "id": "PG17-S-H05",
+    "evidence": "artifacts/pg17-dsga/20261030T123613Z",
+    "status": "pass",
+    "meaning": "2026-10-30T12:36:13Z实际只读Node/Kubernetes身份，非预算/资格认证"
+  },
+  "notExecutedRuntimeGates": {
+    "PG17-S-H04": "not-prepared: actual pool labels absent",
+    "PG17-S-H07": "not-executed: original Host Lease/profile/system budget and per-VM qualifications absent",
+    "PG17-S-H08": "not-executed: full Host ordinary-Pod hard-limit and protection scope unresolved",
+    "PG17-S-H09": "not-executed: gateway/Runner/RBAC/CA/token/PG17 memory E2E requires single-machine gate first"
+  },
+  "historicalNonBusinessFailures": [
+    {
+      "evidence": "artifacts/pg17-dsga/20261030T125056.514973Z",
+      "reason": "未继承现有Buildx环境，Go未执行"
+    },
+    {
+      "evidence": "artifacts/pg17-dsga/20261030T130002.211288Z",
+      "reason": "Go实际通过，宿主并行修改触发旧来源比较；后改为实际COPY快照内部导出"
+    },
+    {
+      "evidence": "artifacts/pg17-dsga/20261030T130902.278762Z",
+      "reason": "混用旧cache模式取得不完整ref，禁网模块查找失败"
+    },
+    {
+      "evidence": "artifacts/pg17-dsga/20261030T131312.005326Z",
+      "reason": "先等缓存锁约582秒，真正执行后旧ref缺模块；无业务配置失败"
+    },
+    {
+      "evidence": "artifacts/pg17-dsga-source-79ec650",
+      "reason": "runtime lock advanced to pushed AS commit before checker SOURCE anchor updated; U-H10 rejected as designed; final exact source anchor and all gates pass"
+    }
+  ],
+  "productionQualification": false,
+  "currentWorktreeMatchesBothExecutedInputManifests": true,
+  "reviewFiles": {
+    "modified": [
+      "charts/compute-management-gateway/templates/gateway.yaml",
+      "charts/compute-management-gateway/values.schema.json",
+      "charts/compute-management-gateway/values.yaml",
+      "charts/neon-adapter/templates/resources.yaml",
+      "charts/neon-adapter/values.schema.json",
+      "charts/neon-adapter/values.yaml",
+      "charts/neon-autoscaler/templates/autoscale-scheduler.yaml",
+      "charts/neon-autoscaler/templates/autoscaler-agent.yaml",
+      "charts/neon-autoscaler/values.schema.json",
+      "charts/neon-autoscaler/values.yaml",
+      "charts/neon-compute/templates/vm.yaml",
+      "charts/neon-compute/values.schema.json",
+      "charts/neon-compute/values.yaml",
+      "charts/neon-core/templates/compute-resizer.yaml",
+      "charts/neon-core/templates/compute.yaml",
+      "charts/neon-core/templates/minio.yaml",
+      "charts/neon-core/templates/pageserver.yaml",
+      "charts/neon-core/templates/product-storage-init.yaml",
+      "charts/neon-core/templates/proxy.yaml",
+      "charts/neon-core/templates/safekeepers.yaml",
+      "charts/neon-core/templates/storage-broker.yaml",
+      "charts/neon-core/templates/storage-controller.yaml",
+      "charts/neon-core/values.schema.json",
+      "charts/neon-core/values.yaml",
+      "charts/neon-managed-pageserver/templates/resources.yaml",
+      "charts/neon-managed-pageserver/values.schema.json",
+      "charts/neon-managed-pageserver/values.yaml",
+      "charts/neonvm/crds/neonvm.yaml",
+      "charts/neonvm/templates/neonvm-controller.yaml",
+      "charts/neonvm/templates/neonvm-runner-image-loader.yaml",
+      "charts/neonvm/templates/neonvm-vxlan-controller.yaml",
+      "charts/neonvm/templates/neonvm.yaml",
+      "charts/neonvm/values.schema.json",
+      "charts/neonvm/values.yaml",
+      "package.json",
+      "profiles/lab/neon-compute.json",
+      "tools/check-source.mjs"
+    ],
+    "new": [
+      "charts/compute-management-gateway/templates/00-placement-guard.yaml",
+      "charts/compute-management-gateway/templates/_placement.tpl",
+      "charts/neon-adapter/templates/00-placement-guard.yaml",
+      "charts/neon-adapter/templates/_placement.tpl",
+      "charts/neon-autoscaler/files/agent-config.json",
+      "charts/neon-autoscaler/files/pg17-node-identities.json",
+      "charts/neon-autoscaler/files/scheduler-plugin-config.json",
+      "charts/neon-autoscaler/templates/00-dsga-guard.yaml",
+      "charts/neon-autoscaler/templates/00-placement-guard.yaml",
+      "charts/neon-autoscaler/templates/_dsga.tpl",
+      "charts/neon-autoscaler/templates/_placement.tpl",
+      "charts/neon-autoscaler/templates/dsga-rbac.yaml",
+      "charts/neon-compute/templates/00-placement-guard.yaml",
+      "charts/neon-compute/templates/_placement.tpl",
+      "charts/neon-core/templates/00-placement-guard.yaml",
+      "charts/neon-core/templates/_placement.tpl",
+      "charts/neon-managed-pageserver/templates/00-placement-guard.yaml",
+      "charts/neon-managed-pageserver/templates/_placement.tpl",
+      "charts/neonvm/templates/00-placement-guard.yaml",
+      "charts/neonvm/templates/_placement.tpl",
+      "docs/PG17-Helm-DSGA接线.md",
+      "docs/PG17-Helm基础修复.md",
+      "docs/acceptance/pg17-helm-linux-20261030.json",
+      "locks/pg17-dsga-runtime-source.json",
+      "locks/pg17-helm-crd-source.json",
+      "profiles/pg17-memory/neon-autoscaler-required.json",
+      "profiles/pg17-memory/placement.json",
+      "tools/check-pg17-dsga.py",
+      "tools/check-pg17-helm.py",
+      "docs/acceptance/pg17-helm-linux-20261030/foundation-summary.json",
+      "docs/acceptance/pg17-helm-linux-20261030/dsga-summary.json",
+      "docs/acceptance/pg17-helm-linux-20261030/typed-contract-result.json",
+      "docs/acceptance/pg17-helm-linux-20261030/typed-Dockerfile.txt",
+      "docs/acceptance/pg17-helm-linux-20261030/as-go-context-inputs.json",
+      "docs/acceptance/pg17-helm-linux-20261030/helm-dsga-source-inputs.json"
+    ]
+  },
+  "reviewCommitSuggestion": {
+    "title": "完善PG17三节点Helm隔离及DSGA可信运行配置门槛",
+    "execution": "未执行git add/commit/push；主代理统一在原功能分支复核提交",
+    "groups": [
+      "七Chart节点隔离/PG17静态参数/准确CRD与外部镜像覆盖",
+      "Agent/Scheduler可信配置、固定原身份与最小新增角色",
+      "精确离线/真实Go配置契约、环境缓存准备、通过失败未执行档案"
+    ]
+  },
+  "P1HostLeaseReadScope": "每个配置Host域binding.namespace/lease_name精确GET-only；不新增Agent Node写、Host Lease创建/修改或CM GC；已有Prepare仅资格配置时CM get/create",
+  "parallelControlPlaneEvidence": "/data/neon-build/src/control-plane/docs/PG17-冻结三节点放置与Sysfs-Linux验收-20261030.md（独立子任务，未替其提交/推送）",
+  "committedOrPushedAtEvidenceCapture": false,
+  "archiveEvidenceFiles": [
+    "docs/acceptance/pg17-helm-linux-20261030/foundation-summary.json",
+    "docs/acceptance/pg17-helm-linux-20261030/dsga-summary.json",
+    "docs/acceptance/pg17-helm-linux-20261030/typed-contract-result.json",
+    "docs/acceptance/pg17-helm-linux-20261030/typed-Dockerfile.txt",
+    "docs/acceptance/pg17-helm-linux-20261030/as-go-context-inputs.json",
+    "docs/acceptance/pg17-helm-linux-20261030/helm-dsga-source-inputs.json"
+  ],
+  "latestExecutionOrder": "PG17 complete safe normal decrease, single machine, all K8s E2E; then fetch latest own control plane and integrate; later PG18/PG16 beneath common upper contracts"
+}

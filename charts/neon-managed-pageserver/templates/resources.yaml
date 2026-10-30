@@ -14,6 +14,7 @@ spec:
     metadata:
       labels: {app: pageserver-managed, app.kubernetes.io/part-of: neon-control}
     spec:
+      {{- include "neon-managed-pageserver.placement.pod" $ | nindent 6 }}
       automountServiceAccountToken: false
       {{- with .Values.priorityClassName }}
       priorityClassName: {{ . | quote }}

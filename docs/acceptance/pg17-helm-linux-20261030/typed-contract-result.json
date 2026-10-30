@@ -1,0 +1,23 @@
+{
+  "id": "PG17-S-H06",
+  "description": "真实 Linux/Go1.24 Agent.ReadConfig 与 Host Config.Validate、无PodUID拒绝",
+  "status": "pass",
+  "detail": {
+    "actualAgentNegativeConfigsRejected": 3,
+    "agentReadConfig": "pass",
+    "goVersion": "go1.24.3",
+    "hostConfigValidate": "pass",
+    "immutableASGoContextFileCount": 673,
+    "immutableASGoContextManifestSha256": "2e704eebe025fbf204b85d89148101805898d2061b9c34b4edfdcb7151ee997d",
+    "missingPodUIDRejectedBeforeKubeAccess": true,
+    "mode": "actual-linux-go-typed-contract",
+    "networkAccess": "disabled",
+    "platformQualification": "not-certified; synthetic offline inputs only",
+    "hostASGoInputsChangedDuringBuild": false,
+    "preBuildHostASGoInputsSha256": "d5c458b01f5303edcb204c58d142944dcf80b7b8f504832b72ca10b77c42e60d",
+    "loadedDockerfileSha256": "edbad627665f0dff445f167b4034861bb7038fad2fd0f3df1afe4e4f546997ae",
+    "goCacheSharing": "shared",
+    "goModuleCacheID": "autoscaling-gomod-amd64-shared-v2"
+  },
+  "seconds": 4.161
+}

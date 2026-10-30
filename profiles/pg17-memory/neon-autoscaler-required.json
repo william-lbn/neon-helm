@@ -1,0 +1,10 @@
+{
+  "dsga": {
+    "enabled": true,
+    "pgVersion": 17
+  },
+  "compatibility": {
+    "expectedKubernetesMinor": "31",
+    "allowUntestedKubernetes": false
+  }
+}

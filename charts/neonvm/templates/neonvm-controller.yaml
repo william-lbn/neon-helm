@@ -266,6 +266,7 @@ spec:
       labels:
         control-plane: controller
     spec:
+      {{- include "neonvm.placement.selector" $ | nindent 6 }}
       {{- with .Values.controller.priorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
@@ -282,6 +283,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
+              {{- include "neonvm.placement.hostMatch" $ | nindent 14 }}
               - key: kubernetes.io/arch
                 operator: In
                 values:

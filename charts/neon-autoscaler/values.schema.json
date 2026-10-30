@@ -54,8 +54,400 @@
           "additionalProperties": true
         }
       }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowedNodeNames"
+      ],
+      "properties": {
+        "allowedNodeNames": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "worker-117",
+              "worker-118",
+              "worker-119"
+            ]
+          },
+          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+        }
+      }
+    },
+    "dsga": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "pgVersion",
+        "vmNamespace",
+        "agent",
+        "scheduler"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "pgVersion": {
+          "type": "integer",
+          "const": 17
+        },
+        "vmNamespace": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        },
+        "agent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gatewayURL",
+            "managementCASecret",
+            "managementCAKey",
+            "tokenAudience",
+            "tokenExpirationSeconds",
+            "requestTimeoutSeconds",
+            "computeTimeoutSeconds",
+            "pollIntervalSeconds",
+            "prepareQualifications",
+            "automaticMemory"
+          ],
+          "properties": {
+            "gatewayURL": {
+              "type": "string"
+            },
+            "managementCASecret": {
+              "type": "string"
+            },
+            "managementCAKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[A-Za-z0-9._-]+$"
+            },
+            "tokenAudience": {
+              "const": "neon-dsga-credential-broker"
+            },
+            "tokenExpirationSeconds": {
+              "type": "integer",
+              "minimum": 600,
+              "maximum": 3600
+            },
+            "requestTimeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "computeTimeoutSeconds": {
+              "type": "integer",
+              "minimum": 90,
+              "maximum": 120
+            },
+            "pollIntervalSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60
+            },
+            "prepareQualifications": {
+              "type": "object",
+              "maxProperties": 128,
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "claim",
+                  "sha256"
+                ],
+                "properties": {
+                  "claim": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "uid"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 253,
+                        "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+                      },
+                      "uid": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+                      }
+                    }
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            },
+            "automaticMemory": {
+              "type": "object",
+              "maxProperties": 128,
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "targets",
+                  "sampleIntervalSeconds",
+                  "maximumSampleGapSeconds",
+                  "growWindowSeconds",
+                  "shrinkWindowSeconds",
+                  "cooldownSeconds",
+                  "requestDeadlineSeconds",
+                  "shrinkThresholdPermille",
+                  "growThresholdPermille",
+                  "emergencyThresholdPermille"
+                ],
+                "properties": {
+                  "targets": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 32,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "vmMemoryBytes",
+                        "buffers"
+                      ],
+                      "properties": {
+                        "vmMemoryBytes": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "maxLength": 20
+                        },
+                        "buffers": {
+                          "type": "integer",
+                          "minimum": 16,
+                          "maximum": 1073741823
+                        }
+                      }
+                    }
+                  },
+                  "sampleIntervalSeconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 60
+                  },
+                  "maximumSampleGapSeconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 300
+                  },
+                  "growWindowSeconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3600
+                  },
+                  "shrinkWindowSeconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 86400
+                  },
+                  "cooldownSeconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 86400
+                  },
+                  "requestDeadlineSeconds": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "maximum": 3600
+                  },
+                  "shrinkThresholdPermille": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 998
+                  },
+                  "growThresholdPermille": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 999
+                  },
+                  "emergencyThresholdPermille": {
+                    "type": "integer",
+                    "minimum": 3,
+                    "maximum": 1000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "scheduler": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "nodes"
+          ],
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "binding",
+                  "profile",
+                  "system_bytes"
+                ],
+                "properties": {
+                  "binding": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "node_name",
+                      "node_uid",
+                      "namespace",
+                      "lease_name",
+                      "lease_uid"
+                    ],
+                    "properties": {
+                      "node_name": {
+                        "type": "string",
+                        "enum": [
+                          "worker-117",
+                          "worker-118",
+                          "worker-119"
+                        ]
+                      },
+                      "node_uid": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+                      },
+                      "namespace": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 63,
+                        "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+                      },
+                      "lease_name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 253,
+                        "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+                      },
+                      "lease_uid": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+                      }
+                    }
+                  },
+                  "profile": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "scheduler_name",
+                      "vm_overhead_bytes",
+                      "pod_overhead_bytes"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+                      },
+                      "scheduler_name": {
+                        "const": "autoscale-scheduler"
+                      },
+                      "vm_overhead_bytes": {
+                        "type": "string",
+                        "pattern": "^[1-9][0-9]{0,19}$",
+                        "maxLength": 20
+                      },
+                      "pod_overhead_bytes": {
+                        "type": "string",
+                        "pattern": "^[1-9][0-9]{0,19}$",
+                        "maxLength": 20
+                      }
+                    }
+                  },
+                  "system_bytes": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,19}$",
+                    "maxLength": 20
+                  },
+                  "initialize_at_resource_version": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]*$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "neon-autoscaler values"
+  "title": "neon-autoscaler values",
+  "required": [
+    "placement",
+    "dsga"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "dsga": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "dsga": {
+            "properties": {
+              "agent": {
+                "properties": {
+                  "gatewayURL": {
+                    "pattern": "^https://[A-Za-z0-9.-]+(:[1-9][0-9]{0,4})?/?$"
+                  },
+                  "managementCASecret": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 253,
+                    "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+                  }
+                }
+              },
+              "scheduler": {
+                "properties": {
+                  "nodes": {
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

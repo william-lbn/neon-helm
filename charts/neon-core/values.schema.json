@@ -638,8 +638,35 @@
     },
     "fullnameOverride": {
       "type": "string"
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowedNodeNames"
+      ],
+      "properties": {
+        "allowedNodeNames": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "worker-117",
+              "worker-118",
+              "worker-119"
+            ]
+          },
+          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+        }
+      }
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "neon-core values"
+  "title": "neon-core values",
+  "required": [
+    "placement"
+  ]
 }

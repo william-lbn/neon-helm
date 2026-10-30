@@ -54,6 +54,7 @@ spec:
     metadata:
       labels: { app: pageserver }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       initContainers:
       - name: init-config
         image: {{ .Values.global.initImage | quote }}

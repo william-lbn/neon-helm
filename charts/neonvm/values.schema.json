@@ -138,16 +138,50 @@
         },
         "vxlanController": {
           "type": "string"
+        },
+        "devicePlugin": {
+          "type": "string",
+          "pattern": "^[^\\s]+@sha256:[a-f0-9]{64}$"
         }
-      }
+      },
+      "required": [
+        "devicePlugin"
+      ]
     },
     "nameOverride": {
       "type": "string"
     },
     "fullnameOverride": {
       "type": "string"
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowedNodeNames"
+      ],
+      "properties": {
+        "allowedNodeNames": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "worker-117",
+              "worker-118",
+              "worker-119"
+            ]
+          },
+          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+        }
+      }
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "neonvm values"
+  "title": "neonvm values",
+  "required": [
+    "placement"
+  ]
 }

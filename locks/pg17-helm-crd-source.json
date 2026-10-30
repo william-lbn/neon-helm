@@ -1,0 +1,28 @@
+{
+  "repository": "https://github.com/william-lbn/autoscaling",
+  "commit": "02a1b0c90e58e3dfed2bb9f2c7c44e98a207ca28",
+  "chartBaseCommit": "648488adb88125b57a85044a9050762a819994e8",
+  "transforms": [
+    "保留原 Chart 的 cert-manager CA 注入 annotation 和 conversion webhook；其余 spec 与准确源码一致。"
+  ],
+  "files": [
+    {
+      "path": "neonvm/config/crd/bases/vm.neon.tech_ippools.yaml",
+      "sourceBlobSha256": "3cc858430b3ef40b68c53d7423d36421d72b556065466171c66fb2f16b9bd420",
+      "specSha256": "67129e258ace4f2bfe5ab1dd06c6a43c5b88e9b6f5694fbff59d0fb5dcdeeba0",
+      "crd": "ippools.vm.neon.tech"
+    },
+    {
+      "path": "neonvm/config/crd/bases/vm.neon.tech_virtualmachinemigrations.yaml",
+      "sourceBlobSha256": "90d2762c1e0c4f59c55a5a3e859106bae117f93c2f2c5b3cd1a5d59cb252c998",
+      "specSha256": "9e79710992b7b311512a603645b324756db8f68a5e663ba95467bcea3e3e0c7f",
+      "crd": "virtualmachinemigrations.vm.neon.tech"
+    },
+    {
+      "path": "neonvm/config/crd/bases/vm.neon.tech_virtualmachines.yaml",
+      "sourceBlobSha256": "c0e741b5cc41faa6f44bc9b926e7c322ba076963e1174294dce9f96ff59d94d8",
+      "specSha256": "e2865d7e50a456507a170eabeb62fd293fb614db467e59917bd341ef4cb3b55d",
+      "crd": "virtualmachines.vm.neon.tech"
+    }
+  ]
+}

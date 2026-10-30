@@ -40,3 +40,11 @@ images:
   controller: ''
   runner: ''
   vxlanController: ''
+  devicePlugin: docker.io/squat/generic-device-plugin@sha256:dc192e164c69b03f156765793a1be62ca437709ae477b27ca7d8f3dcf5021576
+
+# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+placement:
+  allowedNodeNames:
+  - worker-117
+  - worker-118
+  - worker-119

@@ -21,6 +21,7 @@ spec:
     metadata:
       labels: { app: compute }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- if eq .Values.compute.mode "public" }}
       initContainers:
       - name: render-config

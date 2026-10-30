@@ -1,0 +1,102 @@
+{
+  "mode": "linux-offline-templates-and-config-contracts-no-cluster-mutation",
+  "fixtureOnly": true,
+  "sourceInputsSha256": "035b3e0cb5671ed36d77fbd4a779ddc875991d41b1cb1d4835da3f0558d8d3d0",
+  "status": "pass",
+  "results": [
+    {
+      "id": "PG17-U-H07",
+      "description": "DSGA Agent CA/token/PodUID 与 Scheduler 精确原输入渲染接线",
+      "status": "pass",
+      "detail": {
+        "fixtureOnly": true,
+        "pgVersion": 17,
+        "podUID": "DownwardAPI",
+        "tokenAudience": "neon-dsga-credential-broker",
+        "trustedSourceOnly": true,
+        "exactUint64StringsPreserved": true
+      },
+      "seconds": 0.22
+    },
+    {
+      "id": "PG17-U-H08",
+      "description": "PG17/专用身份/原域/精确预算/策略非法输入与不完整启用拒绝",
+      "status": "pass",
+      "detail": {
+        "rejectedConfigs": 31,
+        "requiredIncompleteProfileRejected": true
+      },
+      "seconds": 1.644
+    },
+    {
+      "id": "PG17-U-H09",
+      "description": "新增运行角色只写明确节点/VM namespace/原 Host Lease，停用撤销",
+      "status": "pass",
+      "detail": {
+        "newNodeWrites": [
+          "worker-117",
+          "worker-118",
+          "worker-119"
+        ],
+        "newPodWrites": "neon",
+        "allNamespaceHostPodProtection": "pending-runtime-design-gate",
+        "originalHostLeaseCreationDenied": true,
+        "secretReadNotGranted": true
+      },
+      "seconds": 0.175
+    },
+    {
+      "id": "PG17-U-H10",
+      "description": "准确 AS 运行接口与真实 Node UID 来源锁",
+      "status": "pass",
+      "detail": {
+        "source": "79ec6501da167e6ae7abb47a48065e722865e611",
+        "interfaceFiles": 21,
+        "nodeUIDSource": "actual-read-only-cluster-snapshot",
+        "budgetsAndPerVMQualifications": "not-invented-not-certified"
+      },
+      "seconds": 0.047
+    },
+    {
+      "id": "PG17-U-H11",
+      "description": "原Node/Lease快照检查拒绝同名重建、owner/marker/RV漂移和不完整快照",
+      "status": "pass",
+      "detail": {
+        "fixtureOnly": true,
+        "originalIdentityAndScopeNegativeCasesRejected": 7,
+        "budgetsAndQualifications": "not-certified",
+        "actualOriginalLeases": "absent-not-invented"
+      },
+      "seconds": 0.001
+    },
+    {
+      "id": "PG17-S-H06",
+      "description": "真实 Linux/Go1.24 Agent.ReadConfig 与 Host Config.Validate、无PodUID拒绝",
+      "status": "pass",
+      "detail": {
+        "actualAgentNegativeConfigsRejected": 3,
+        "agentReadConfig": "pass",
+        "goVersion": "go1.24.3",
+        "hostConfigValidate": "pass",
+        "immutableASGoContextFileCount": 673,
+        "immutableASGoContextManifestSha256": "2e704eebe025fbf204b85d89148101805898d2061b9c34b4edfdcb7151ee997d",
+        "missingPodUIDRejectedBeforeKubeAccess": true,
+        "mode": "actual-linux-go-typed-contract",
+        "networkAccess": "disabled",
+        "platformQualification": "not-certified; synthetic offline inputs only",
+        "hostASGoInputsChangedDuringBuild": false,
+        "preBuildHostASGoInputsSha256": "d5c458b01f5303edcb204c58d142944dcf80b7b8f504832b72ca10b77c42e60d",
+        "loadedDockerfileSha256": "edbad627665f0dff445f167b4034861bb7038fad2fd0f3df1afe4e4f546997ae",
+        "goCacheSharing": "shared",
+        "goModuleCacheID": "autoscaling-gomod-amd64-shared-v2"
+      },
+      "seconds": 4.161
+    }
+  ],
+  "actualRuntimeGates": {
+    "PG17-S-H04": "not-prepared: actual pool labels absent",
+    "PG17-S-H07": "not-executed: original Host Lease/profile/system budget and per-VM qualifications absent",
+    "PG17-S-H08": "not-executed: full Host ordinary-Pod hard-limit and protection scope unresolved",
+    "PG17-S-H09": "not-executed: gateway/Runner/RBAC/CA/token/PG17 memory E2E requires single-machine gate first"
+  }
+}

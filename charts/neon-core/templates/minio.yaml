@@ -26,6 +26,7 @@ spec:
     metadata:
       labels: { app: minio }
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
@@ -77,6 +78,7 @@ spec:
   activeDeadlineSeconds: 600
   template:
     spec:
+      {{- include "neon-core.placement.pod" $ | nindent 6 }}
       restartPolicy: OnFailure
       containers:
       - name: mc

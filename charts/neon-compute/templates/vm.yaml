@@ -8,6 +8,7 @@ metadata:
   annotations:
     autoscaling.neon.tech/bounds: {{ dict "min" (dict "cpu" (toString .Values.compute.cpu.min) "mem" .Values.compute.memory.minBound) "max" (dict "cpu" (toString .Values.compute.cpu.max) "mem" .Values.compute.memory.maxBound) | toJson | quote }}
 spec:
+  {{- include "neon-compute.placement.pod" . | nindent 2 }}
   schedulerName: autoscale-scheduler
   enableSSH: true
   guest:
@@ -38,7 +39,7 @@ spec:
       - host=localhost port=55433 dbname=postgres user=cloud_admin sslmode=disable application_name=vm-monitor
       - --dev
     env:
-      - { name: PG_VERSION, value: "16" }
+      - { name: PG_VERSION, value: {{ .Values.compute.pgVersion | quote }} }
       - { name: TENANT_ID, value: {{ .Values.compute.tenantId | quote }} }
       - { name: TIMELINE_ID, value: {{ .Values.compute.timelineId | quote }} }
       - { name: ALLOW_LAB_AUTOBOOTSTRAP, value: "NO" }

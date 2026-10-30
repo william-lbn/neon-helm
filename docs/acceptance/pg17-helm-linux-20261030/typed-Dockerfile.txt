@@ -1,0 +1,12 @@
+FROM 127.0.0.1:5001/neon/pg17-dev-tools:linux-v1 AS check
+WORKDIR /workspace
+ENV GOPATH=/go GOMODCACHE=/go/pkg/mod GOCACHE=/root/.cache/go-build GOPROXY=off GOSUMDB=off
+COPY . .
+COPY --from=helmfixture . /helm-fixture
+ARG PG17_CONTRACT_NONCE
+RUN --mount=type=cache,id=autoscaling-gomod-amd64-shared-v2,target=/go/pkg/mod,sharing=shared \
+    --mount=type=cache,id=autoscaling-gobuild-amd64,target=/root/.cache/go-build,sharing=shared \
+    printf 'ACTUAL_PG17_HELM_CONTRACT=%s\n' "$PG17_CONTRACT_NONCE" && mkdir /receipt && \
+    /opt/go/bin/go run /helm-fixture/contract.go
+FROM scratch
+COPY --from=check /receipt/ /

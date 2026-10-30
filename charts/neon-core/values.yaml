@@ -152,3 +152,10 @@ validation:
 disruptionBudget:
   safekeeperEnabled: true
   minAvailable: 2 # Protect quorum during voluntary node drains, not hardware loss.
+
+# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+placement:
+  allowedNodeNames:
+  - worker-117
+  - worker-118
+  - worker-119

@@ -1,0 +1,23 @@
+{
+  "charts/neon-autoscaler/.helmignore": "0ef08031c1cb5040e0fd94b4df458906dab53b55c168bc438f0564b371f108d5",
+  "charts/neon-autoscaler/Chart.yaml": "8dfa71445a735abdebbeac8d8bbddf39a51f9de4436c87123b78900616bf5fae",
+  "charts/neon-autoscaler/README.md": "8236166d21e14b1639f3a98da79fb94e643cd5356e9e51bf24944913367b8bdb",
+  "charts/neon-autoscaler/files/agent-config.json": "1499687a84c4fc185f7a657ddaf8dd6a84200a6ff0218d92b73019573c92058a",
+  "charts/neon-autoscaler/files/pg17-node-identities.json": "f9c0dc3613f02ec65de113fdca93443e6548ecd72a2ad4b17936722e2e4e50a9",
+  "charts/neon-autoscaler/files/scheduler-plugin-config.json": "6f5d2e62ddeb2934d496a40cc572dd659b940de32c508873e1bbd9220b6da3ea",
+  "charts/neon-autoscaler/templates/00-dsga-guard.yaml": "590bf7ac4d1609477a13423f99365e2cd84bf02aa03cf84d14909b0927a4a9cf",
+  "charts/neon-autoscaler/templates/00-guard.yaml": "81fc1c7747f0adf5089c5416434b8a53136d074bc7bcd70688a2f4123cb31cf8",
+  "charts/neon-autoscaler/templates/00-placement-guard.yaml": "20eec2ac3044ff32477e9dd4f08c47f87d537ccff254917c0b3973386c623d8a",
+  "charts/neon-autoscaler/templates/_dsga.tpl": "40d91bbaf7428e39ba8462bcc64c4911ea240160d1f0136ba4051343f595b630",
+  "charts/neon-autoscaler/templates/_placement.tpl": "595b679a5fa29d5363b0fe02af190ea84f0413b425d01106a442042d6ccfdf6a",
+  "charts/neon-autoscaler/templates/autoscale-scheduler.yaml": "d138eefac4d1d0cbb9aa13ba18b2015b04f264e42ec69cf507819ce951762c19",
+  "charts/neon-autoscaler/templates/autoscaler-agent.yaml": "b84cd3e6dac3a882a4ff811fbd324ee5089d0c775398a87cfd167d9af70b108c",
+  "charts/neon-autoscaler/templates/dsga-rbac.yaml": "01807ad25b3904f015ebdad4943f43077e026ca525c62fedaae71f7021cca49a",
+  "charts/neon-autoscaler/values.schema.json": "0ca96ef48f2391803d421d101d85a41eba135f067f1e9ff56ae9b836b9899b14",
+  "charts/neon-autoscaler/values.yaml": "c7c900fd4d439dff98e1d85c5d0625a0cedeff22375bd981e627fe06c64543d7",
+  "locks/pg17-dsga-runtime-source.json": "57df44e61297796ddf49bec6563bc28baba5b6fd08732dfeb038aecec845596c",
+  "profiles/pg17-memory/neon-autoscaler-required.json": "4c407ebfb5cd2d888312997a9686e60a8704991a8feb66380415acc7c535f770",
+  "tools/check-pg17-dsga.py": "b17ced559f73328ca89a8340398acc31a437cb9a77dfc982e7c7d5f2e6d6f037",
+  "tools/check-pg17-helm.py": "571d7e2c65261b9c9c41cf1f62300d35db90874f38ceeb49b2da12574d2273b2",
+  "tools/check-source.mjs": "161e370fa0b7877c54d2c9448a3aa8b092f7fcbd71c07e995d44e1e8fe991b12"
+}

@@ -194,5 +194,10 @@
     "docs/acceptance/pg17-helm-linux-20261030/as-go-context-inputs.json",
     "docs/acceptance/pg17-helm-linux-20261030/helm-dsga-source-inputs.json"
   ],
-  "latestExecutionOrder": "PG17 complete safe normal decrease, single machine, all K8s E2E; then fetch latest own control plane and integrate; later PG18/PG16 beneath common upper contracts"
+  "latestExecutionOrder": "PG17 complete safe normal decrease, single machine, all K8s E2E; then fetch latest own control plane and integrate; later PG18/PG16 beneath common upper contracts",
+  "nodeSourceCheck": {
+    "id": "PG17-U-H13",
+    "status": "pass",
+    "evidence": "docs/acceptance/pg17-helm-linux-20261030/node-source-check.json"
+  }
 }

@@ -1,0 +1,15 @@
+{
+  "id": "PG17-U-H13",
+  "scope": "repository source policy only; no original business regression",
+  "passed": true,
+  "node_version": "v24.22.2",
+  "node_archive_sha256": "48cc0e21e048790e54c0cf5749c2725005313d652651c40b7a21feb9697aaf75",
+  "download_source": "https://nodejs.org/dist/v24.22.2/",
+  "checksum": "matched official SHASUMS256.txt",
+  "command": "npm ci --ignore-scripts --no-audit --no-fund; npm run check",
+  "source_commit": "bf2a3bdd9523eb554e1379974be70bcfe07eb2e2",
+  "package_lock_sha256": "fe7ae765933d75e23d0abe80106125bf76127f0b5dc748138cc49eac703815bf",
+  "initial_output": "\n> neon-helm-tools@0.1.31 check\n> node tools/check-source.mjs\n\n{\"result\":\"pass\",\"files\":290,\"charts\":10,\"productionQualified\":false}\n",
+  "raw_evidence": "/data/neon-build/validation/helm-node-static",
+  "production_qualified": false
+}

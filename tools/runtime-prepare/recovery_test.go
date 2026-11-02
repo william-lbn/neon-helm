@@ -35,6 +35,7 @@ type retireAPI struct {
 	p                                                                        *preparer
 	vm                                                                       *vmv1.VirtualMachine
 	secret                                                                   *corev1.Secret
+	service                                                                  *corev1.Service
 	deleted, deleting, replaceAfterDelete, missingFinalizer, lostDeleteReply bool
 	paged, latePod, lateNodeUnknown                                          bool
 	deletes, otherWrites, podPages, nodePages                                int
@@ -51,6 +52,7 @@ func readyRetireFixture(t *testing.T) (*preparer, *retireAPI) {
 	_, err = store.Initialize(ctx, vm.ResourceVersion, "unit-retire-bootstrap")
 	require.NoError(t, err)
 	core := kubefake.NewSimpleClientset()
+	installManagementServiceReactor(t, core)
 	core.PrependReactor("create", "secrets", func(a kt.Action) (bool, runtime.Object, error) {
 		s := a.(kt.CreateAction).GetObject().(*corev1.Secret).DeepCopy()
 		s.UID = "original-secret-uid"
@@ -76,7 +78,9 @@ func readyRetireFixture(t *testing.T) (*preparer, *retireAPI) {
 	actual.TypeMeta = metav1.TypeMeta{APIVersion: vmv1.SchemeGroupVersion.String(), Kind: "VirtualMachine"}
 	secret, err := core.CoreV1().Secrets(vm.Namespace).Get(ctx, vm.Name+"-config", metav1.GetOptions{})
 	require.NoError(t, err)
-	api := &retireAPI{p: p, vm: actual, secret: secret}
+	svc, err := core.CoreV1().Services(vm.Namespace).Get(ctx, vm.Name+"-management", metav1.GetOptions{})
+	require.NoError(t, err)
+	api := &retireAPI{p: p, vm: actual, secret: secret, service: svc}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) { api.serve(t, w, req) }))
 	t.Cleanup(server.Close)
 	generated, err := vmclient.NewForConfig(&rest.Config{Host: server.URL})
@@ -160,6 +164,8 @@ func (f *retireAPI) serve(t *testing.T, w http.ResponseWriter, r *http.Request) 
 	}
 	base := "/api/v1/namespaces/" + f.vm.Namespace
 	switch r.URL.Path {
+	case base + "/services/" + f.vm.Name + "-management":
+		reply(f.service)
 	case base + "/secrets/" + f.vm.Name + "-config":
 		reply(f.secret)
 	case base + "/configmaps":

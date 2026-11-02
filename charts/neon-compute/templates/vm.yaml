@@ -9,6 +9,10 @@ metadata:
   name: {{ .Values.compute.name }}
   labels:
     autoscaling.neon.tech/enabled: "true"
+    {{- if $managed }}
+    neon-control/project-id: {{ .Values.compute.runtime.projectId | quote }}
+    neon-control/endpoint-id: {{ .Values.compute.runtime.endpointId | quote }}
+    {{- end }}
   annotations:
     autoscaling.neon.tech/bounds: {{ dict "min" (dict "cpu" (toString .Values.compute.cpu.min) "mem" .Values.compute.memory.minBound) "max" (dict "cpu" (toString .Values.compute.cpu.max) "mem" .Values.compute.memory.maxBound) | toJson | quote }}
 spec:
@@ -122,3 +126,5 @@ spec:
     {{- if $managed }}
     - { name: compute-control, port: 3080, targetPort: compute-control }
     {{- end }}
+
+{{/* 专用management Service由runtime-prepare在实际VMUID后创建；Helm不预造UID/OwnerRef。 */}}

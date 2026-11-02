@@ -1,0 +1,41 @@
+{
+  "nonce": "20261102T072407Z-177bae",
+  "classification": "changed Helm project-label input boundary only",
+  "results": {
+    "original-short": {
+      "expected_success": true,
+      "exit": 0,
+      "pass": true
+    },
+    "63-boundary": {
+      "expected_success": true,
+      "exit": 0,
+      "pass": true
+    },
+    "64-rejected": {
+      "expected_success": false,
+      "exit": 1,
+      "pass": true
+    },
+    "tail-hyphen": {
+      "expected_success": false,
+      "exit": 1,
+      "pass": true
+    },
+    "tail-underscore": {
+      "expected_success": false,
+      "exit": 1,
+      "pass": true
+    },
+    "63-boundary-lint": {
+      "exit": 0,
+      "pass": true
+    }
+  },
+  "all_pass": true,
+  "original_Service_U_not_rerun": true,
+  "K8s": false,
+  "Source": false,
+  "normal": false,
+  "E": 0
+}

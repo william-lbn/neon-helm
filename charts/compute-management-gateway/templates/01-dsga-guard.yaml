@@ -1,0 +1,6 @@
+{{- if .Values.dsga.enabled -}}
+{{- if or (not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" .Values.dsga.agentNamespace)) (not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" .Values.dsga.agentServiceAccount)) (not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" .Values.dsga.tlsSecret)) -}}
+{{- fail "DSGA requires exact allowed Agent namespace/account and the existing dedicated management-domain TLS Secret" -}}
+{{- end -}}
+{{- if ne .Values.runtime.mode "image" -}}{{- fail "DSGA requires the original immutable gateway image; no host-binary credential issuer" -}}{{- end -}}
+{{- end -}}

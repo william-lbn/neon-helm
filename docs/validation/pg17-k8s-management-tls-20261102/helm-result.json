@@ -1,0 +1,73 @@
+{
+  "nonce": "20261102T064557Z-51f6c6",
+  "classification": "Helm lint/template only; actual UID Service is runtime-prepare responsibility",
+  "results": {
+    "compute-positive": {
+      "exit": 0,
+      "expected_success": true,
+      "pass": true
+    },
+    "compute-wrong-endpoint": {
+      "exit": 1,
+      "expected_success": false,
+      "pass": true
+    },
+    "compute-wrong-name": {
+      "exit": 1,
+      "expected_success": false,
+      "pass": true
+    },
+    "compute-wrong-project": {
+      "exit": 1,
+      "expected_success": false,
+      "pass": true
+    },
+    "gateway-disabled": {
+      "exit": 0,
+      "expected_success": true,
+      "pass": true
+    },
+    "gateway-host-binary-issuer": {
+      "exit": 1,
+      "expected_success": false,
+      "pass": true
+    },
+    "gateway-missing-TLS": {
+      "exit": 1,
+      "expected_success": false,
+      "pass": true
+    },
+    "gateway-missing-subject": {
+      "exit": 1,
+      "expected_success": false,
+      "pass": true
+    },
+    "gateway-positive": {
+      "exit": 0,
+      "expected_success": true,
+      "pass": true
+    },
+    "neon-compute-lint": {
+      "exit": 0,
+      "pass": true
+    },
+    "compute-management-gateway-lint": {
+      "exit": 0,
+      "pass": true
+    }
+  },
+  "checks": {
+    "exactly_one_old_unbound_management_Service_removed": true,
+    "new_initial_template_has_no_management_Service": true,
+    "all_other_compute_resources_unchanged": true,
+    "gateway_tls_rbac_unchanged": true,
+    "gateway_disabled_unchanged": true
+  },
+  "all_pass": true,
+  "Secrets_created": false,
+  "workload_deployed": false,
+  "K8s": false,
+  "Source": false,
+  "normal": false,
+  "E": 0
+}

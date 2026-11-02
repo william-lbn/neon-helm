@@ -57,7 +57,7 @@ func nativeUnit(t *testing.T) (*vmv1.VirtualMachine, map[string][]byte) {
 	require.NoError(t, e)
 	config, e := json.Marshal(map[string]any{"spec": map[string]any{"dynamic_shared_buffers": map[string]any{"protocol_version": 2, "vm_uid": source.Config.VMUID, "compute_instance_id": source.Config.ComputeInstanceID, "minimum_guest_memory_bytes": uint64(7 << 30), "bootstrap_buffer_bytes": uint64(2 << 20)}}, "compute_ctl_config": map[string]any{"jwks": map[string]any{"keys": []any{map[string]any{"use": "sig", "key_ops": []string{"verify"}, "alg": "EdDSA", "kty": "OKP", "crv": "Ed25519", "x": source.ControlPublicKey}}}}})
 	require.NoError(t, e)
-	vm := &vmv1.VirtualMachine{ObjectMeta: metav1.ObjectMeta{Name: "unit-only-vm", Namespace: "unit-only", UID: types.UID(source.Config.VMUID), ResourceVersion: "1"}}
+	vm := &vmv1.VirtualMachine{ObjectMeta: metav1.ObjectMeta{Name: "cp-0123456789abcdef", Namespace: "unit-only", Labels: map[string]string{"neon-control/project-id": "unit-project", "neon-control/endpoint-id": "ep_0123456789abcdef"}, UID: types.UID(source.Config.VMUID), ResourceVersion: "1"}}
 	vm.Spec.DSGABootstrap = &vmv1.DSGABootstrap{ProtocolVersion: 1, Incarnation: doc.Incarnation, ComputeInstanceID: source.Config.ComputeInstanceID}
 	return vm, map[string][]byte{"config.json": config, resourceguard.ResourceSecretKey: raw, resourceguard.PolicyTemplatesSecretKey: policies}
 }
@@ -67,7 +67,7 @@ func TestRuntimePrepareActualUIDAndImmutableBytes(t *testing.T) {
 	s.UID = "original-secret-uid"
 	s.ResourceVersion = "1"
 	require.NoError(t, originalSecret(vm, s, data, s.UID))
-	for name, mutate := range map[string]func(*corev1.Secret){"uid": func(s *corev1.Secret) { s.UID = "replacement" }, "owner": func(s *corev1.Secret) { s.OwnerReferences[0].UID = "replacement" }, "mutable": func(s *corev1.Secret) { v := false; s.Immutable = &v }, "bytes": func(s *corev1.Secret) { s.Data["config.json"] = []byte("changed") }} {
+	for name, mutate := range map[string]func(*corev1.Secret){"uid": func(s *corev1.Secret) { s.UID = "replacement" }, "owner": func(s *corev1.Secret) { s.OwnerReferences[0].UID = "replacement" }, "mutable": func(s *corev1.Secret) { v := false; s.Immutable = &v }, "bytes": func(s *corev1.Secret) { s.Data["config.json"] = []byte("changed") }, "labels": func(s *corev1.Secret) { s.Labels["neon-control/project-id"] = "replacement" }} {
 		t.Run(name, func(t *testing.T) {
 			bad := s.DeepCopy()
 			mutate(bad)
@@ -86,6 +86,7 @@ func TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld(t *testing.T) {
 			_, e = store.Initialize(context.Background(), vm.ResourceVersion, "unit-bootstrap-owner")
 			require.NoError(t, e)
 			client := kubefake.NewSimpleClientset()
+			installManagementServiceReactor(t, client)
 			client.PrependReactor("create", "secrets", func(a kt.Action) (bool, runtime.Object, error) {
 				s := a.(kt.CreateAction).GetObject().(*corev1.Secret).DeepCopy()
 				s.UID = "api-assigned-secret-uid"
@@ -99,7 +100,7 @@ func TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld(t *testing.T) {
 			wanted := vm.DeepCopy()
 			wanted.UID = ""
 			wanted.ResourceVersion = ""
-			p := &preparer{core: client.CoreV1(), vms: vms.NeonvmV1().VirtualMachines(vm.Namespace), wanted: wanted, state: retained{ProtocolVersion: 1, Scope: stateScope, VMUID: vm.UID, Namespace: vm.Namespace, Name: vm.Name}, statePath: statePath}
+			p := &preparer{core: client.CoreV1(), vms: vms.NeonvmV1().VirtualMachines(vm.Namespace), wanted: wanted, state: retained{ProtocolVersion: 1, Scope: stateScope, ManifestSHA256: digest([]byte("original-held-manifest")), VMUID: vm.UID, Namespace: vm.Namespace, Name: vm.Name}, statePath: statePath}
 			if name == "unsupported-policy" {
 				data[resourceguard.PolicyTemplatesSecretKey] = []byte(`{"protocol_version":1,"scope":"unsupported","templates":[]}`)
 			}

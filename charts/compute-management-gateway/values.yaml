@@ -21,3 +21,10 @@ placement:
   - worker-117
   - worker-118
   - worker-119
+
+# 默认不开放DSGA凭据监听器。正式TLS私钥仅此Gateway挂载，Agent只取得原可信CA。
+dsga:
+  enabled: false
+  agentNamespace: kube-system
+  agentServiceAccount: autoscaler-agent
+  tlsSecret: ''

@@ -37,22 +37,25 @@ import (
 )
 
 type retained struct {
-	ProtocolVersion         uint32    `json:"protocol_version"`
-	Scope                   string    `json:"scope"`
-	ManifestSHA256          string    `json:"manifest_sha256"`
-	Namespace               string    `json:"namespace"`
-	Name                    string    `json:"name"`
-	VMCreateMayHaveSent     bool      `json:"VM_create_may_have_sent"`
-	VMUID                   types.UID `json:"vm_uid,omitempty"`
-	SecretCreateMayHaveSent bool      `json:"secret_create_may_have_sent"`
-	SecretDataSHA256        string    `json:"secret_data_sha256,omitempty"`
-	SecretUID               types.UID `json:"secret_uid,omitempty"`
-	ReleaseMayHaveSent      bool      `json:"release_may_have_sent"`
-	Complete                bool      `json:"complete"`
-	RuntimeSHA256           string    `json:"runtime_sha256,omitempty"`
-	RetireMayHaveSent       bool      `json:"retire_may_have_sent,omitempty"`
-	RetireArchiveSHA256     string    `json:"retire_archive_sha256,omitempty"`
-	Retired                 bool      `json:"retired,omitempty"`
+	ProtocolVersion                    uint32    `json:"protocol_version"`
+	Scope                              string    `json:"scope"`
+	ManifestSHA256                     string    `json:"manifest_sha256"`
+	Namespace                          string    `json:"namespace"`
+	Name                               string    `json:"name"`
+	VMCreateMayHaveSent                bool      `json:"VM_create_may_have_sent"`
+	VMUID                              types.UID `json:"vm_uid,omitempty"`
+	SecretCreateMayHaveSent            bool      `json:"secret_create_may_have_sent"`
+	SecretDataSHA256                   string    `json:"secret_data_sha256,omitempty"`
+	SecretUID                          types.UID `json:"secret_uid,omitempty"`
+	ManagementServiceCreateMayHaveSent bool      `json:"management_service_create_may_have_sent,omitempty"`
+	ManagementServiceUID               types.UID `json:"management_service_uid,omitempty"`
+	ManagementServiceResourceVersion   string    `json:"management_service_resource_version,omitempty"`
+	ReleaseMayHaveSent                 bool      `json:"release_may_have_sent"`
+	Complete                           bool      `json:"complete"`
+	RuntimeSHA256                      string    `json:"runtime_sha256,omitempty"`
+	RetireMayHaveSent                  bool      `json:"retire_may_have_sent,omitempty"`
+	RetireArchiveSHA256                string    `json:"retire_archive_sha256,omitempty"`
+	Retired                            bool      `json:"retired,omitempty"`
 }
 type files struct{ config, resource, policies string }
 type preparer struct {
@@ -284,6 +287,11 @@ func (p *preparer) inspect(ctx context.Context) error {
 	if e != nil {
 		return e
 	}
+	if p.state.ManagementServiceUID != "" {
+		if _, e = p.managementService(ctx, false); e != nil {
+			return e
+		}
+	}
 	if p.state.SecretUID == "" {
 		return nil
 	}
@@ -318,6 +326,11 @@ func secretFor(vm *vmv1.VirtualMachine, data map[string][]byte) *corev1.Secret {
 func originalSecret(vm *vmv1.VirtualMachine, s *corev1.Secret, data map[string][]byte, expected types.UID) error {
 	if s == nil || s.Namespace != vm.Namespace || s.Name != vm.Name+"-config" || s.UID == "" || s.ResourceVersion == "" || s.DeletionTimestamp != nil || s.Immutable == nil || !*s.Immutable || expected != "" && s.UID != expected || !reflect.DeepEqual(s.Data, data) || len(s.StringData) != 0 {
 		return fmt.Errorf("original immutable Runtime Secret differs or was replaced")
+	}
+	for _, key := range []string{"neon-control/project-id", "neon-control/endpoint-id"} {
+		if s.Labels[key] != vm.Labels[key] {
+			return fmt.Errorf("original Runtime Secret ownership labels differ")
+		}
 	}
 	owner := metav1.GetControllerOf(s)
 	if owner == nil || owner.APIVersion != vmv1.SchemeGroupVersion.String() || owner.Kind != "VirtualMachine" || owner.Name != vm.Name || owner.UID != vm.UID {
@@ -424,6 +437,9 @@ func (p *preparer) seal(ctx context.Context, f files) ([]byte, error) {
 	if e != nil {
 		return nil, e
 	}
+	if _, e = p.managementService(ctx, true); e != nil {
+		return nil, e
+	}
 	snap, e := store.Load(ctx)
 	if e != nil {
 		return nil, fmt.Errorf("original journal read unavailable before release")
@@ -459,6 +475,9 @@ func (p *preparer) seal(ctx context.Context, f files) ([]byte, error) {
 	}
 	if !bytes.Equal(s.Data[resourceguard.ResourceSecretKey], actualSecret.Data[resourceguard.ResourceSecretKey]) {
 		return nil, fmt.Errorf("Runtime source changed after release")
+	}
+	if _, e = p.managementService(ctx, false); e != nil {
+		return nil, e
 	}
 	p.state.Complete = true
 	p.state.RuntimeSHA256 = digest(runtime)

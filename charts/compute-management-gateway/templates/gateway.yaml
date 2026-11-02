@@ -13,6 +13,14 @@ rules:
   - apiGroups: [""]
     resources: [secrets, services]
     verbs: [get]
+  {{- if .Values.dsga.enabled }}
+  - apiGroups: [vm.neon.tech]
+    resources: [virtualmachines]
+    verbs: [get]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    verbs: [get]
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -47,7 +55,7 @@ spec:
       imagePullSecrets: {{ toYaml . | nindent 8 }}
       {{- end }}
       terminationGracePeriodSeconds: 25
-      securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: {type: RuntimeDefault}}
+      securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, {{ if .Values.dsga.enabled }}fsGroup: 65532, {{ end }}seccompProfile: {type: RuntimeDefault}}
       containers:
         - name: gateway
           image: {{ .Values.image.reference | quote }}
@@ -56,10 +64,20 @@ spec:
           securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
           ports:
             - {name: management-tls, containerPort: 8443}
+            {{- if .Values.dsga.enabled }}
+            - {name: dsga-tls, containerPort: 8444}
+            {{- end }}
             - {name: health, containerPort: 8081}
           env:
             - name: NEON_KUBE_NAMESPACE
               value: {{ .Release.Namespace | quote }}
+            {{- if .Values.dsga.enabled }}
+            - {name: NEON_DSGA_GATEWAY_BIND, value: ":8444"}
+            - {name: NEON_DSGA_AGENT_NAMESPACE, value: {{ .Values.dsga.agentNamespace | quote }}}
+            - {name: NEON_DSGA_AGENT_SERVICE_ACCOUNT, value: {{ .Values.dsga.agentServiceAccount | quote }}}
+            - {name: NEON_DSGA_GATEWAY_CERT_FILE, value: /etc/neon-dsga/gateway/tls.crt}
+            - {name: NEON_DSGA_GATEWAY_KEY_FILE, value: /etc/neon-dsga/gateway/tls.key}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           readinessProbe:
@@ -70,16 +88,32 @@ spec:
             httpGet: {path: /healthz, port: health}
             initialDelaySeconds: 5
             periodSeconds: 10
-          {{- if eq .Values.runtime.mode "host-binary" }}
+          {{- if or (eq .Values.runtime.mode "host-binary") .Values.dsga.enabled }}
           volumeMounts:
+            {{- if eq .Values.runtime.mode "host-binary" }}
             - {name: binary, mountPath: /opt/neon-control/compute-gateway, readOnly: true}
+            {{- end }}
+            {{- if .Values.dsga.enabled }}
+            - {name: dsga-dedicated-tls, mountPath: /etc/neon-dsga/gateway, readOnly: true}
+            {{- end }}
           {{- end }}
-      {{- if eq .Values.runtime.mode "host-binary" }}
+      {{- if or (eq .Values.runtime.mode "host-binary") .Values.dsga.enabled }}
       volumes:
+        {{- if eq .Values.runtime.mode "host-binary" }}
         - name: binary
           hostPath:
             path: {{ required "host-binary requires an immutable verified binaryHostPath" .Values.runtime.binaryHostPath | quote }}
             type: File
+        {{- end }}
+        {{- if .Values.dsga.enabled }}
+        - name: dsga-dedicated-tls
+          secret:
+            secretName: {{ .Values.dsga.tlsSecret | quote }}
+            defaultMode: 0440
+            items:
+              - {key: tls.crt, path: tls.crt}
+              - {key: tls.key, path: tls.key}
+        {{- end }}
       {{- end }}
 ---
 apiVersion: v1
@@ -97,3 +131,46 @@ spec:
       {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.nodePort }}
       {{- end }}
+
+    {{- if .Values.dsga.enabled }}
+    - {name: dsga-tls, port: 8444, targetPort: dsga-tls}
+    {{- end }}
+{{- if .Values.dsga.enabled }}
+---
+# TokenReview仅用于核Agent原投影token，签发器不靠自报Pod/epoch获得权限。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ printf "%s-%s-tokenreview" $name .Release.Namespace }}
+rules:
+  - apiGroups: [authentication.k8s.io]
+    resources: [tokenreviews]
+    verbs: [create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ printf "%s-%s-tokenreview" $name .Release.Namespace }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ printf "%s-%s-tokenreview" $name .Release.Namespace }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ printf "%s-%s-agent-observer" $name .Release.Namespace }}
+  namespace: {{ .Values.dsga.agentNamespace | quote }}
+rules:
+  - apiGroups: [""]
+    resources: [pods, serviceaccounts]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ printf "%s-%s-agent-observer" $name .Release.Namespace }}
+  namespace: {{ .Values.dsga.agentNamespace | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-%s-agent-observer" $name .Release.Namespace }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}
+{{- end }}

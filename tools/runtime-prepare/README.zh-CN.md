@@ -10,13 +10,24 @@ PCP1024、固定P、System硬限及初始数组额度来自实际内核/镜像/�
 
 ## 构建
 
-该窄工具直接复用指定 autoscaling 源版本的公开库；在该仓库根目录以相同 go.mod/依赖执行：
+该窄工具直接复用锁定 autoscaling 源版本的公开库，必须从该 AS 模块根执行，不能在无 go.mod 的工具目录直接运行。下面路径为993ee1已验证不可变输入；换用新发行输入时，AS 与工具源码必须重新按同一 source-lock 核对。
 
 ```sh
-go build -o /data/neon-build/bin/neon-runtime-prepare /absolute/neon-helm/tools/runtime-prepare/main.go /absolute/neon-helm/tools/runtime-prepare/render.go
+TASK_AS_SOURCE=/data/neon-build/validation/runtime-prepare-management-service-go-20261102T063954Z-993ee1/source
+TASK_TOOL_SOURCE=/data/neon-build/validation/runtime-prepare-management-service-go-20261102T063954Z-993ee1/tool
+cd "$TASK_AS_SOURCE"
+CGO_ENABLED=0 go build -p=2 -ldflags="-s -w" -o /data/neon-build/bin/neon-runtime-prepare \
+  "$TASK_TOOL_SOURCE/main.go" "$TASK_TOOL_SOURCE/render.go" \
+  "$TASK_TOOL_SOURCE/recovery.go" "$TASK_TOOL_SOURCE/service.go"
+go test -p=2 -race -json -count=1 -timeout=90s \
+  -run '^(TestRuntimePrepare|TestRuntimeRender|TestRuntimeRetire|TestRuntimeManagementService)' \
+  "$TASK_TOOL_SOURCE/main.go" "$TASK_TOOL_SOURCE/render.go" \
+  "$TASK_TOOL_SOURCE/recovery.go" "$TASK_TOOL_SOURCE/service.go" \
+  "$TASK_TOOL_SOURCE/main_test.go" "$TASK_TOOL_SOURCE/render_test.go" \
+  "$TASK_TOOL_SOURCE/recovery_test.go" "$TASK_TOOL_SOURCE/service_test.go"
 ```
 
-`go test -race` 必须显式包含 main.go、render.go、main_test.go、render_test.go 四份文件。归档记录准确 autoscaling 全源码、工具源码、编译器、实际 COPY 校验、资源限制及产物 SHA。测试使用 typed fake API 分配 UID，是单元测试，不是 Kubernetes 实测。
+必须列全4个生产文件及4个测试文件，遗漏 recovery.go 或 service.go 会直接编译失败。上述实际使用的Go/镜像/COPY校验与资源限制见993ee1原始Dockerfile/source-lock及actual-phase-result.json；13个race根50子项和CLI/help均0，旧collector因预期字段缺失退出1仍保留，不把wrapper失败重标成功。测试使用typed fake API分配UID，是单元测试，不是Kubernetes实测。
 
 ## 先持有，再封存，再由原 CAS 释放
 

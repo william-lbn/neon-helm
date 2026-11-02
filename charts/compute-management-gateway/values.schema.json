@@ -103,6 +103,30 @@
           "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
         }
       }
+    },
+    "dsga": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "agentNamespace",
+        "agentServiceAccount",
+        "tlsSecret"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "agentNamespace": {
+          "type": "string"
+        },
+        "agentServiceAccount": {
+          "type": "string"
+        },
+        "tlsSecret": {
+          "type": "string"
+        }
+      }
     }
   },
   "additionalProperties": false

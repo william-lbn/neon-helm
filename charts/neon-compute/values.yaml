@@ -24,6 +24,8 @@ compute:
   runtime:
     # 来自原部署计划；Helm不生成UID、incarnation、签名材料或平台资格。
     executionModel: ''
+    projectId: '' # 原真实创建计划，不由Helm生成项目/Endpoint身份。
+    endpointId: ''
     incarnation: ''
     computeInstanceId: ''
     runnerImage: ''

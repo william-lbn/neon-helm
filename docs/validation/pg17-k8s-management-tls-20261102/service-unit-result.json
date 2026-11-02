@@ -1,0 +1,32 @@
+{
+  "classification": "actual race unit plus static CLI/help; fake Kubernetes API, no deployment",
+  "wrapper_exit": 1,
+  "wrapper_failure": "collector expects old source-lock expected_tests key; actual build/U/CLI/help completed before collector",
+  "actual_exits": {
+    "u": 0,
+    "cli": 0,
+    "help": 0
+  },
+  "passed_roots": [
+    "TestRuntimePrepareActualUIDAndImmutableBytes",
+    "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld",
+    "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName",
+    "TestRuntimeRenderBindsActualHeldUIDAndPreservesOriginalFields",
+    "TestRuntimeRenderRejectsDriftBeforePublishing",
+    "TestRuntimeRenderRejectsSameUIDSecondSnapshotDrift",
+    "TestRuntimeRetireArchivesBeforeDeleteAndKeepsOldStateClosed",
+    "TestRuntimeRetireLostDeleteReplyDoesNotMeanStopped",
+    "TestRuntimeRetireRefusesMissingTicketFinalizerAndReplacement",
+    "TestRuntimeRetireRequiresEveryPodAndNodePageUnheld",
+    "TestRuntimeManagementServicePersistsActualUIDBeforeRelease",
+    "TestRuntimeManagementServiceRejectsOriginalIdentityAndRouteDrift",
+    "TestRuntimeManagementServiceNeverAdoptsUnconfirmedOrDeletedName"
+  ],
+  "passed_subtests": 50,
+  "skipped": [],
+  "Source": false,
+  "normal": false,
+  "K8s": false,
+  "E": 0,
+  "CLI_sha256": "cb704d0589ffe36fb11ea4647d27d48923f48fb54b7d6be783facb56fa4dcfd1"
+}

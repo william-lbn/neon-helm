@@ -1,0 +1,174 @@
+{
+  "nonce": "20261102T041610Z-467b1a",
+  "scope": "only related compute/storage/Minio/Agent/Scheduler/NeonVM workload placement",
+  "results": [
+    {
+      "chart": "neon-core",
+      "command": [
+        "helm",
+        "template",
+        "placement-check",
+        "/data/neon-build/src/neon-helm/charts/neon-core",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/src/neon-helm/profiles/lab/neon-core.json",
+        "-f",
+        "/data/neon-build/src/neon-helm/profiles/pg17-memory/placement.json"
+      ],
+      "template_exit": 0,
+      "workloads": [
+        {
+          "kind": "Deployment",
+          "name": "minio",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "pageserver",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "proxy",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "safekeeper1",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "safekeeper2",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "safekeeper3",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "storage-broker",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "controller-db",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "storage-controller",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Job",
+          "name": "placement-check-minio-init",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Job",
+          "name": "placement-check-product-storage-init",
+          "strict_117_118_119": true,
+          "excludes116": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "chart": "neon-autoscaler",
+      "command": [
+        "helm",
+        "template",
+        "placement-check",
+        "/data/neon-build/src/neon-helm/charts/neon-autoscaler",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/src/neon-helm/profiles/lab/neon-autoscaler.json",
+        "-f",
+        "/data/neon-build/src/neon-helm/profiles/pg17-memory/placement.json"
+      ],
+      "template_exit": 0,
+      "workloads": [
+        {
+          "kind": "DaemonSet",
+          "name": "autoscaler-agent",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "autoscale-scheduler",
+          "strict_117_118_119": true,
+          "excludes116": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "chart": "neonvm",
+      "command": [
+        "helm",
+        "template",
+        "placement-check",
+        "/data/neon-build/src/neon-helm/charts/neonvm",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/src/neon-helm/profiles/lab/neonvm.json",
+        "-f",
+        "/data/neon-build/src/neon-helm/profiles/pg17-memory/placement.json"
+      ],
+      "template_exit": 0,
+      "workloads": [
+        {
+          "kind": "DaemonSet",
+          "name": "neonvm-runner-image-loader",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "DaemonSet",
+          "name": "neonvm-vxlan-controller",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "DaemonSet",
+          "name": "neonvm-device-plugin",
+          "strict_117_118_119": true,
+          "excludes116": true
+        },
+        {
+          "kind": "Deployment",
+          "name": "neonvm-controller",
+          "strict_117_118_119": true,
+          "excludes116": true
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "all_pass": true,
+  "Kubernetes_deployed": false,
+  "E": 0
+}

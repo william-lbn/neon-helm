@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/data/neon-build/validation/pg17-runtime-render-go-20261102T043053Z-c1e132/export/neon-runtime-prepare",
+    "-h"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "Usage of /data/neon-build/validation/pg17-runtime-render-go-20261102T043053Z-c1e132/export/neon-runtime-prepare:\n  -action string\n    \thold, render, seal or inspect; mutations require explicit selection (default \"inspect\")\n  -build-contract string\n    \toriginal pinned image/template/native build index\n  -compute-config string\n    \tactual VM-bound Compute config JSON\n  -kubeconfig string\n    \texisting Kubernetes config; never printed\n  -native-build-manifest string\n    \toriginal actual Builder NativeBirth manifest\n  -policy-templates string\n    \toriginal immutable complete policy template JSON\n  -render-output-dir string\n    \tprivate new directory for the three original bound inputs\n  -resource-config string\n    \tactual VM-bound resource source JSON\n  -state string\n    \tprivate persistent /data original deployment state\n  -vm-json string\n    \toriginal held VM JSON from Helm\n"
+}

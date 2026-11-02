@@ -1,0 +1,3 @@
+独立只读审查完成（/root/pg_stderr_chain/render_review），未改源码、未Git、未重测。
+最终窄修无剩余阻断：main在首次Secret API前调用同public-only JWK helper并比Source管理公钥；strict public6+optional kid拒私钥d/未知成员；render沿同helper。held返回第二快照完整originalVM比较封闭同UID Max9漂移。既有同字节输出补原3file Sync/Close，再输出dir与parent Sync，封闭rename后fsync Unknown恢复点。
+此票仅源码独审，不替代c1e132新nonce的实际race/CLI结果，绝不签Source、normal、K8s或E。

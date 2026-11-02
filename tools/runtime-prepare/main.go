@@ -367,6 +367,13 @@ func (p *preparer) seal(ctx context.Context, f files) ([]byte, error) {
 	if json.Unmarshal(data[resourceguard.ResourceSecretKey], &source) != nil || source.Config.ExecutionModel != resourceguard.TrustedControllerExecutionModel || source.Config.VMUID != string(vm.UID) || source.Config.ComputeInstanceID != vm.Spec.DSGABootstrap.ComputeInstanceID {
 		return nil, fmt.Errorf("actual original VM-bound resource source required")
 	}
+	publicKey, e := originalPublicControlKey(data["config.json"])
+	if e != nil {
+		return nil, e
+	}
+	if publicKey != source.ControlPublicKey {
+		return nil, fmt.Errorf("original credential public keys differ")
+	}
 	hash := dataHash(data)
 	if p.state.SecretDataSHA256 != "" && p.state.SecretDataSHA256 != hash {
 		return nil, fmt.Errorf("original sealed Runtime bytes changed")
@@ -455,15 +462,18 @@ func (p *preparer) seal(ctx context.Context, f files) ([]byte, error) {
 	return runtime, nil
 }
 func run() error {
-	action := flag.String("action", "inspect", "hold, seal or inspect; mutations require explicit selection")
+	action := flag.String("action", "inspect", "hold, render, seal or inspect; mutations require explicit selection")
 	vmFile := flag.String("vm-json", "", "original held VM JSON from Helm")
 	stateFile := flag.String("state", "", "private persistent /data original deployment state")
 	kubeconfig := flag.String("kubeconfig", "", "existing Kubernetes config; never printed")
 	configFile := flag.String("compute-config", "", "actual VM-bound Compute config JSON")
 	resourceFile := flag.String("resource-config", "", "actual VM-bound resource source JSON")
 	policyFile := flag.String("policy-templates", "", "original immutable complete policy template JSON")
+	nativeBuildFile := flag.String("native-build-manifest", "", "original actual Builder NativeBirth manifest")
+	buildContractFile := flag.String("build-contract", "", "original pinned image/template/native build index")
+	renderOutputDir := flag.String("render-output-dir", "", "private new directory for the three original bound inputs")
 	flag.Parse()
-	if *action != "hold" && *action != "seal" && *action != "inspect" {
+	if *action != "hold" && *action != "render" && *action != "seal" && *action != "inspect" {
 		return fmt.Errorf("unsupported fixed deployment action")
 	}
 	if !filepath.IsAbs(*stateFile) || filepath.Clean(*stateFile) != *stateFile || *vmFile == "" || *kubeconfig == "" {
@@ -527,6 +537,8 @@ func run() error {
 		if e = p.save(); e == nil {
 			_, _, e = p.held(ctx, true)
 		}
+	case "render":
+		e = p.render(ctx, renderFiles{*configFile, *resourceFile, *policyFile, *nativeBuildFile, *buildContractFile, *renderOutputDir})
 	case "seal":
 		_, e = p.seal(ctx, files{*configFile, *resourceFile, *policyFile})
 	case "inspect":

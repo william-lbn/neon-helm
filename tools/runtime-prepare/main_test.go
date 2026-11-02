@@ -76,11 +76,8 @@ func TestRuntimePrepareActualUIDAndImmutableBytes(t *testing.T) {
 	}
 }
 func TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld(t *testing.T) {
-	for _, bad := range []bool{false, true} {
-		name := "complete"
-		if bad {
-			name = "unsupported-policy"
-		}
+	for _, name := range []string{"complete", "complete-public-kid", "unsupported-policy", "private-jwk", "unknown-jwk"} {
+		bad := name == "unsupported-policy" || name == "private-jwk" || name == "unknown-jwk"
 		t.Run(name, func(t *testing.T) {
 			vm, data := nativeUnit(t)
 			vms := vmfake.NewSimpleClientset(vm)
@@ -103,8 +100,23 @@ func TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld(t *testing.T) {
 			wanted.UID = ""
 			wanted.ResourceVersion = ""
 			p := &preparer{core: client.CoreV1(), vms: vms.NeonvmV1().VirtualMachines(vm.Namespace), wanted: wanted, state: retained{ProtocolVersion: 1, Scope: stateScope, VMUID: vm.UID, Namespace: vm.Namespace, Name: vm.Name}, statePath: statePath}
-			if bad {
+			if name == "unsupported-policy" {
 				data[resourceguard.PolicyTemplatesSecretKey] = []byte(`{"protocol_version":1,"scope":"unsupported","templates":[]}`)
+			}
+			if name == "complete-public-kid" || name == "private-jwk" || name == "unknown-jwk" {
+				var cfg map[string]any
+				require.NoError(t, json.Unmarshal(data["config.json"], &cfg))
+				key := cfg["compute_ctl_config"].(map[string]any)["jwks"].(map[string]any)["keys"].([]any)[0].(map[string]any)
+				switch name {
+				case "complete-public-kid":
+					key["kid"] = "original-public-key-id"
+				case "private-jwk":
+					key["d"] = "do-not-create-signing-seed-in-Guest-Secret"
+				case "unknown-jwk":
+					key["secret_seed"] = "do-not-forward-unknown-key-material"
+				}
+				data["config.json"], e = json.Marshal(cfg)
+				require.NoError(t, e)
 			}
 			input := files{filepath.Join(dir, "config"), filepath.Join(dir, "resource"), filepath.Join(dir, "policies")}
 			for k, path := range map[string]string{"config.json": input.config, resourceguard.ResourceSecretKey: input.resource, resourceguard.PolicyTemplatesSecretKey: input.policies} {
@@ -129,6 +141,9 @@ func TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld(t *testing.T) {
 			require.NoError(t, read)
 			if bad {
 				require.Error(t, e)
+				if name == "private-jwk" || name == "unknown-jwk" {
+					require.Empty(t, client.Actions(), "private/unknown key must be rejected before any Secret API")
+				}
 				require.False(t, actual.Spec.DSGABootstrap.Ready)
 				require.False(t, p.state.ReleaseMayHaveSent)
 				require.False(t, p.state.Complete)

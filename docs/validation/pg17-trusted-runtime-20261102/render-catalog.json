@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "scope": "original-held-UID-runtime-render-and-pre-Secret-public-key-guard",
+  "target_backend_versions": [
+    17
+  ],
+  "postgres_versions_actually_tested": [],
+  "source_files_sha256": {
+    "tools/runtime-prepare/main.go": "b010ee98acabd07a4f27b6e8fe817e57fbdc34395b2c48a763db28a093eecfb4",
+    "tools/runtime-prepare/main_test.go": "6ade5750d1a440dd1b237572797cbf7f083df6f85cda491848f62edae6f7a3a0",
+    "tools/runtime-prepare/render.go": "15c44e5b4da6687808127a27467d91444a8406315bb90f425ce01be8bf53c7d0",
+    "tools/runtime-prepare/render_test.go": "26c95e80931b75efaa3c1e52180413c57c82a1fdd66a3fdea2a422bf278770cb",
+    "tools/runtime-prepare/README.zh-CN.md": "4b775ba6a2fd226171ebb4c386ae887d73b19be54fda7295f1f144d387a35fe8",
+    "tools/runtime-prepare/RENDER.zh-CN.md": "5bd14e77308298669d5d41901084ed0974b53a4e9958a55714ffa17bb32a5c11"
+  },
+  "unit": {
+    "race": true,
+    "roots": 6,
+    "subtests": 20,
+    "stable_targets": [
+      "TestRuntimePrepareActualUIDAndImmutableBytes",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld",
+      "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName",
+      "TestRuntimeRenderBindsActualHeldUIDAndPreservesOriginalFields",
+      "TestRuntimeRenderRejectsDriftBeforePublishing",
+      "TestRuntimeRenderRejectsSameUIDSecondSnapshotDrift"
+    ],
+    "actual_passed": [
+      "TestRuntimePrepareActualUIDAndImmutableBytes/uid",
+      "TestRuntimePrepareActualUIDAndImmutableBytes/owner",
+      "TestRuntimePrepareActualUIDAndImmutableBytes/mutable",
+      "TestRuntimePrepareActualUIDAndImmutableBytes/bytes",
+      "TestRuntimePrepareActualUIDAndImmutableBytes",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete-public-kid",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/private-jwk",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unknown-jwk",
+      "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld",
+      "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm",
+      "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret",
+      "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName",
+      "TestRuntimeRenderBindsActualHeldUIDAndPreservesOriginalFields",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/bound-source",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/key-drift",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/private-signing-key",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/unknown-jwk",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/policy-drift",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/native-build-drift",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/image-drift",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/public-credential-file",
+      "TestRuntimeRenderRejectsDriftBeforePublishing/retained-data-drift",
+      "TestRuntimeRenderRejectsDriftBeforePublishing",
+      "TestRuntimeRenderRejectsSameUIDSecondSnapshotDrift"
+    ],
+    "raw": "render-unit-raw.jsonl",
+    "run": "/data/neon-build/validation/pg17-runtime-render-go-20261102T043053Z-c1e132",
+    "source_lock_sha256": "e07820793a10f42feea5579c263a68d805b6a039c973485625364321b1eff4e8"
+  },
+  "build_smoke": {
+    "CLI_sha256": "ce43a40f7c632168402527704af4ede52d44120cc1e7e43f8cd51ccc6a2eb2e6",
+    "CLI_size": 40267960,
+    "help_exit": 0,
+    "result": "render-build-result.json",
+    "seconds": 11.392707591003273
+  },
+  "related_workload_placement": {
+    "charts": 3,
+    "workloads": 17,
+    "all_required_hostname_terms_exact_117_118_119": true,
+    "raw": "workload-placement-result.json",
+    "run": "/data/neon-build/validation/pg17-helm-workload-placement-20261102T041610Z-467b1a",
+    "Kubernetes": false
+  },
+  "independent_review": "render-independent-review.txt",
+  "prior_runs_preserved": [
+    "/data/neon-build/validation/pg17-runtime-render-go-20261102T042156Z-d98432",
+    "/data/neon-build/validation/pg17-runtime-render-go-20261102T042756Z-95f46e"
+  ],
+  "Source": false,
+  "normal": false,
+  "safeNormal": false,
+  "single_service_tests": 0,
+  "Kubernetes": false,
+  "E": 0,
+  "qualification_created": false,
+  "actual_private_creation_inputs_used": false,
+  "actual_Kube_render_or_seal_performed": false,
+  "limitations": [
+    "U uses typed fake API and synthetic public fixtures only; no Linux model UID/test0x39 key used for actual deployment.",
+    "Build contract/template/native manifest and private unbound creation inputs must come from actual trusted release/deployment; missing input refuses.",
+    "Runtime/template/build input consistency is not PG/cgroup/VM qualification."
+  ]
+}

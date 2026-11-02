@@ -1,0 +1,198 @@
+{
+  "nonce": "20261102T040509Z-c7dda6",
+  "classification": "offline template + original CLI typed API manifest check; no Kube credentials/network",
+  "results": [
+    {
+      "name": "positive",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/positive.json"
+      ],
+      "exit": 0,
+      "pass": true
+    },
+    {
+      "name": "missing-source-inputs",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/missing-source-inputs.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "wrong-execution-model",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/wrong-execution-model.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "wrong-cpu",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/wrong-cpu.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "wrong-memory",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/wrong-memory.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "wrong-secret",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/wrong-secret.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "zero-incarnation",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/zero-incarnation.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "unsealed-runner",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/unsealed-runner.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "wrong-placement",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/wrong-placement.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "unknown-startup",
+      "command": [
+        "helm",
+        "template",
+        "pg17-normal",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "--namespace",
+        "neon-pg17",
+        "--kube-version",
+        "1.31.2",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/unknown-startup.json"
+      ],
+      "exit": 1,
+      "pass": true
+    },
+    {
+      "name": "lint",
+      "command": [
+        "helm",
+        "lint",
+        "/data/neon-build/src/neon-helm/charts/neon-compute",
+        "-f",
+        "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6/positive.json"
+      ],
+      "exit": 0,
+      "pass": true
+    },
+    {
+      "name": "real-ELF-typed-manifest-check-stopped-before-Kube",
+      "exit": 1,
+      "expected_error": "Runtime prepare: existing Kubernetes configuration invalid",
+      "pass": true
+    }
+  ],
+  "all_pass": true,
+  "Source": false,
+  "Kubernetes": false,
+  "E": 0
+}

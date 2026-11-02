@@ -1,0 +1,48 @@
+{"Time":"2026-11-02T03:58:51.051275054Z","Action":"start","Package":"command-line-arguments"}
+{"Time":"2026-11-02T03:58:51.125978789Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes"}
+{"Time":"2026-11-02T03:58:51.126141513Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes","Output":"=== RUN   TestRuntimePrepareActualUIDAndImmutableBytes\n"}
+{"Time":"2026-11-02T03:58:51.13163882Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/uid"}
+{"Time":"2026-11-02T03:58:51.131657771Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/uid","Output":"=== RUN   TestRuntimePrepareActualUIDAndImmutableBytes/uid\n"}
+{"Time":"2026-11-02T03:58:51.131867783Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/uid","Output":"--- PASS: TestRuntimePrepareActualUIDAndImmutableBytes/uid (0.00s)\n"}
+{"Time":"2026-11-02T03:58:51.134826015Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/uid","Elapsed":0}
+{"Time":"2026-11-02T03:58:51.134903758Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/owner"}
+{"Time":"2026-11-02T03:58:51.13491488Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/owner","Output":"=== RUN   TestRuntimePrepareActualUIDAndImmutableBytes/owner\n"}
+{"Time":"2026-11-02T03:58:51.134972073Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/owner","Output":"--- PASS: TestRuntimePrepareActualUIDAndImmutableBytes/owner (0.00s)\n"}
+{"Time":"2026-11-02T03:58:51.134977037Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/owner","Elapsed":0}
+{"Time":"2026-11-02T03:58:51.134981075Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/mutable"}
+{"Time":"2026-11-02T03:58:51.134984897Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/mutable","Output":"=== RUN   TestRuntimePrepareActualUIDAndImmutableBytes/mutable\n"}
+{"Time":"2026-11-02T03:58:51.134989146Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/mutable","Output":"--- PASS: TestRuntimePrepareActualUIDAndImmutableBytes/mutable (0.00s)\n"}
+{"Time":"2026-11-02T03:58:51.134996562Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/mutable","Elapsed":0}
+{"Time":"2026-11-02T03:58:51.135005635Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/bytes"}
+{"Time":"2026-11-02T03:58:51.135008907Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/bytes","Output":"=== RUN   TestRuntimePrepareActualUIDAndImmutableBytes/bytes\n"}
+{"Time":"2026-11-02T03:58:51.13501358Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/bytes","Output":"--- PASS: TestRuntimePrepareActualUIDAndImmutableBytes/bytes (0.00s)\n"}
+{"Time":"2026-11-02T03:58:51.13501699Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes/bytes","Elapsed":0}
+{"Time":"2026-11-02T03:58:51.135021136Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes","Output":"--- PASS: TestRuntimePrepareActualUIDAndImmutableBytes (0.01s)\n"}
+{"Time":"2026-11-02T03:58:51.135032408Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareActualUIDAndImmutableBytes","Elapsed":0.01}
+{"Time":"2026-11-02T03:58:51.135042585Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld"}
+{"Time":"2026-11-02T03:58:51.135059182Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld","Output":"=== RUN   TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld\n"}
+{"Time":"2026-11-02T03:58:51.135066582Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete"}
+{"Time":"2026-11-02T03:58:51.135070698Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete","Output":"=== RUN   TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete\n"}
+{"Time":"2026-11-02T03:58:51.302738789Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete","Output":"--- PASS: TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete (0.17s)\n"}
+{"Time":"2026-11-02T03:58:51.302825538Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete","Elapsed":0.17}
+{"Time":"2026-11-02T03:58:51.302835704Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy"}
+{"Time":"2026-11-02T03:58:51.302839031Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy","Output":"=== RUN   TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy\n"}
+{"Time":"2026-11-02T03:58:51.359987217Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy","Output":"--- PASS: TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy (0.06s)\n"}
+{"Time":"2026-11-02T03:58:51.360030811Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy","Elapsed":0.06}
+{"Time":"2026-11-02T03:58:51.360040617Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld","Output":"--- PASS: TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld (0.22s)\n"}
+{"Time":"2026-11-02T03:58:51.360045519Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld","Elapsed":0.22}
+{"Time":"2026-11-02T03:58:51.3600511Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName"}
+{"Time":"2026-11-02T03:58:51.360054178Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName","Output":"=== RUN   TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName\n"}
+{"Time":"2026-11-02T03:58:51.360058953Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm"}
+{"Time":"2026-11-02T03:58:51.360061556Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm","Output":"=== RUN   TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm\n"}
+{"Time":"2026-11-02T03:58:51.368476408Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm","Output":"--- PASS: TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm (0.01s)\n"}
+{"Time":"2026-11-02T03:58:51.368561868Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm","Elapsed":0.01}
+{"Time":"2026-11-02T03:58:51.368602226Z","Action":"run","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret"}
+{"Time":"2026-11-02T03:58:51.368606521Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret","Output":"=== RUN   TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret\n"}
+{"Time":"2026-11-02T03:58:51.38072885Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret","Output":"--- PASS: TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret (0.01s)\n"}
+{"Time":"2026-11-02T03:58:51.380831557Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret","Elapsed":0.01}
+{"Time":"2026-11-02T03:58:51.380857696Z","Action":"output","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName","Output":"--- PASS: TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName (0.02s)\n"}
+{"Time":"2026-11-02T03:58:51.380882982Z","Action":"pass","Package":"command-line-arguments","Test":"TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName","Elapsed":0.02}
+{"Time":"2026-11-02T03:58:51.380937516Z","Action":"output","Package":"command-line-arguments","Output":"PASS\n"}
+{"Time":"2026-11-02T03:58:52.387573666Z","Action":"output","Package":"command-line-arguments","Output":"ok  \tcommand-line-arguments\t1.336s\n"}
+{"Time":"2026-11-02T03:58:52.387635415Z","Action":"pass","Package":"command-line-arguments","Elapsed":1.336}

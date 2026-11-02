@@ -1,5 +1,6 @@
 experimentalAcknowledged: false
 compute:
+  startupMode: legacy # 新normal模式必须显式选trusted-runtime-v1；默认保留旧入口。
   pgVersion: 17 # 本轮只允许 PG17；镜像必须来自另行确认的真实发行锁。
   enabled: true # false retires only the static lab VM; retain Service/config/data for explicit reactivation
   name: vm-neon-compute
@@ -19,6 +20,18 @@ compute:
     maxSlots: 3
     minBound: 1Gi
     maxBound: 3Gi
+
+  runtime:
+    # 来自原部署计划；Helm不生成UID、incarnation、签名材料或平台资格。
+    executionModel: ''
+    incarnation: ''
+    computeInstanceId: ''
+    runnerImage: ''
+    kernelImage: ''
+    serviceAccountName: ''
+    configMountPath: ''
+    configFile: ''
+    postgresPort: 55432
 
 # 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
 placement:

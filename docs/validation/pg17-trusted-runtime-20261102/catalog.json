@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "scope": "pg17-trusted-runtime-deployment-preparation-only",
+  "target_backend_versions": [
+    17
+  ],
+  "postgres_versions_actually_tested": [],
+  "source_files_sha256": {
+    "charts/neon-compute/values.yaml": "5c87861f5e0a17c75c70ccbc03f7e2b6ec709871d739d5507b148ba3c66b2c5c",
+    "charts/neon-compute/values.schema.json": "f1e9fbd49cabcb8969c5020f39959e2133a24688c62a7cb6c771c8593a60d68a",
+    "charts/neon-compute/templates/vm.yaml": "f65d7743ed6961b5525306ba6bd792e07b25ede12d9be63a491b07e9d5e07df7",
+    "charts/neon-compute/templates/00-runtime-guard.yaml": "2b10849d8eba93d6c556e40614463db8fa7e5c19bd42107653f0b95e3970fc24",
+    "profiles/pg17-memory/neon-compute-trusted-required.json": "f1ed1a9ecf4efaac46e6b312d7ac29184670b0e4dcb00ab782ed41c82c7574d9",
+    "tools/runtime-prepare/main.go": "1077065a05ee3c7f88fdfb0919960c1270152857bf57fef11bdc4d3116ab11ab",
+    "tools/runtime-prepare/main_test.go": "ec1681c21cc1016adee809a535ee540eedea7f0e05926525b769b6de4e885ae6",
+    "tools/runtime-prepare/README.zh-CN.md": "390e953b55a5538c96dd611fa99d7bd835ffeda3d4aaf3b8494c531c883977e9",
+    "tools/runtime-prepare/testdata/OFFLINE-runtime-seed.json": "48abcc0af73ff4e13ded59d32c746125a56be19fb1cd8d14df1448df8eb01dce"
+  },
+  "classifications": {
+    "unit": {
+      "roots": 3,
+      "subtests": 8,
+      "race": true,
+      "stable_targets": [
+        "TestRuntimePrepareActualUIDAndImmutableBytes",
+        "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld",
+        "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName"
+      ],
+      "actual_passed": [
+        "TestRuntimePrepareActualUIDAndImmutableBytes/uid",
+        "TestRuntimePrepareActualUIDAndImmutableBytes/owner",
+        "TestRuntimePrepareActualUIDAndImmutableBytes/mutable",
+        "TestRuntimePrepareActualUIDAndImmutableBytes/bytes",
+        "TestRuntimePrepareActualUIDAndImmutableBytes",
+        "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/complete",
+        "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld/unsupported-policy",
+        "TestRuntimePrepareSealUsesRealLibraryAndKeepsBadPolicyHeld",
+        "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/vm",
+        "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName/secret",
+        "TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName"
+      ],
+      "source": "/data/neon-build/validation/pg17-runtime-prepare-go-20261102T035836Z-1f0b59/source-lock.json",
+      "raw": "unit-raw.jsonl",
+      "result": "unit-build-result.json"
+    },
+    "build_smoke": {
+      "name": "neon-runtime-prepare CLI",
+      "sha256": "34ff71d0fa974d4a546ff89805bcc7e856b3f119d64fa5f9714ed25e63237a66",
+      "size": 40235192,
+      "executed_business_service": false
+    },
+    "offline_manifest": {
+      "positive_render": 1,
+      "lint": 1,
+      "negative_cases": 9,
+      "actual_compiled_CLI_typed_manifest_gate": 1,
+      "raw_result": "helm-result.json",
+      "API_credentials_used": false
+    }
+  },
+  "actual_runs": [
+    "/data/neon-build/validation/pg17-runtime-prepare-go-20261102T035836Z-1f0b59",
+    "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040509Z-c7dda6"
+  ],
+  "preserved_failures": [
+    "/data/neon-build/validation/pg17-runtime-prepare-go-20261102T034952Z-41f994",
+    "/data/neon-build/validation/pg17-runtime-prepare-go-20261102T035559Z-8c154b",
+    "/data/neon-build/validation/pg17-helm-trusted-runtime-template-20261102T040137Z-8c47db/tool-manifest-check.json"
+  ],
+  "single_service_tests": 0,
+  "Source": false,
+  "normal": false,
+  "safe_normal_lowering": false,
+  "realRootComputeSource": false,
+  "Kubernetes": false,
+  "E": 0,
+  "qualification_created": false,
+  "deployment_performed": false,
+  "limitations": [
+    "All Kubernetes operations in U use typed fake API; offline template uses example.invalid digests.",
+    "CLI only accepts actual held VM/Secret UID from authenticated original API; original source/config/templates required.",
+    "Mode, template validity, and API identity are not budget qualifications or VM shrink permission.",
+    "Actual image packaging and real 117/118/119 Helm regression remain outstanding."
+  ]
+}

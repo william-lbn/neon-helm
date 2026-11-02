@@ -80,6 +80,48 @@
           "enum": [
             17
           ]
+        },
+        "startupMode": {
+          "type": "string",
+          "enum": [
+            "legacy",
+            "trusted-runtime-v1"
+          ]
+        },
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "executionModel": {
+              "type": "string"
+            },
+            "incarnation": {
+              "type": "string"
+            },
+            "computeInstanceId": {
+              "type": "string"
+            },
+            "runnerImage": {
+              "type": "string"
+            },
+            "kernelImage": {
+              "type": "string"
+            },
+            "serviceAccountName": {
+              "type": "string"
+            },
+            "configMountPath": {
+              "type": "string"
+            },
+            "configFile": {
+              "type": "string"
+            },
+            "postgresPort": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          }
         }
       },
       "required": [
@@ -112,7 +154,7 @@
               "worker-119"
             ]
           },
-          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+          "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
         }
       }
     }

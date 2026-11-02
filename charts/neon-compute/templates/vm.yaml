@@ -1,7 +1,11 @@
+{{- $managed := eq .Values.compute.startupMode "trusted-runtime-v1" -}}
 {{- if .Values.compute.enabled }}
 apiVersion: vm.neon.tech/v1
 kind: VirtualMachine
 metadata:
+  {{- if $managed }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- end }}
   name: {{ .Values.compute.name }}
   labels:
     autoscaling.neon.tech/enabled: "true"
@@ -10,8 +14,33 @@ metadata:
 spec:
   {{- include "neon-compute.placement.pod" . | nindent 2 }}
   schedulerName: autoscale-scheduler
+  {{- if $managed }}
+  # 从CREATE即held，只有部署准备器核原UID/immutable Secret后才由原CAS释放。
+  dsgaBootstrap:
+    protocolVersion: 1
+    incarnation: {{ .Values.compute.runtime.incarnation | quote }}
+    computeInstanceID: {{ .Values.compute.runtime.computeInstanceId | quote }}
+    ready: false
+  targetArchitecture: amd64
+  cpuScalingMode: SysfsScaling
+  serviceAccountName: {{ .Values.compute.runtime.serviceAccountName | quote }}
+  runnerImage: {{ .Values.compute.runtime.runnerImage | quote }}
+  enableSSH: false
+  # 显式保留原CRD默认值，部署准备器才能逐字段核CREATE前后同一模板。
+  qmp: 20183
+  qmpManual: 20184
+  runnerPort: 25183
+  terminationGracePeriodSeconds: 5
+  restartPolicy: Always
+  enableAcceleration: true
+  enableNetworkMonitoring: false
+  {{- else }}
   enableSSH: true
+  {{- end }}
   guest:
+    {{- if $managed }}
+    kernelImage: {{ .Values.compute.runtime.kernelImage | quote }}
+    {{- end }}
     cpus:
       min: {{ .Values.compute.cpu.min }}
       use: {{ .Values.compute.cpu.use }}
@@ -24,6 +53,10 @@ spec:
     rootDisk:
       image: {{ .Values.compute.image | quote }}
       size: {{ .Values.compute.rootDiskSize }}
+      {{- if $managed }}
+      imagePullPolicy: IfNotPresent
+      {{- end }}
+    {{- if not $managed }}
     args:
       - --pgdata
       - /var/db/postgres/compute
@@ -38,34 +71,54 @@ spec:
       - --filecache-connstr
       - host=localhost port=55433 dbname=postgres user=cloud_admin sslmode=disable application_name=vm-monitor
       - --dev
+    {{- end }}
+    # trusted镜像使用Builder原固定vmstart/Root服务，禁止Helm注入--dev或新命令。
     env:
       - { name: PG_VERSION, value: {{ .Values.compute.pgVersion | quote }} }
       - { name: TENANT_ID, value: {{ .Values.compute.tenantId | quote }} }
       - { name: TIMELINE_ID, value: {{ .Values.compute.timelineId | quote }} }
       - { name: ALLOW_LAB_AUTOBOOTSTRAP, value: "NO" }
       # compute_ctl in this pinned image embeds vm-monitor; this enables it.
+      {{- if not $managed }}
       - { name: AUTOSCALING, value: "1" }
+      {{- end }}
     ports:
-      - { name: postgres, port: 55433 }
-      - { name: metrics, port: 9100 }
-      - { name: monitor, port: 10301 }
+      - { name: postgres, port: {{ if $managed }}{{ .Values.compute.runtime.postgresPort }}, protocol: TCP{{ else }}55433{{ end }} }
+      {{- if $managed }}
+      - { name: compute-control, port: 3080, protocol: TCP }
+      {{- end }}
+      - { name: metrics, port: 9100{{ if $managed }}, protocol: TCP{{ end }} }
+      - { name: monitor, port: 10301{{ if $managed }}, protocol: TCP{{ end }} }
   extraNetwork:
     enable: true
+    {{- if $managed }}
+    interface: net1
+    {{- end }}
   disks:
     - name: compute-config
-      mountPath: /run/neon-lab
+      mountPath: {{ if $managed }}{{ .Values.compute.runtime.configMountPath | quote }}{{ else }}/run/neon-lab{{ end }}
+      {{- if $managed }}
+      readOnly: true
+      watch: false
+      {{- end }}
       secret:
         secretName: {{ .Values.compute.existingConfigSecret }}
         items:
-          - { key: config.json, path: config.json }
+          - { key: config.json, path: {{ if $managed }}{{ .Values.compute.runtime.configFile | quote }}{{ else }}config.json{{ end }} }
 {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  {{- if $managed }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- end }}
   name: {{ .Values.compute.name }}
 spec:
   selector:
     vm.neon.tech/name: {{ .Values.compute.name }}
   ports:
-    - { name: postgres, port: 55433, targetPort: postgres }
+    - { name: postgres, port: {{ if $managed }}{{ .Values.compute.runtime.postgresPort }}{{ else }}55433{{ end }}, targetPort: postgres }
+    {{- if $managed }}
+    - { name: compute-control, port: 3080, targetPort: compute-control }
+    {{- end }}

@@ -1,0 +1,10 @@
+{{- if eq .Values.compute.startupMode "trusted-runtime-v1" -}}
+{{- $r := .Values.compute.runtime -}}
+{{- if ne $r.executionModel "trusted-controller-v1" -}}{{- fail "trusted runtime requires the sealed trusted-controller-v1 execution model" -}}{{- end -}}
+{{- if or (not (regexMatch "^[a-f0-9]{32}$" $r.incarnation)) (eq $r.incarnation (repeat 32 "0")) (not $r.computeInstanceId) (gt (len $r.computeInstanceId) 128) -}}{{- fail "trusted runtime requires the original nonzero incarnation and Compute instance identity" -}}{{- end -}}
+{{- if or (not (regexMatch "@sha256:[a-f0-9]{64}$" $r.runnerImage)) (not (regexMatch "@sha256:[a-f0-9]{64}$" $r.kernelImage)) -}}{{- fail "trusted runtime requires actual pinned Runner and kernel image inputs" -}}{{- end -}}
+{{- if or (not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" $r.serviceAccountName)) (ne .Values.compute.existingConfigSecret (printf "%s-config" .Values.compute.name)) -}}{{- fail "trusted runtime requires the original service account and exact VM-name-config Secret" -}}{{- end -}}
+{{- if or (not (regexMatch "^/([A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+$" $r.configMountPath)) (not (regexMatch "^[A-Za-z0-9_-]+[.]json$" $r.configFile)) -}}{{- fail "trusted runtime requires the fixed canonical config path from the real image build plan" -}}{{- end -}}
+{{- if or (ne (int .Values.compute.cpu.min) 2) (ne (int .Values.compute.cpu.use) 2) (ne (int .Values.compute.cpu.max) 2) -}}{{- fail "trusted PG17 profile requires original fixed two CPUs" -}}{{- end -}}
+{{- if or (ne .Values.compute.memory.slotSize "1Gi") (ne (int .Values.compute.memory.minSlots) 7) (ne (int .Values.compute.memory.useSlots) 7) (ne (int .Values.compute.memory.maxSlots) 8) (ne .Values.compute.memory.minBound "7Gi") (ne .Values.compute.memory.maxBound "8Gi") -}}{{- fail "trusted PG17 profile requires original initial7/min7/max8 GiB geometry" -}}{{- end -}}
+{{- end -}}

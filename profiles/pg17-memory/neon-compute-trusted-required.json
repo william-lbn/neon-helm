@@ -1,0 +1,21 @@
+{
+  "compute": {
+    "startupMode": "trusted-runtime-v1",
+    "cpu": {
+      "min": 2,
+      "use": 2,
+      "max": 2
+    },
+    "memory": {
+      "slotSize": "1Gi",
+      "minSlots": 7,
+      "useSlots": 7,
+      "maxSlots": 8,
+      "minBound": "7Gi",
+      "maxBound": "8Gi"
+    },
+    "runtime": {
+      "executionModel": "trusted-controller-v1"
+    }
+  }
+}

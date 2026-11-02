@@ -1,0 +1,43 @@
+# 缺任一真实输入均保持关闭。这里不提供镜像假 digest、预算或认证报告样例。
+enabled: false
+image:
+  repository: ''
+  digest: ''
+  pullSecrets: []
+binding:
+  vmName: ''
+  vmUID: ''
+  incarnation: ''
+  nodeName: ''
+  nodeUID: ''
+  runnerPodName: ''
+  # 从原 Runner Birth/State 观察取得：Birth、State、Exit、StoppedPod 的精确名称。
+  runnerConfigMapNames: []
+hostLease:
+  namespace: ''
+  name: ''
+inputs:
+  # root 保护的原目录，只读 bind；不创建/复制/改 owner，不支持 Secret/ConfigMap 替代原文件。
+  hostDirectory: ''
+  mountDirectory: ''
+  configFileName: ''
+  configSHA256: ''
+  reportSHA256: ''
+agentResourceReadSocket:
+  # 必须先由实际 Agent Pod/config 确认。只接独立 resourceReadSocketPath；不得共享完整 controlSocketPath。
+  hostDirectory: ''
+  mountDirectory: ''
+  name: ''
+  sourceManifestSHA256: ''
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: '1'
+    memory: 256Mi
+placement:
+  schedulerName: autoscale-scheduler
+  tolerateControlPlane: false
+job:
+  activeDeadlineSeconds: 180

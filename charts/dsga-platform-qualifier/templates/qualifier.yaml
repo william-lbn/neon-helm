@@ -1,0 +1,169 @@
+{{- if .Values.enabled }}
+{{- include "dsga-platform-qualifier.guard" . }}
+{{- $name := include "dsga-platform-qualifier.name" . }}
+{{- $sourceName := printf "dsga-q-%s" (trunc 56 .Values.inputs.reportSHA256) }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+rules:
+- apiGroups: [vm.neon.tech]
+  resources: [virtualmachines]
+  resourceNames: [{{ .Values.binding.vmName | quote }}]
+  verbs: [get]
+- apiGroups: [""]
+  resources: [secrets]
+  resourceNames: [{{ printf "%s-config" .Values.binding.vmName | quote }}]
+  verbs: [get]
+- apiGroups: [""]
+  resources: [pods]
+  resourceNames: [{{ .Values.binding.runnerPodName | quote }}]
+  verbs: [get]
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  resourceNames: [{{ include "dsga-platform-qualifier.ownerLease" . | quote }}]
+  verbs: [get]
+- apiGroups: [""]
+  resources: [configmaps]
+  resourceNames: {{ append .Values.binding.runnerConfigMapNames $sourceName | uniq | toJson }}
+  verbs: [get]
+# Kubernetes RBAC 无法按 resourceNames 限制 CREATE；这是本 namespace 的创建权限。
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ $name }}}
+subjects:
+- {kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}-host
+  namespace: {{ .Values.hostLease.namespace | quote }}
+rules:
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  resourceNames: [{{ .Values.hostLease.name | quote }}]
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}-host
+  namespace: {{ .Values.hostLease.namespace | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ $name }}-host}
+subjects:
+- {kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $name }}
+rules:
+- apiGroups: [""]
+  resources: [nodes]
+  resourceNames: [{{ .Values.binding.nodeName | quote }}]
+  verbs: [get]
+# 当前完整 Host inventory API 是全 namespace List；RBAC 不强制其 Node fieldSelector。
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $name }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ $name }}}
+subjects:
+- {kind: ServiceAccount, name: {{ $name }}, namespace: {{ .Release.Namespace }}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-%s" (trunc 54 $name | trimSuffix "-") (trunc 8 .Values.inputs.reportSHA256) }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    internal.autoscaling.neon.tech/qualification-report-sha256: {{ .Values.inputs.reportSHA256 | quote }}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ .Values.job.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dsga-platform-qualifier
+      annotations:
+        internal.autoscaling.neon.tech/qualification-config-sha256: {{ .Values.inputs.configSHA256 | quote }}
+        internal.autoscaling.neon.tech/qualification-agent-manifest-sha256: {{ .Values.agentResourceReadSocket.sourceManifestSHA256 | quote }}
+        internal.autoscaling.neon.tech/qualification-vm-uid: {{ .Values.binding.vmUID | quote }}
+        internal.autoscaling.neon.tech/qualification-node-uid: {{ .Values.binding.nodeUID | quote }}
+    spec:
+      serviceAccountName: {{ $name }}
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      schedulerName: autoscale-scheduler
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.binding.nodeName | quote }}
+      {{- if .Values.placement.tolerateControlPlane }}
+      tolerations:
+      - {key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}
+      {{- end }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+      - name: {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: qualifier
+        image: {{ printf "%s@%s" .Values.image.repository .Values.image.digest | quote }}
+        imagePullPolicy: IfNotPresent
+        # 镜像 ENTRYPOINT 必须就是现有发布器；不增加不存在的 --binding/--digest flag。
+        args: [--config, {{ printf "%s/%s" .Values.inputs.mountDirectory .Values.inputs.configFileName | quote }}]
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: {drop: [ALL]}
+        resources: {{ toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - {name: original-inputs, mountPath: {{ .Values.inputs.mountDirectory | quote }}, readOnly: true}
+        - {name: original-agent-resource-read, mountPath: {{ .Values.agentResourceReadSocket.mountDirectory | quote }}, readOnly: true}
+        - {name: kube-api, mountPath: /var/run/secrets/kubernetes.io/serviceaccount, readOnly: true}
+      volumes:
+      - name: original-inputs
+        hostPath: {path: {{ .Values.inputs.hostDirectory | quote }}, type: Directory}
+      - name: original-agent-resource-read
+        hostPath: {path: {{ .Values.agentResourceReadSocket.hostDirectory | quote }}, type: Directory}
+      - name: kube-api
+        projected:
+          defaultMode: 0400
+          sources:
+          - serviceAccountToken: {path: token, expirationSeconds: 600}
+          - configMap:
+              name: kube-root-ca.crt
+              items: [{key: ca.crt, path: ca.crt}]
+          - downwardAPI:
+              items:
+              - path: namespace
+                fieldRef: {apiVersion: v1, fieldPath: metadata.namespace}
+{{- end }}

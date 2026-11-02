@@ -2,7 +2,11 @@
 {{- $config := .Files.Get "files/agent-config.json" | fromJson -}}
 {{- if .Values.dsga.enabled -}}
 {{- $a := .Values.dsga.agent -}}
-{{- $_ := set $config "dsga" (dict "gatewayURL" $a.gatewayURL "managementCAFile" "/etc/neon-dsga/management/ca.crt" "projectedTokenFile" "/var/run/secrets/neon-dsga/token" "requestTimeoutSeconds" $a.requestTimeoutSeconds "computeTimeoutSeconds" $a.computeTimeoutSeconds "pollIntervalSeconds" $a.pollIntervalSeconds "prepareQualifications" $a.prepareQualifications "automaticMemory" $a.automaticMemory) -}}
+{{- $dsga := dict "gatewayURL" $a.gatewayURL "managementCAFile" "/etc/neon-dsga/management/ca.crt" "projectedTokenFile" "/var/run/secrets/neon-dsga/token" "requestTimeoutSeconds" $a.requestTimeoutSeconds "computeTimeoutSeconds" $a.computeTimeoutSeconds "pollIntervalSeconds" $a.pollIntervalSeconds "prepareQualifications" $a.prepareQualifications "automaticMemory" $a.automaticMemory -}}
+{{- if $a.resourceReadSocket.enabled -}}
+{{- $_ := set $dsga "resourceReadSocketPath" (printf "%s/%s" $a.resourceReadSocket.mountDirectory $a.resourceReadSocket.name) -}}
+{{- end -}}
+{{- $_ := set $config "dsga" $dsga -}}
 {{- end -}}
 {{- $config | toPrettyJson -}}
 {{- end -}}
@@ -28,6 +32,16 @@
 {{- define "neon-autoscaler.dsga.guard" -}}
 {{- $d := .Values.dsga -}}
 {{- if ne (int $d.pgVersion) 17 -}}{{- fail "DSGA qualification is PG17 only" -}}{{- end -}}
+{{- $resource := $d.agent.resourceReadSocket -}}
+{{- if and $resource.enabled (not $d.enabled) -}}{{- fail "Agent resource-read socket requires DSGA enabled" -}}{{- end -}}
+{{- if $resource.enabled -}}
+{{- range $directory := list $resource.hostDirectory $resource.mountDirectory -}}
+{{- if or (not (kindIs "string" $directory)) (not (regexMatch "^(/[A-Za-z0-9_.-]+)+$" (toString $directory))) (regexMatch "(^|/)\\.\\.?(/|$)" (toString $directory)) -}}
+{{- fail "Agent resource-read socket requires canonical absolute private directories" -}}{{- end -}}
+{{- end -}}
+{{- if or (not (kindIs "string" $resource.name)) (not (regexMatch "^[A-Za-z0-9][A-Za-z0-9_.-]*[.]sock$" (toString $resource.name))) (gt (len (printf "%s/%s" $resource.mountDirectory $resource.name)) 100) -}}
+{{- fail "Agent resource-read socket requires a short original socket filename" -}}{{- end -}}
+{{- end -}}
 {{- if $d.enabled -}}
 {{- if or (ne (toString .Capabilities.KubeVersion.Minor) "31") (ne (toString .Values.compatibility.expectedKubernetesMinor) "31") .Values.compatibility.allowUntestedKubernetes -}}
 {{- fail "PG17 DSGA requires the actually observed Kubernetes 1.31 target; untested-minor bypass is forbidden" -}}{{- end -}}

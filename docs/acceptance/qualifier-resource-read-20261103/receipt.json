@@ -1,0 +1,91 @@
+{
+  "scope": "离线Helm组件接线/最小权限/拒绝配置验证，非真实部署或平台认证",
+  "base_head": "0408ee6f4fd796ba51cb94b1c05b61b1c58c59d8",
+  "qualifier_chart_sources": [
+    {
+      "path": "charts/dsga-platform-qualifier/.helmignore",
+      "sha256": "08c5cc7829fa520a00e4a997e93e17ab886ea5a208b7d29087f6432af372ae81",
+      "bytes": 7,
+      "lines": 1
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/Chart.yaml",
+      "sha256": "a79512de385748a01d4a36d81dddd6d6cf68cb557a8015c1ee8d5f19e2188512",
+      "bytes": 257,
+      "lines": 7
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/README.zh-CN.md",
+      "sha256": "ecfca880b8de8ca2e92328b4a5936d5f8538936fd11f9f6dc6799ef681169def",
+      "bytes": 5355,
+      "lines": 31
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/files/pg17-node-identities.json",
+      "sha256": "f9c0dc3613f02ec65de113fdca93443e6548ecd72a2ad4b17936722e2e4e50a9",
+      "bytes": 531,
+      "lines": 12
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/templates/_helpers.tpl",
+      "sha256": "f388600134dcd251bba773fee9dba6f31945563ccea72cc172671236f6c3f76c",
+      "bytes": 4173,
+      "lines": 42
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/templates/qualifier.yaml",
+      "sha256": "fb67fabd5cd78377d06bf5ad151576655f7c3ecb04338da6c99f7c0540c888a9",
+      "bytes": 6276,
+      "lines": 169
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/tests/check_render.py",
+      "sha256": "9c571cffedeeeb1dc7c9505cc801939825a209fe2540bc7cd93d579331a37e8e",
+      "bytes": 16389,
+      "lines": 215
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/values.schema.json",
+      "sha256": "b315af3cb0e88ea27e27d4174d8b2542f3e9645a86774f476754c606c8b33ce4",
+      "bytes": 7861,
+      "lines": 349
+    },
+    {
+      "path": "charts/dsga-platform-qualifier/values.yaml",
+      "sha256": "18c2194d7a0bb8a4c67f224a677b2460831bce8082ed6ba9cc1ec782bf3fe473",
+      "bytes": 1106,
+      "lines": 43
+    }
+  ],
+  "Agent_socket_sources": {
+    "charts/neon-autoscaler/templates/_dsga.tpl": "3e1811a2446961102d428a460ba973e48d0d4073eee2c3b92c207002e263556b",
+    "charts/neon-autoscaler/templates/autoscaler-agent.yaml": "2c0aeedb8fdda3153c7d45354d1510057cc2cd4ad693aebac84469e60cdf7c33",
+    "charts/neon-autoscaler/values.yaml": "1ea0ed06ea701694953d80efbd2e335122e4545a868c5469c8a6d39aa0bc3c45",
+    "charts/neon-autoscaler/values.schema.json": "a00a4c9e7386e68d311312398eec8ec2e55ecc0fe61988c7772069dd345e1cdb",
+    "tools/test-agent-resource-read-socket.py": "fddffd267ef221d1628613359005446fccd11b61c846459cd51c229f92493c08"
+  },
+  "qualifier_cases": 30,
+  "qualifier_test_dir": "/data/neon-build/validation/qualifier-helm-render-20261102T194548Z-7d20b6",
+  "qualifier_proposal_sha256": "c0d9d4fce2eb1454faf6cf3050ea6833fe08e7a562b5c1a05ee2b301693ccdc0",
+  "Agent_socket_cases": 10,
+  "Agent_socket_test_dir": "/data/neon-build/validation/agent-resource-read-helm-20261102T200929Z-f5e83a",
+  "Agent_socket_result_sha256": "1548cd30c3c126042a5ec7b3f04aaac5946e026b58a47101f30265feb719d2b6",
+  "Agent_runtime_API_commit": "46468d0e3af66398e219438f255214ed1edbf0e0",
+  "Root_independent_review": "qualifier guard/Job/RBAC reviewed; existing Agent socket/schema gates reviewed and 2positive/8negative reasons checked",
+  "defaults_disabled": true,
+  "only_workers": [
+    "worker-117",
+    "worker-118",
+    "worker-119"
+  ],
+  "excluded": [
+    "172.24.79.116"
+  ],
+  "hostPath_type": "Directory only; no DirectoryOrCreate/chown",
+  "complete_management_socket_shared": false,
+  "model_budget_values_used_only_for_offline_render": true,
+  "actual_private_input_preflight": "NOT_RUN_SOURCE_MISSING",
+  "Source": false,
+  "E": 0,
+  "K8s": false
+}

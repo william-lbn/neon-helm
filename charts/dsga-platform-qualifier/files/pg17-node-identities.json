@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-30T12:36:13Z",
+  "serverVersion": "v1.31.2",
+  "nodeListSha256": "d582645fa1d5bf026cde354bf2e230a38e4109ead7a9a034431b1cfe57b7a890",
+  "allowedNodeUIDs": {
+    "worker-117": "4769d724-9dc0-45a1-8725-6ebf36089d61",
+    "worker-118": "73ce00b4-bef4-4a47-9876-dafb7ea3f68a",
+    "worker-119": "2c29fa11-3cf6-4a1c-acb8-7f5a7629268f"
+  },
+  "excludedNode": "ubuntu",
+  "meaning": "真实只读身份快照，不是预算、平台资格或Node/Lease授权；重建必须重新认证，禁止同名收养。"
+}

@@ -97,6 +97,10 @@ spec:
         - name: dsga-broker-token
           mountPath: /var/run/secrets/neon-dsga
           readOnly: true
+        {{- if .Values.dsga.agent.resourceReadSocket.enabled }}
+        - name: dsga-resource-read
+          mountPath: {{ .Values.dsga.agent.resourceReadSocket.mountDirectory | quote }}
+        {{- end }}
         {{- end }}
       serviceAccountName: autoscaler-agent
       volumes:
@@ -119,4 +123,10 @@ spec:
               audience: {{ .Values.dsga.agent.tokenAudience | quote }}
               expirationSeconds: {{ .Values.dsga.agent.tokenExpirationSeconds }}
               path: token
+      {{- if .Values.dsga.agent.resourceReadSocket.enabled }}
+      - name: dsga-resource-read
+        hostPath:
+          path: {{ .Values.dsga.agent.resourceReadSocket.hostDirectory | quote }}
+          type: Directory
+      {{- end }}
 {{- end }}

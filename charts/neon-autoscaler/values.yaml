@@ -47,5 +47,12 @@ dsga:
     pollIntervalSeconds: 5
     prepareQualifications: {}
     automaticMemory: {}
+    # 独立资源读取UDS；目录须在原worker预建root:root 0700，Helm不创建或chown。
+    # 仅供固定资格发布器读取，不能填完整管理socket或共享其目录。
+    resourceReadSocket:
+      enabled: false
+      hostDirectory: ''
+      mountDirectory: ''
+      name: ''
   scheduler:
     nodes: []

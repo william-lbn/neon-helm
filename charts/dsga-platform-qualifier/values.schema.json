@@ -1,0 +1,349 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "image",
+    "binding",
+    "hostLease",
+    "inputs",
+    "agentResourceReadSocket",
+    "resources",
+    "placement",
+    "job"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "digest",
+        "pullSecrets"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "pullSecrets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vmName",
+        "vmUID",
+        "incarnation",
+        "nodeName",
+        "nodeUID",
+        "runnerPodName",
+        "runnerConfigMapNames"
+      ],
+      "properties": {
+        "vmName": {
+          "type": "string"
+        },
+        "vmUID": {
+          "type": "string"
+        },
+        "incarnation": {
+          "type": "string"
+        },
+        "nodeName": {
+          "type": "string"
+        },
+        "nodeUID": {
+          "type": "string"
+        },
+        "runnerPodName": {
+          "type": "string"
+        },
+        "runnerConfigMapNames": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "hostLease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostDirectory",
+        "mountDirectory",
+        "configFileName",
+        "configSHA256",
+        "reportSHA256"
+      ],
+      "properties": {
+        "hostDirectory": {
+          "type": "string"
+        },
+        "mountDirectory": {
+          "type": "string"
+        },
+        "configFileName": {
+          "type": "string"
+        },
+        "configSHA256": {
+          "type": "string"
+        },
+        "reportSHA256": {
+          "type": "string"
+        }
+      }
+    },
+    "agentResourceReadSocket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostDirectory",
+        "mountDirectory",
+        "name",
+        "sourceManifestSHA256"
+      ],
+      "properties": {
+        "hostDirectory": {
+          "type": "string"
+        },
+        "mountDirectory": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceManifestSHA256": {
+          "type": "string"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requests",
+        "limits"
+      ],
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cpu",
+            "memory"
+          ],
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(m)?$"
+            },
+            "memory": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(Ki|Mi|Gi)$"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cpu",
+            "memory"
+          ],
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(m)?$"
+            },
+            "memory": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(Ki|Mi|Gi)$"
+            }
+          }
+        }
+      }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schedulerName",
+        "tolerateControlPlane"
+      ],
+      "properties": {
+        "schedulerName": {
+          "const": "autoscale-scheduler"
+        },
+        "tolerateControlPlane": {
+          "type": "boolean"
+        }
+      }
+    },
+    "job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activeDeadlineSeconds"
+      ],
+      "properties": {
+        "activeDeadlineSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "image": {
+            "properties": {
+              "repository": {
+                "type": "string",
+                "minLength": 3
+              },
+              "digest": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              }
+            }
+          },
+          "binding": {
+            "properties": {
+              "vmName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "vmUID": {
+                "type": "string",
+                "minLength": 1
+              },
+              "runnerPodName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "nodeName": {
+                "enum": [
+                  "worker-117",
+                  "worker-118",
+                  "worker-119"
+                ]
+              },
+              "nodeUID": {
+                "type": "string",
+                "pattern": "^[a-f0-9-]{36}$"
+              },
+              "incarnation": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              "runnerConfigMapNames": {
+                "minItems": 4,
+                "maxItems": 8
+              }
+            }
+          },
+          "hostLease": {
+            "properties": {
+              "namespace": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "inputs": {
+            "properties": {
+              "hostDirectory": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mountDirectory": {
+                "type": "string",
+                "minLength": 1
+              },
+              "configFileName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "configSHA256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "reportSHA256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "agentResourceReadSocket": {
+            "properties": {
+              "hostDirectory": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mountDirectory": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sourceManifestSHA256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

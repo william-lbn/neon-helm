@@ -1,0 +1,11 @@
+{
+  "protocol_version": 1,
+  "nonce": "20261102T053915Z-25356e",
+  "unit": "neon-runtime-retire-20261102t053915z-25356e.service",
+  "kind": "go",
+  "evidence_dir": "/data/neon-build/validation/runtime-prepare-retire-go-20261102T053915Z-25356e",
+  "argv": [
+    "/usr/bin/python3",
+    "/data/neon-build/validation/runtime-prepare-retire-go-20261102T053915Z-25356e/worker.py"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "scope": "explicit original-UID controlled Guest retirement; no live Root adoption, no AS gate changes",
+  "owned": [
+    "tools/runtime-prepare/main.go",
+    "tools/runtime-prepare/recovery.go",
+    "tools/runtime-prepare/recovery_test.go",
+    "tools/runtime-prepare/README.zh-CN.md"
+  ],
+  "Helm_base": "ba88dc0dd9322b820cdcdcb211cbad3f2ffe6e36",
+  "first_read_requires": [
+    "complete original state",
+    "actual bootstrap UID",
+    "original controller finalizer",
+    "journal identity",
+    "original Runtime Secret UID/hash"
+  ],
+  "snapshot_is_point_in_time_not_all_final_sources": true,
+  "DELETE": "normal UID+RV preconditions, no force/finalizer changes",
+  "404": "requires prior archive+may-send, paged old-Pod absence/allNodes InspectVMUnheld/fresh second404",
+  "effects_not_allowed": [
+    "WAL mutation",
+    "Node ledger mutation",
+    "Root FD adoption",
+    "closed/expired quota exception",
+    "same-name UID adoption"
+  ]
+}

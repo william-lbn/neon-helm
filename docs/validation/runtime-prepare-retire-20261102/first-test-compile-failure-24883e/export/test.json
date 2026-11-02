@@ -1,0 +1,11 @@
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"# command-line-arguments [command-line-arguments.test]\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"/inputs/recovery_test.go:251:46: duplicate case \"Use-below-min\" (constant of type string) in expression switch\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"\t/inputs/recovery_test.go:239:9: previous case\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"/inputs/recovery_test.go:251:63: duplicate case \"Use-above-max\" (constant of type string) in expression switch\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"\t/inputs/recovery_test.go:241:9: previous case\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"/inputs/recovery_test.go:251:80: duplicate case \"other-spec-drift\" (constant of type string) in expression switch\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-output","Output":"\t/inputs/recovery_test.go:243:9: previous case\n"}
+{"ImportPath":"command-line-arguments [command-line-arguments.test]","Action":"build-fail"}
+{"Time":"2026-11-02T05:35:33.975249861Z","Action":"start","Package":"command-line-arguments"}
+{"Time":"2026-11-02T05:35:33.975290469Z","Action":"output","Package":"command-line-arguments","Output":"FAIL\tcommand-line-arguments [build failed]\n"}
+{"Time":"2026-11-02T05:35:33.975297785Z","Action":"fail","Package":"command-line-arguments","Elapsed":0,"FailedBuild":"command-line-arguments [command-line-arguments.test]"}

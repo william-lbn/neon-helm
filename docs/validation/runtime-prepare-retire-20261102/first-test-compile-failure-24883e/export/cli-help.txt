@@ -1,0 +1,21 @@
+Usage of /out/neon-runtime-prepare:
+  -action string
+    	hold, render, seal, inspect or retire; mutations require explicit selection (default "inspect")
+  -build-contract string
+    	original pinned image/template/native build index
+  -compute-config string
+    	actual VM-bound Compute config JSON
+  -kubeconfig string
+    	existing Kubernetes config; never printed
+  -native-build-manifest string
+    	original actual Builder NativeBirth manifest
+  -policy-templates string
+    	original immutable complete policy template JSON
+  -render-output-dir string
+    	private new directory for the three original bound inputs
+  -resource-config string
+    	actual VM-bound resource source JSON
+  -state string
+    	private persistent /data original deployment state
+  -vm-json string
+    	original held VM JSON from Helm

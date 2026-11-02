@@ -43,3 +43,10 @@ neon-runtime-prepare -action inspect -kubeconfig <既有配置> -vm-json <原hel
 - 首两次工具测试夹具 helper 六字段不全导致 Runtime 拒绝，原失败保留；后继只补完整夹具和未知CREATE拒绝，未放宽生产校验。
 
 上述不表示单服务或 E/K8s 通过；正式镜像和真实资格确认前不得使用示例 digest/测试 seed 部署。
+
+
+受控退役与新 Guest 恢复：显式选择 `--action=retire`，继续使用原 `--state`、原 `--vm-json` 和原 kubeconfig。该动作先读取实际 ready VM/原 Runtime Secret UID、完整原 journal 与 Controller finalizer，再将点时 VM/同 UID CM 库存存入 state 同目录的私有内容寻址 archive；它不是退出后所有最终来源的完整归档，也不把准入 Unknown 说成已关闭。archive 和 `retire_may_have_sent` 持久之后，才用 UID/RV 前置条件正常 Delete 原 VM。
+
+出现 DELETE 丢回复、VM 仍 deleting、网络失败、旧 Pod 尚在或任一 Node 账本未知时，动作返回未确认，保留原意图；继续用同一原 state 显式重试。不移除 finalizer、不 force delete、不修改 Node 账本或把旧 Resize 未知写成 NoEffect。Controller/Scheduler 负责原 Pod/容器退出及 Node 预算结清；工具仅在 VM 实际404、分页无旧UID Pod、全部实际 Node `InspectVMUnheld` 且再次404后记录 retired。
+
+只要退役意图已保存，旧 state 的 hold/render/seal 永久拒绝，不等待 retired 才闭门。同名不同 UID 会拒绝，不收养新对象。新 Guest 必须换新 state、Compute 身份、incarnation，并用原 hold/render/seal 创建新 UID；若沿用 VM 名，须等待旧 config Secret 正常 GC，不能接管其 UID。需要保留业务数据时沿用原 tenant/timeline/存储数据配置，验证新 Guest 实际读回故障前已提交的数据；本工具不保证任意业务高可用或数据迁移。

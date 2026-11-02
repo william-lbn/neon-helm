@@ -1,0 +1,55 @@
+{
+  "scope": "ORIGINAL_UID_CONTROLLED_GUEST_RETIREMENT_OPERATOR_TOOL_NO_NEW_ROOT_FD_ADOPTION",
+  "owned4": {
+    "tools/runtime-prepare/main.go": "95f266a05a418a685722729ddd2f95ca41102b618763e660ab7c41782a322b92",
+    "tools/runtime-prepare/recovery.go": "2d72ac9db5e39694cc14334024f8d381f5cce811fd43891d6cb51d2b93e95a23",
+    "tools/runtime-prepare/recovery_test.go": "bf580f83402fb4ee142f869a773185b602dbfb3fe825806edee2a745e67b3863",
+    "tools/runtime-prepare/README.zh-CN.md": "1bcb70a9a85b32ae93ad191dd616d835eaaae84f3d3e9c93bdd6d3dd48ec08eb"
+  },
+  "actual_AS_base": "0f71fc5fafd5701f77ab7b2fdb587ff1ae7c84e8",
+  "actual_Helm_base": "ba88dc0dd9322b820cdcdcb211cbad3f2ffe6e36",
+  "source_lock_sha256": "bf66228f5b9a79bbcfa8a80517fec696fd1df4db889814eb6b6baddb34ddf6dc",
+  "result": {
+    "build_exit": 0,
+    "seconds": 24.75019278700347,
+    "peer_is_model": true,
+    "real_Kubernetes": false,
+    "Source": false,
+    "normal": false,
+    "E": 0,
+    "u_exit": 0,
+    "cli_exit": 0,
+    "help_exit": 0,
+    "passed_roots": [
+      "TestRuntimeRetireArchivesBeforeDeleteAndKeepsOldStateClosed",
+      "TestRuntimeRetireLostDeleteReplyDoesNotMeanStopped",
+      "TestRuntimeRetireRefusesMissingTicketFinalizerAndReplacement",
+      "TestRuntimeRetireRequiresEveryPodAndNodePageUnheld"
+    ],
+    "passed_subtests": 10,
+    "skipped": [],
+    "missing_expected": []
+  },
+  "CLI_ELF_sha256": "3d8140f41253467d58316e68789f0fc72cd0e9c2ab528a9ffea8b8a22974b847",
+  "CLI_ELF_path": "/data/neon-build/validation/runtime-prepare-retire-go-20261102T053915Z-25356e/export/neon-runtime-prepare",
+  "first_failure": {
+    "path": "/data/neon-build/validation/runtime-prepare-retire-go-20261102T053511Z-24883e",
+    "kind": "new test duplicate switch cases, no U executed; production CLI/help build0"
+  },
+  "direct_boundaries": [
+    "private point archive and may-send observed before typedAPI UID/RV DELETE",
+    "grown Use7-to8 allowed; outside original7..8 and otherSpec drift denied",
+    "DELETE lost response remains unknown then same originalUID GET/list recheck; no repeat delete on actual404",
+    "all Pod/Node pages required; unknown/remaining originalUID prevents retired",
+    "original state permanently blocks hold/render/seal from may-send, not just terminal",
+    "CLI historical Complete does not display current bootstrap-ready after intent"
+  ],
+  "peer_is_model": true,
+  "real_controller_terminal_Pod_Node_retirement_tested": false,
+  "real_Rootdeath_replacement_and_data_check_tested": false,
+  "Source": false,
+  "normal": false,
+  "E": 0,
+  "archive_contains_Runtime_Secret_data": false,
+  "new_caps_PG_or_VM_operations": "none except normal exact original-UID VM API Delete; no force/finalizer/Node/WAL mutation"
+}

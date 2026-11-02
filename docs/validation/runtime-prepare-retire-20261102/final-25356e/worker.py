@@ -1,0 +1,8 @@
+from pathlib import Path
+import subprocess,json,shlex,time
+p=Path(__file__).parent;t=time.monotonic();cmd=['docker','buildx','build','--builder','neon-data','--resource','memory=3g','--resource','memory-swap=3g','--resource','cpu-quota=300000','--network','none','--progress','plain','--build-context','preparetools='+str(p/'tool'),'-f',str(p/'Dockerfile'),'--output','type=local,dest='+str(p/'export'),str(p/'source')];(p/'command.json').write_text(json.dumps(cmd,indent=2)+chr(10))
+with(p/'build.log').open('wb')as log:q=subprocess.run(['/bin/bash','-c','set -eu;source /data/neon-build/config/env.sh;exec '+shlex.join(cmd)],stdout=log,stderr=subprocess.STDOUT)
+r={'build_exit':q.returncode,'seconds':time.monotonic()-t,'peer_is_model':True,'real_Kubernetes':False,'Source':False,'normal':False,'E':0}
+for phase in ['u','cli','help']:
+ f=p/'export'/(phase+'.exitcode');r[phase+'_exit']=int(f.read_text())if f.exists()else None
+f=p/'export/test.json';es=[json.loads(l)for l in f.read_text().splitlines()if l.strip()]if f.exists()else[];passed=[e['Test']for e in es if e.get('Action')=='pass'and e.get('Test')];r['passed_roots']=sorted(x for x in passed if'/'not in x);r['passed_subtests']=sum('/'in x for x in passed);r['skipped']=[e.get('Test','PACKAGE')for e in es if e.get('Action')=='skip'];r['missing_expected']=sorted(set(json.loads((p/'source-lock.json').read_text())['expected_tests'])-set(passed));(p/'result.json').write_text(json.dumps(r,indent=2)+chr(10));print(json.dumps(r),flush=True);raise SystemExit(0 if q.returncode==0 and all(r[x+'_exit']==0 for x in ['u','cli','help'])and not r['missing_expected']and not r['skipped']else 1)

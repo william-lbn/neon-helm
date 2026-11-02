@@ -1,0 +1,9 @@
+FROM 127.0.0.1:5001/neon/pg17-dev-tools@sha256:c940750ed64e18dbe1d5acda5f12b61bb3f1930be149140c54b4e09e62379ba1 AS build
+USER root
+ENV GOPATH=/go GOMODCACHE=/go/pkg/mod GOCACHE=/root/.cache/go-build GOMAXPROCS=3 GOMEMLIMIT=1536MiB GOFLAGS=-p=2 GOPROXY=off
+WORKDIR /work
+COPY . .
+COPY --from=preparetools . /inputs/
+RUN --network=none --mount=type=cache,id=autoscaling-gomod-amd64-shared-v2,target=/go/pkg/mod,sharing=shared --mount=type=cache,id=autoscaling-gobuild-amd64,target=/root/.cache/go-build,sharing=shared set -eu;mkdir /out;test "$(cat /sys/fs/cgroup/memory.max)" = 3221225472;test "$(cat /sys/fs/cgroup/cpu.max)" = "300000 100000";sha256sum -c .prepare-source.sha256 >/out/actual-AS-check.txt;(cd /inputs;sha256sum -c .prepare-tool.sha256) >/out/actual-tool-check.txt;cat /sys/fs/cgroup/cpu.stat >/out/cpu.stat.before;cat /sys/fs/cgroup/io.stat >/out/io.stat.before;set +e;go test -p=2 -race -json -count=1 -timeout=90s -run '^(TestRuntimeRetireArchivesBeforeDeleteAndKeepsOldStateClosed|TestRuntimeRetireLostDeleteReplyDoesNotMeanStopped|TestRuntimeRetireRefusesMissingTicketFinalizerAndReplacement|TestRuntimeRetireRequiresEveryPodAndNodePageUnheld)$' /inputs/main.go /inputs/render.go /inputs/recovery.go /inputs/main_test.go /inputs/render_test.go /inputs/recovery_test.go >/out/test.json 2>/out/test.stderr;echo $? >/out/u.exitcode;CGO_ENABLED=0 go build -p=2 -ldflags="-s -w" -o /out/neon-runtime-prepare /inputs/main.go /inputs/render.go /inputs/recovery.go >/out/cli.log 2>&1;cli=$?;echo $cli >/out/cli.exitcode;if test "$cli" = 0;then /out/neon-runtime-prepare --help >/out/cli-help.txt 2>&1;echo $? >/out/help.exitcode;sha256sum /out/neon-runtime-prepare >/out/CLI.sha256;fi;for metric in cpu.stat memory.peak io.stat memory.events cpu.max memory.max;do cat /sys/fs/cgroup/$metric >/out/$metric;done
+FROM scratch
+COPY --from=build /out/ /

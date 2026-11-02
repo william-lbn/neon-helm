@@ -1,0 +1,21 @@
+{
+  "build_exit": 0,
+  "seconds": 67.79852888698224,
+  "peer_is_model": true,
+  "real_Kubernetes": false,
+  "Source": false,
+  "normal": false,
+  "E": 0,
+  "u_exit": 1,
+  "cli_exit": 0,
+  "help_exit": 0,
+  "passed_roots": [],
+  "passed_subtests": 0,
+  "skipped": [],
+  "missing_expected": [
+    "TestRuntimeRetireArchivesBeforeDeleteAndKeepsOldStateClosed",
+    "TestRuntimeRetireLostDeleteReplyDoesNotMeanStopped",
+    "TestRuntimeRetireRefusesMissingTicketFinalizerAndReplacement",
+    "TestRuntimeRetireRequiresEveryPodAndNodePageUnheld"
+  ]
+}

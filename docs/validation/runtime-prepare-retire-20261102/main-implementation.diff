@@ -1,0 +1,79 @@
+--- before/main.go
++++ after/main.go
+@@ -50,6 +50,9 @@
+ 	ReleaseMayHaveSent      bool      `json:"release_may_have_sent"`
+ 	Complete                bool      `json:"complete"`
+ 	RuntimeSHA256           string    `json:"runtime_sha256,omitempty"`
++	RetireMayHaveSent       bool      `json:"retire_may_have_sent,omitempty"`
++	RetireArchiveSHA256     string    `json:"retire_archive_sha256,omitempty"`
++	Retired                 bool      `json:"retired,omitempty"`
+ }
+ type files struct{ config, resource, policies string }
+ type preparer struct {
+@@ -189,6 +192,9 @@
+ 	return nil
+ }
+ func (p *preparer) held(ctx context.Context, create bool) (*vmv1.VirtualMachine, *journal.Store, error) {
++	if p.state.RetireMayHaveSent || p.state.Retired {
++		return nil, nil, fmt.Errorf("original deployment has a retirement intent; hold/render/seal and live recovery are forbidden")
++	}
+ 	if p.state.VMCreateMayHaveSent && p.state.VMUID == "" {
+ 		return nil, nil, fmt.Errorf("original VM CREATE UID unconfirmed; same-name adoption forbidden")
+ 	}
+@@ -462,7 +468,7 @@
+ 	return runtime, nil
+ }
+ func run() error {
+-	action := flag.String("action", "inspect", "hold, render, seal or inspect; mutations require explicit selection")
++	action := flag.String("action", "inspect", "hold, render, seal, inspect or retire; mutations require explicit selection")
+ 	vmFile := flag.String("vm-json", "", "original held VM JSON from Helm")
+ 	stateFile := flag.String("state", "", "private persistent /data original deployment state")
+ 	kubeconfig := flag.String("kubeconfig", "", "existing Kubernetes config; never printed")
+@@ -473,7 +479,7 @@
+ 	buildContractFile := flag.String("build-contract", "", "original pinned image/template/native build index")
+ 	renderOutputDir := flag.String("render-output-dir", "", "private new directory for the three original bound inputs")
+ 	flag.Parse()
+-	if *action != "hold" && *action != "render" && *action != "seal" && *action != "inspect" {
++	if *action != "hold" && *action != "render" && *action != "seal" && *action != "inspect" && *action != "retire" {
+ 		return fmt.Errorf("unsupported fixed deployment action")
+ 	}
+ 	if !filepath.IsAbs(*stateFile) || filepath.Clean(*stateFile) != *stateFile || *vmFile == "" || *kubeconfig == "" {
+@@ -512,6 +518,12 @@
+ 		return fmt.Errorf("original deployment state unreadable")
+ 	} else if *action != "hold" {
+ 		return fmt.Errorf("original deployment state absent; hold is explicit first action")
++	}
++	if e = checkRetirementState(state); e != nil {
++		return e
++	}
++	if state.RetireMayHaveSent && (*action == "hold" || *action == "render" || *action == "seal") {
++		return fmt.Errorf("original deployment retirement is irreversible; use a new state/Compute/incarnation for a new Guest")
+ 	}
+ 	cfg, e := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+ 	if e != nil {
+@@ -541,13 +553,19 @@
+ 		e = p.render(ctx, renderFiles{*configFile, *resourceFile, *policyFile, *nativeBuildFile, *buildContractFile, *renderOutputDir})
+ 	case "seal":
+ 		_, e = p.seal(ctx, files{*configFile, *resourceFile, *policyFile})
++	case "retire":
++		e = p.retire(ctx)
+ 	case "inspect":
+-		e = p.inspect(ctx)
+-	}
+-	if e != nil {
+-		return e
+-	}
+-	return json.NewEncoder(os.Stdout).Encode(map[string]any{"action": *action, "vm_uid": p.state.VMUID, "secret_uid": p.state.SecretUID, "runtime_sha256": p.state.RuntimeSHA256, "bootstrap_ready": p.state.Complete, "qualification_created": false, "E": 0})
++		if p.state.RetireMayHaveSent {
++			e = p.verifyRetirementArchive()
++		} else {
++			e = p.inspect(ctx)
++		}
++	}
++	if e != nil {
++		return e
++	}
++	return json.NewEncoder(os.Stdout).Encode(p.deploymentOutput(*action))
+ }
+ func main() {
+ 	if e := run(); e != nil {

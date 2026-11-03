@@ -108,6 +108,8 @@ spec:
         image: {{ .Values.images.vxlanController | quote }}
         imagePullPolicy: IfNotPresent
         name: install-cni
+        resources:
+          {{- toYaml .Values.vxlanController.initResources | nindent 10 }}
         volumeMounts:
         - mountPath: /host/opt/cni/bin
           name: cni-bin-dir

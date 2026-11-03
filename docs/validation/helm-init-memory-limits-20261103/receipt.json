@@ -1,0 +1,51 @@
+{
+  "stage_ready": true,
+  "base_head": "e1c17b6fb449a358d9249028efe280d2bab83620",
+  "owned_files": {
+    "charts/neon-core/values.yaml": "c199aa88d4ed4dc130b6831d174a7d8ab20dc4c9bf09b5d7dbf1b370e63a167b",
+    "charts/neon-core/values.schema.json": "f3c06b548e5de4cd0a9f3b32c4c6ba9565a974c73174ee0f8d891c9abbd31de8",
+    "charts/neon-core/templates/minio.yaml": "401b15288e67dc66960b8b13698a136d4cc39513d752d14979c49d67e74acc98",
+    "charts/neon-core/templates/pageserver.yaml": "3377e0b18c88235ff48f743b289286f686e130112794fd2b21b88a0ecd723ebc",
+    "charts/neonvm/values.yaml": "5d6dc634330e6e5d8a129622456ad28422dc0c96828771856199c7efe0b05395",
+    "charts/neonvm/values.schema.json": "f9d251d553ec93e61f761430c479e219b3eec179ebabfa9b43eba24bdcce5ffc",
+    "charts/neonvm/templates/neonvm-vxlan-controller.yaml": "6e49bf8e59c599b12107dee5cebc57490f604af0892a8bd762b200978b8cb21e",
+    "docs/PG17-Helm初始化容器与建桶Job内存限额-20261103.txt": "1fac413193e23a22b2a3bda8127d30b46f315c600c01cc9fd9496364bc6b66e7",
+    "docs/validation/helm-init-memory-limits-20261103/check.py": "ddcc1c837cdb2097b9a8f16ff324e997e9a1708f768f93db96fa8cc61b89f566"
+  },
+  "evidence_dir": "/data/neon-build/validation/helm-init-memory-limits-20261103T011539Z-879e5c",
+  "result_sha256": "1357b8d92512b0939b512f845561fb69bc9074879637262429efbc0a31d6df66",
+  "checks": {
+    "case_count": 20,
+    "helm_invocations": 25,
+    "positive_container_count": 20,
+    "seconds": 3.944408413954079
+  },
+  "unit_terminal": true,
+  "main_pid": 0,
+  "exit_code": 0,
+  "unit_properties": "MainPID=0\nExecMainStatus=0\nMemoryPeak=[not set]\nCPUQuotaPerSecUSec=infinity\nMemoryMax=infinity\nActiveState=inactive\nSubState=dead\n",
+  "git_diff_check_exit": 0,
+  "changes": "only three actual init/job resources values, schemas and render wiring plus Chinese doc",
+  "unmodified_charts_rendered": [
+    "neon-autoscaler",
+    "compute-management-gateway",
+    "neon-metadata"
+  ],
+  "image_or_source_or_install_values_changed": false,
+  "deployed": false,
+  "K8s_E2E": false,
+  "end_utc": "2026-11-03T01:17:03.042812+00:00",
+  "reproduction_cli": {
+    "path": "docs/validation/helm-init-memory-limits-20261103/check.py",
+    "command": [
+      "python3",
+      "docs/validation/helm-init-memory-limits-20261103/check.py",
+      "--output",
+      "NEW_EMPTY_OUTPUT_DIRECTORY"
+    ],
+    "verified_exit_code": 0,
+    "evidence_dir": "/data/neon-build/validation/helm-init-memory-limits-20261103T011539Z-879e5c/reproduction-cli",
+    "same_cases_not_additional_coverage": true
+  },
+  "short_helm_checks_resource_note": "budget admission reserves 2CPU/3GiB; original wrapper unit had no OS cpu/memory cap; actual checks completed 3.944s; each helm invocation timeout30s. No claim of enforced OS resource quota."
+}

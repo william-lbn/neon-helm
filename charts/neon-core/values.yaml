@@ -20,6 +20,10 @@ minio:
   enabled: true               # set false and configure objectStore for external S3
   image: ""                  # quay.io/minio/minio@sha256:<64hex>
   mcImage: ""                # quay.io/minio/mc@sha256:<64hex> or verified alternate
+  # mc 建桶 Job 单独记账；瞬时 init/job 同样须有真实 memory limit。
+  initResources:
+    requests: {cpu: 25m, memory: 128Mi}
+    limits: {cpu: 200m, memory: 512Mi}
   rootUser: minio
   existingSecret: neon-object-store
   bucket: neon
@@ -43,6 +47,10 @@ storageBroker:
   replicas: 1
 pageserver:
   enabled: true
+  # 复制配置的 init-container，不能因生命周期短而绕过 Host 完整账本。
+  initResources:
+    requests: {cpu: 25m, memory: 32Mi}
+    limits: {cpu: 200m, memory: 128Mi}
   id: 1
   replicas: 1
   cache:

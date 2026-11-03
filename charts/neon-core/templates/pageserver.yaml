@@ -57,6 +57,8 @@ spec:
       {{- include "neon-core.placement.pod" $ | nindent 6 }}
       initContainers:
       - name: init-config
+        resources:
+          {{- toYaml .Values.pageserver.initResources | nindent 10 }}
         image: {{ .Values.global.initImage | quote }}
         command: ["sh","-ec"]
         args:

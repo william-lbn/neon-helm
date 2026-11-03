@@ -23,6 +23,11 @@ controller:
   rollingUpdate:
     maxSurge: 0
     maxUnavailable: 1
+# VXLAN 的 CNI 安装 init 也按完整正硬限额入账，不修改现有宿主网络配置。
+vxlanController:
+  initResources:
+    requests: {cpu: 25m, memory: 32Mi}
+    limits: {cpu: 200m, memory: 128Mi}
 network:
   # Operators must verify disjoint actual Pod/Service/host CIDRs before install.
   podRange: 10.100.0.0/16

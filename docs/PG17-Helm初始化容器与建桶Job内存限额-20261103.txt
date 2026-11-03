@@ -1,0 +1,17 @@
+PG17 Helm 初始化容器与建桶 Job 内存限额（2026-11-03）
+
+Host Kubernetes 预算对普通 Pod 的每个 app/init 容器都要求正 memory limit；
+短生命周期或 kube-system namespace 都不构成豁免。修复本轮真实部署需要的三处
+遗漏：minio.initResources 接 mc 建桶 Job；pageserver.initResources 接 init-config；
+vxlanController.initResources 接 install-cni。默认请求/限额分别为128Mi/512Mi、
+32Mi/128Mi、32Mi/128Mi，可通过相应 chart values 显式覆盖。
+
+资源以 requests/limits 原对象渲染，不使用 namespace 全局 LimitRange 补默认；
+新增字段 schema 拒绝空/零/负 memory limit。mc 沿用仓库既有建桶初始化容量经验，
+其余仅复制少量文件。实际运行仍须核 Pod/容器硬限、健康及 OOM，不把离线渲染
+当作集群或内存自动伸缩验收。
+
+本改动只补资源接线，不改镜像、版本锁、最终安装 values、网络或116节点，
+不展开控制面产品功能。本轮检查复用既有 PG17 Helm 工具的fixture/image/placement
+读者，仅限定 neonvm、neon-autoscaler、neon-core、compute-management-gateway、
+可选 neon-metadata，并检查三个新资源值覆盖能到达正确容器。

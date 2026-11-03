@@ -129,6 +129,40 @@
               }
             }
           ]
+        },
+        "initResources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "memory"
+              ],
+              "properties": {
+                "memory": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)(?:[EPTGMK]i|[eE][+-]?[0-9]+|[EPTGMkKmun])?$"
+                    }
+                  ]
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -221,6 +255,40 @@
             "limits": {
               "type": "object",
               "additionalProperties": true
+            }
+          }
+        },
+        "initResources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "memory"
+              ],
+              "properties": {
+                "memory": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    {
+                      "type": "string",
+                      "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)(?:[EPTGMK]i|[eE][+-]?[0-9]+|[EPTGMkKmun])?$"
+                    }
+                  ]
+                }
+              }
             }
           }
         }

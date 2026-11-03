@@ -10,6 +10,8 @@ controller:
   qemuDiskCacheSettings: cache.writeback=on,cache.direct=on,cache.no-flush=off
   labAcknowledged: false
   replicas: 3
+  # 仅补充hostname约束；不能覆盖统一节点池、linux/amd64条件。
+  nodeSelector: {}
   # Optional platform reservation profile. No image/CRD/source change.
   spreadAcrossNodes: false
   priorityClassName: ""
@@ -29,6 +31,9 @@ vxlanController:
     requests: {cpu: 25m, memory: 32Mi}
     limits: {cpu: 200m, memory: 128Mi}
 network:
+  secondary:
+    # 默认保留既有额外网卡/VXLAN；PG17本轮显式false，仅使用Cilium主网。
+    enabled: true
   # Operators must verify disjoint actual Pod/Service/host CIDRs before install.
   podRange: 10.100.0.0/16
   podRangeStart: 10.100.1.0

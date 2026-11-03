@@ -1,0 +1,23 @@
+{
+  "module": "github.com/k8snetworkplumbingwg/network-attachment-definition-client",
+  "version": "v1.4.0",
+  "module_go_sum": "h1:VzM3TYHDgqPkettiP6I6q2jOeQFL4nrJM+UcAc4f6Fs=",
+  "origin": {
+    "Version": "v1.4.0",
+    "Time": "2022-12-02T12:14:35Z",
+    "Origin": {
+      "VCS": "git",
+      "URL": "https://github.com/k8snetworkplumbingwg/network-attachment-definition-client",
+      "Hash": "6beb26a7ed30638f37fec4f4863ea5c1f17e58f6",
+      "Ref": "refs/tags/v1.4.0"
+    }
+  },
+  "original_relative_path": "artifacts/networks-crd.yaml",
+  "target_chart_path": "charts/neonvm/crds/network-attachment-definition.yaml",
+  "raw_bytes_unmodified": true,
+  "raw_bytes": 634,
+  "sha256": "2c83987cbc34c16e7b49921237c39151008e9239304ef2dc7163b92931ef1880",
+  "source_extraction": "existing verified autoscaling-gomod-amd64-shared-v2 cache; network=none, ziphash matched existing go.sum",
+  "upstream_source": "https://github.com/k8snetworkplumbingwg/network-attachment-definition-client/blob/v1.4.0/artifacts/networks-crd.yaml",
+  "new_multus_or_whereabouts_process_installed": false
+}

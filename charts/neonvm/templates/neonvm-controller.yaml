@@ -266,7 +266,7 @@ spec:
       labels:
         control-plane: controller
     spec:
-      {{- include "neonvm.placement.selector" $ | nindent 6 }}
+      {{- include "neonvm.placement.controllerSelector" $ | nindent 6 }}
       {{- with .Values.controller.priorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}

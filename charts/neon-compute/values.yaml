@@ -41,3 +41,8 @@ placement:
   - worker-117
   - worker-118
   - worker-119
+
+# 默认保留旧额外网络；本轮PG17显式false并整个省略extraNetwork，避免未启用时finalizer误触IPAM。
+network:
+  secondary:
+    enabled: true

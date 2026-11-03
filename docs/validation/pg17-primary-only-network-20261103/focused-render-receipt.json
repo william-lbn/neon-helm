@@ -1,0 +1,14 @@
+{
+  "status": "PASS_ORIGINAL12_EQUIVALENT_REPLAY",
+  "entrypoint": "docs/validation/pg17-primary-only-network-20261103/focused-render.py",
+  "entrypoint_sha256": "a1cc9717a1cdd00102a03045343511a8ff3933ce3b3febc32995d4c4104b9139",
+  "original_result": "/data/neon-k8s-pg17/runs/network-primary-only-readonly-20261103T032321Z-5cee3f/focused-render-result.json",
+  "original_result_sha256": "d458f01657ea86af757b0b4003455f314427188dbce1c328bcb8f6a7886e2354",
+  "replay_result": "/data/neon-k8s-pg17/runs/primary-render-repro-20261103T034800Z-5cee3f/result.json",
+  "replay_result_sha256": "bc531bcf23da11a2c80fe3b019f1c9d4661fe777032223c6f37c9d56d1eeb41c",
+  "focused_commands": 12,
+  "default_old_AST_equal": true,
+  "baseline_commit": "d7569450ea13058c8f25afa3ee37c940a5e63023",
+  "cluster_apply_performed": false,
+  "runtime_acceptance": false
+}

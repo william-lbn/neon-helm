@@ -1,3 +1,4 @@
+{{- if .Values.network.secondary.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -123,3 +124,4 @@ spec:
       - hostPath:
           path: /opt/cni/bin
         name: cni-bin-dir
+{{- end }}

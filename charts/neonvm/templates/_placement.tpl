@@ -41,3 +41,22 @@ nodeAffinity:
 affinity:
   {{- include "neonvm.placement.nodeAffinity" . | nindent 2 }}
 {{- end -}}
+
+{{/* Controller专用收紧条件：只附加白名单hostname，不merge任意nodeSelector，避免覆盖pool/os/arch。 */}}
+{{- define "neonvm.placement.controllerSelector" -}}
+{{- if not (kindIs "map" .Values.controller.nodeSelector) -}}
+{{- fail "controller.nodeSelector must be a hostname-only map" -}}
+{{- end -}}
+{{- range $key, $value := .Values.controller.nodeSelector -}}
+{{- if ne $key "kubernetes.io/hostname" -}}
+{{- fail "controller.nodeSelector may only add kubernetes.io/hostname; pool/os/arch cannot be overridden" -}}
+{{- end -}}
+{{- if not (has $value $.Values.placement.allowedNodeNames) -}}
+{{- fail "controller.nodeSelector hostname must belong to worker-117/118/119" -}}
+{{- end -}}
+{{- end -}}
+{{ include "neonvm.placement.selector" . }}
+{{- with index .Values.controller.nodeSelector "kubernetes.io/hostname" }}
+  kubernetes.io/hostname: {{ . | quote }}
+{{- end }}
+{{- end -}}

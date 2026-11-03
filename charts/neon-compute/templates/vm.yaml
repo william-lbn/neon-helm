@@ -93,11 +93,13 @@ spec:
       {{- end }}
       - { name: metrics, port: 9100{{ if $managed }}, protocol: TCP{{ end }} }
       - { name: monitor, port: 10301{{ if $managed }}, protocol: TCP{{ end }} }
+  {{- if .Values.network.secondary.enabled }}
   extraNetwork:
     enable: true
     {{- if $managed }}
     interface: net1
     {{- end }}
+  {{- end }}
   disks:
     - name: compute-config
       mountPath: {{ if $managed }}{{ .Values.compute.runtime.configMountPath | quote }}{{ else }}/run/neon-lab{{ end }}

@@ -86,6 +86,21 @@
         "runnerCgroupEnabled": {
           "type": "boolean",
           "description": "Enable native runner cgroup management; false explicitly preserves historical dummy/laboratory mode and cannot qualify fractional CPU."
+        },
+        "nodeSelector": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kubernetes.io/hostname": {
+              "type": "string",
+              "enum": [
+                "worker-117",
+                "worker-118",
+                "worker-119"
+              ]
+            }
+          },
+          "description": "只允许三worker中的额外hostname；固定pool/os/arch由模板保留，禁止覆盖。"
         }
       }
     },
@@ -107,6 +122,19 @@
         },
         "vmRangeStart": {
           "type": "string"
+        },
+        "secondary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "description": "显式false只省略额外NAD/VXLAN，不更改现有Cilium/宿主CNI；Controller启动IPAM配置仍保留。"
         }
       }
     },

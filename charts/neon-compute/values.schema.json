@@ -164,6 +164,24 @@
           "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
         }
       }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "secondary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",

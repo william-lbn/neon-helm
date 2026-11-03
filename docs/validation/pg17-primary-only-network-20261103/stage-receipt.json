@@ -1,0 +1,70 @@
+{
+  "status": "FROZEN_PRIMARY_ONLY_TWO_CHART_PATCH_READY_FOR_ROOT_REVIEW_COMMIT_INSTALL",
+  "branch": "codex/dsga-neon-helm-v3-20261019",
+  "work_start_HEAD": "d7569450ea13058c8f25afa3ee37c940a5e63023",
+  "current_HEAD": "d7569450ea13058c8f25afa3ee37c940a5e63023",
+  "owned_files_after_sha256": {
+    "charts/neonvm/values.yaml": "28d0ff2de451776a4ed7a39763f0ac003de575ee9864f4ed9d3c7c3c3330f6fb",
+    "charts/neonvm/values.schema.json": "721dfb327776d21d2cee50f498d28307cc2b702e92b6bb202278ad50f2d84d32",
+    "charts/neonvm/templates/_placement.tpl": "fb8e546cce1e2013a826c6158d11da90084e8714e7eb0139c76562ff86166b89",
+    "charts/neonvm/templates/neonvm-controller.yaml": "7b14891563f7f9035a489cd74b63952e43f9b4941907ce6cea0613b70124262e",
+    "charts/neonvm/templates/neonvm-vxlan-controller.yaml": "56f2ada70074a37594eefa0d6df41205f57f4641a2c034400a5e9a076f5cffac",
+    "charts/neonvm/templates/neonvm.yaml": "b5e198bb0d91b5ae5eeba5edb0dc15e9e824bc16c6dfca009460d3daa7180fbe",
+    "charts/neon-compute/values.yaml": "42f35a736e76e5ff5a6e48f230a60252cf3195370d4aab7a015ed24417859deb",
+    "charts/neon-compute/values.schema.json": "b1952a1ebcc005333ad1dfcda0afac20016232fcdeed2eda6737b91b5b874633",
+    "charts/neon-compute/templates/vm.yaml": "321e57ae1aa23aa0a8043ab0954caf9d437ea608eae62bfa9441a98a3a3953a0",
+    "charts/neonvm/crds/network-attachment-definition.yaml": "2c83987cbc34c16e7b49921237c39151008e9239304ef2dc7163b92931ef1880",
+    "docs/validation/pg17-primary-only-network-20261103/nad-crd-source-lock.json": "878f49f5a64516f9b500109156ce6ea4604b54adf3651f2f89ae92b91c88c0cc",
+    "docs/validation/pg17-primary-only-network-20261103/中文说明.txt": "956a528d27322cfbc4bf945976f4adfbcb1637b9b5000a57afe5812a36aa9ea0",
+    "docs/validation/pg17-primary-only-network-20261103/focused-render.py": "a1cc9717a1cdd00102a03045343511a8ff3933ce3b3febc32995d4c4104b9139",
+    "docs/validation/pg17-primary-only-network-20261103/focused-render-receipt.json": "c30f97dcc94a122f737e3657eb5c224b1b82ef9757cfe397c48806811b7916d5"
+  },
+  "exclude_other_agent_file": "charts/neon-core/templates/minio.yaml",
+  "focused_render_result": "/data/neon-k8s-pg17/runs/network-primary-only-readonly-20261103T032321Z-5cee3f/focused-render-result.json",
+  "focused_render_result_SHA256": "d458f01657ea86af757b0b4003455f314427188dbce1c328bcb8f6a7886e2354",
+  "focused_commands": 12,
+  "default_old_behavior_preserved": true,
+  "only_new_default_API_object": "official locked NAD CRD, no host process",
+  "current_off_no_Multus_Whereabouts_VXLAN_process_no_host_CNI_writes": true,
+  "controller_IPAM_startup_NAD_config_retained": true,
+  "existing_host_CNI_source": {
+    "worker-117": {
+      "actual_CNI_conf_dir": "/etc/cni/net.d",
+      "actual_bin_dir": "/opt/cni/bin",
+      "only_active_CNI": "05-cilium.conflist",
+      "active_CNI_SHA256": "37894f7cd717f5a5d5b296dd554958298ccaa9868432d34541acc17666b3dd12",
+      "containerd_config_sha256": "2355be5dc310df16f79da3bd0a7b9e067d2c53b4633a91ea25fc69484452e758",
+      "host_bytes_unmodified_by_this_task": true
+    },
+    "worker-118": {
+      "actual_CNI_conf_dir": "/etc/cni/net.d",
+      "actual_bin_dir": "/opt/cni/bin",
+      "only_active_CNI": "05-cilium.conflist",
+      "active_CNI_SHA256": "37894f7cd717f5a5d5b296dd554958298ccaa9868432d34541acc17666b3dd12",
+      "containerd_config_sha256": "2355be5dc310df16f79da3bd0a7b9e067d2c53b4633a91ea25fc69484452e758",
+      "host_bytes_unmodified_by_this_task": true
+    },
+    "worker-119": {
+      "actual_CNI_conf_dir": "/etc/cni/net.d",
+      "actual_bin_dir": "/opt/cni/bin",
+      "only_active_CNI": "05-cilium.conflist",
+      "active_CNI_SHA256": "37894f7cd717f5a5d5b296dd554958298ccaa9868432d34541acc17666b3dd12",
+      "containerd_config_sha256": "2355be5dc310df16f79da3bd0a7b9e067d2c53b4633a91ea25fc69484452e758",
+      "host_bytes_unmodified_by_this_task": true
+    }
+  },
+  "Cilium_exclusive_true_unchanged": true,
+  "actual_deployment_override_files": [
+    "/data/neon-k8s-pg17/runs/network-primary-only-readonly-20261103T032321Z-5cee3f/neonvm-primary-only-deployment-overrides.json",
+    "/data/neon-k8s-pg17/runs/network-primary-only-readonly-20261103T032321Z-5cee3f/neon-compute-primary-only-deployment-overrides.json"
+  ],
+  "replica1_controller118_DS_three_worker_pool": true,
+  "new_image_needed": false,
+  "Git_index_or_commit_changed_by_agent": false,
+  "cluster_apply_by_agent": false,
+  "runtime_acceptance": false,
+  "reproducible_entrypoint": "/data/neon-build/src/neon-helm/docs/validation/pg17-primary-only-network-20261103/focused-render.py",
+  "replay_receipt": "/data/neon-build/src/neon-helm/docs/validation/pg17-primary-only-network-20261103/focused-render-receipt.json",
+  "equivalent_replay_result": "/data/neon-k8s-pg17/runs/primary-render-repro-20261103T034800Z-5cee3f/result.json",
+  "equivalent_replay_result_sha256": "bc531bcf23da11a2c80fe3b019f1c9d4661fe777032223c6f37c9d56d1eeb41c"
+}

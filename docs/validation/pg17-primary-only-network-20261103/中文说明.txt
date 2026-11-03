@@ -1,0 +1,13 @@
+本轮PG17复用既有NeonVM生产primary网络，不安装Multus或whereabouts进程，不改变现有Cilium exclusive及宿主CNI/路由。
+Runner net.go44-50无条件构建Pod网络命名空间内br-def/tap-def与NAT，53后只有ExtraNetwork.Enable时才接额外网卡。Controller vm_controller.go311跳过nil ExtraNetwork，1722后才写Multus注解。
+Controller main.go152及ipam.go107在进程启动无条件读取neonvm-overlay-ipam NAD，所以仍须NAD API CRD和IPAM配置对象；这里只安装官方API定义，未安装CNI二进制、DaemonSet或任何宿主网络配置。CRD来自已有go.mod/go.sum锁定的NAD client v1.4.0共享缓存，字节不改，版本、ziphash及文件SHA见source-lock。
+两个chart统一network.secondary.enabled，默认true保原额外网络行为；当前部署显式false，Compute整个省略extraNetwork（不填enable:false以免旧finalizer触及IPAM），NeonVM不渲染两个额外网卡NAD及全部VXLAN/RBAC/install-cni，保留启动必须的IPAM NAD配置。
+controller.nodeSelector只允许hostname且值必须117/118/119之一。模板在原固定linux/amd64/pool上追加，不可覆盖已有约束；当前replicas=1且hostname=worker-118，设备DaemonSet仍受三个worker pool和nodeAffinity约束。
+只做此改动相关的默认/显式off、负例和manifest合同渲染。实际VM/网络及内存回归由真实Helm接续；渲染通过不是K8s运行验收。
+
+可复现测试入口（只离线渲染，不访问集群）：
+  python3 docs/validation/pg17-primary-only-network-20261103/focused-render.py --output /data/neon-k8s-pg17/runs/primary-render-<新的唯一归档名>
+依赖系统已有python3/PyYAML、helm、git。入口内置最小公共fixture，从固定旧提交d7569450ea13058c8f25afa3ee37c940a5e63023提取两个chart；不下载镜像，不创建VM/Secret，不使用私钥。
+12项顺序为：NeonVM旧/新默认、Compute旧/新默认、NeonVM primary-only、Compute primary-only、trusted held Compute primary-only，以及非法节点/arch覆盖/pool覆盖/非map/非boolean五个负例。
+默认旧资源按完整YAML AST逐对象相等比较，新增只允许官方NAD API CRD；当前off断言无extraNetwork/VXLAN/cp-rf、保留IPAM NAD、Controller118单副本及DS三worker。负例要求对应schema原因，不能用无关失败冒充通过。
+输出目录必须尚不存在；目录内保留每项实际命令/fixture/YAML/stderr及result.json。不把渲染通过当作实际K8s端到端通过。原执行及本次等价复验小票见focused-render-receipt.json。

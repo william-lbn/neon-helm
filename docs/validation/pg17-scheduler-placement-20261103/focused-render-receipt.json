@@ -1,0 +1,14 @@
+{
+  "status": "PASS_SCHEDULER_HOSTNAME_FOCUSED_RENDER",
+  "entrypoint": "docs/validation/pg17-scheduler-placement-20261103/focused-render.py",
+  "entrypoint_sha256": "f7e5f0235eb5814c6f75780789d680e74229a66f3759d241703a6941cb3801aa",
+  "result_path": "/data/neon-k8s-pg17/runs/scheduler-placement-20261103T043222Z-5759d0/replay/result.json",
+  "result_sha256": "c821597302e3bc4975c2f938237154a3614d635c17ac3f62d202aaa44581c2af",
+  "baseline_commit": "552f6b8e33997f424e87573391b3f1892d68771a",
+  "render_commands": 6,
+  "lint_exit": 0,
+  "default_old_AST_equal": true,
+  "only_added_scheduler118_hostname": true,
+  "Agent_and_pool_os_arch_affinity_unchanged": true,
+  "cluster_apply_performed": false
+}

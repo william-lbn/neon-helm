@@ -125,7 +125,7 @@ spec:
       annotations:
         checksum/runtime-config: {{ include "neon-autoscaler.dsga.schedulerConfig" . | sha256sum }}
     spec:
-      {{- include "neon-autoscaler.placement.pod" $ | nindent 6 }}
+      {{- include "neon-autoscaler.placement.schedulerPod" $ | nindent 6 }}
       containers:
       - command:
         - /usr/bin/kube-scheduler

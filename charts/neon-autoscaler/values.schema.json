@@ -42,6 +42,21 @@
         "resources": {
           "type": "object",
           "additionalProperties": true
+        },
+        "nodeSelector": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kubernetes.io/hostname": {
+              "type": "string",
+              "enum": [
+                "worker-117",
+                "worker-118",
+                "worker-119"
+              ]
+            }
+          },
+          "description": "只允许三worker中的额外hostname，不得覆盖固定pool/os/arch。"
         }
       }
     },

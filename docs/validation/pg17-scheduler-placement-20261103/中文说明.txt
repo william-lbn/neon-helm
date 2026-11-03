@@ -1,0 +1,6 @@
+Scheduler新增scheduler.nodeSelector（默认{}），仅允许kubernetes.io/hostname且值为worker-117/118/119之一；原固定pool/linux/amd64选择器和三worker亲和性仍完整保留。仅Scheduler使用新helper，Agent维持原helper。当前部署可显式设置scheduler.nodeSelector.kubernetes.io/hostname=worker-118，资源硬限沿原scheduler.resources独立设置，不改默认资源。
+可复现入口：
+  python3 docs/validation/pg17-scheduler-placement-20261103/focused-render.py --output /data/neon-k8s-pg17/runs/scheduler-render-<新的唯一归档名>
+依赖已有python3/PyYAML、helm、git。固定旧基线552f6b8e33997f424e87573391b3f1892d68771a；fixture仅公共image digest，不创建Pod/VM，不连接集群。
+6次定向渲染：旧/新默认、指定118、拒绝116（实际节点名ubuntu）、拒绝arch覆盖、拒绝pool覆盖，另一次指定118的strict lint。默认完整YAML AST一致；指定118去除唯一新增hostname后与默认逐对象完全一致，确认Agent与原pool/os/arch/亲和性不受影响。负例必须出现对应schema原因，不能拿无关失败冒充通过。
+实际命令/输入/YAML/stderr与result.json归档在唯一输出目录；focused-render-receipt.json仅小票。渲染不代表实际Scheduler调度或PG17端到端已通过。

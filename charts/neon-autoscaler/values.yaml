@@ -8,6 +8,8 @@ images:
   scheduler: ''
   agent: ''
 scheduler:
+  # 只附加白名单hostname，不覆盖固定pool/linux/amd64；默认空保持原调度行为。
+  nodeSelector: {}
   resources:
     limits:
       cpu: 1

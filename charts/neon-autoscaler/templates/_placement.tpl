@@ -41,3 +41,24 @@ nodeAffinity:
 affinity:
   {{- include "neon-autoscaler.placement.nodeAffinity" . | nindent 2 }}
 {{- end -}}
+
+{{/* Scheduler可单独收紧到三worker之一；原pool/os/arch与节点亲和性始终保留，Agent不受影响。 */}}
+{{- define "neon-autoscaler.placement.schedulerPod" -}}
+{{- if not (kindIs "map" .Values.scheduler.nodeSelector) -}}
+{{- fail "scheduler.nodeSelector must be a hostname-only map" -}}
+{{- end -}}
+{{- range $key, $value := .Values.scheduler.nodeSelector -}}
+{{- if ne $key "kubernetes.io/hostname" -}}
+{{- fail "scheduler.nodeSelector may only add kubernetes.io/hostname; pool/os/arch cannot be overridden" -}}
+{{- end -}}
+{{- if not (has $value $.Values.placement.allowedNodeNames) -}}
+{{- fail "scheduler.nodeSelector hostname must belong to worker-117/118/119" -}}
+{{- end -}}
+{{- end -}}
+{{ include "neon-autoscaler.placement.selector" . }}
+{{- with index .Values.scheduler.nodeSelector "kubernetes.io/hostname" }}
+  kubernetes.io/hostname: {{ . | quote }}
+{{- end }}
+affinity:
+  {{- include "neon-autoscaler.placement.nodeAffinity" . | nindent 2 }}
+{{- end -}}

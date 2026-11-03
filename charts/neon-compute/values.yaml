@@ -29,6 +29,9 @@ compute:
     incarnation: ''
     computeInstanceId: ''
     runnerImage: ''
+    # trusted-runtime-v1必须显式填写limits.cpu/memory；默认空不绑定旧实例预算。
+    # 本轮实际部署值：limits {cpu: "4", memory: "10Gi"}，requests由部署预算固定。
+    podResources: {}
     kernelImage: ''
     serviceAccountName: ''
     configMountPath: ''

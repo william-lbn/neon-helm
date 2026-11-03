@@ -28,6 +28,8 @@ spec:
   targetArchitecture: amd64
   cpuScalingMode: SysfsScaling
   serviceAccountName: {{ .Values.compute.runtime.serviceAccountName | quote }}
+  # Runner和内置复制init以相同CPU/内存硬限覆盖整个Pod生命周期。
+  podResources: {{ toYaml .Values.compute.runtime.podResources | nindent 4 }}
   runnerImage: {{ .Values.compute.runtime.runnerImage | quote }}
   enableSSH: false
   # 显式保留原CRD默认值，部署准备器才能逐字段核CREATE前后同一模板。

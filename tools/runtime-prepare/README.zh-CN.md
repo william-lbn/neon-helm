@@ -10,16 +10,43 @@ PCP1024、固定P、System硬限及初始数组额度来自实际内核/镜像/�
 
 ## 构建
 
-该窄工具直接复用锁定 autoscaling 源版本的公开库，必须从该 AS 模块根执行，不能在无 go.mod 的工具目录直接运行。下面路径为993ee1已验证不可变输入；换用新发行输入时，AS 与工具源码必须重新按同一 source-lock 核对。
+本工具没有独立的 `go.mod` / `go.sum`；Helm 仓库也没有 Go 主模块。它从指定 autoscaling 源码根使用该模块的 `go.mod` / `go.sum` 编译公开库，不能在工具目录直接执行 `go build .`。`source-lock.json` 固定本轮 AS 提交、模块文件和4个生产/4个测试源码 SHA；它是明确构建输入记录，不是新增 Go replace 或自报资格。旧 f1f 构建票里的 e8c6 是旧构建 AS 输入，不是 Helm 的依赖版本。
+
+从 GitHub 下载本 Helm 仓库后，在仓库根执行以下步骤。AS 原功能分支保留；只在新的专用 clone 读取固定提交并导出隔离源码，不对现有开发工作树切分支、detach 或 reset。下列两个目标目录必须是本次尚不存在的新目录。
 
 ```sh
-TASK_AS_SOURCE=/data/neon-build/validation/runtime-prepare-management-service-go-20261102T063954Z-993ee1/source
-TASK_TOOL_SOURCE=/data/neon-build/validation/runtime-prepare-management-service-go-20261102T063954Z-993ee1/tool
+TASK_TOOL_SOURCE="$PWD/tools/runtime-prepare"
+TASK_AS_CHECKOUT=/data/neon-build/validation/runtime-prepare-as73c1-clone
+TASK_AS_SOURCE=/data/neon-build/validation/runtime-prepare-as73c1-source
+TASK_AS_COMMIT=73c1cb9464b4315e7087674c7ec3a5928c183481
+# GitHub 网络沿部署者既有显式代理设置；本步骤不改代理或网络配置。
+test ! -e "$TASK_AS_CHECKOUT" && test ! -e "$TASK_AS_SOURCE"
+git clone --filter=blob:none --no-checkout --single-branch \
+  --branch codex/dsga-autoscaling-20261019 \
+  https://github.com/william-lbn/autoscaling.git "$TASK_AS_CHECKOUT"
+git -C "$TASK_AS_CHECKOUT" cat-file -e "$TASK_AS_COMMIT^{commit}"
+mkdir -m 0700 "$TASK_AS_SOURCE"
+git -C "$TASK_AS_CHECKOUT" archive "$TASK_AS_COMMIT" | tar -x -C "$TASK_AS_SOURCE"
+
+python3 - "$TASK_AS_SOURCE" "$TASK_TOOL_SOURCE" <<'CHECK_SOURCE'
+from pathlib import Path
+import hashlib, json, sys
+as_source, tools = map(Path, sys.argv[1:])
+lock = json.loads((tools / "source-lock.json").read_text())
+for root, entries in [(as_source, lock["autoscaling_module_files_sha256"]),
+                      (tools, lock["production_files_sha256"]),
+                      (tools, lock["test_files_sha256"])]:
+    for name, expected in entries.items():
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name
+print("固定 AS 模块文件及4个生产/4个测试源码摘要一致")
+CHECK_SOURCE
+
 cd "$TASK_AS_SOURCE"
-CGO_ENABLED=0 go build -p=2 -ldflags="-s -w" -o /data/neon-build/bin/neon-runtime-prepare \
+GOWORK=off CGO_ENABLED=0 go build -mod=readonly -p=2 -ldflags="-s -w" \
+  -o /data/neon-build/bin/neon-runtime-prepare \
   "$TASK_TOOL_SOURCE/main.go" "$TASK_TOOL_SOURCE/render.go" \
   "$TASK_TOOL_SOURCE/recovery.go" "$TASK_TOOL_SOURCE/service.go"
-go test -p=2 -race -json -count=1 -timeout=90s \
+GOWORK=off go test -mod=readonly -p=2 -race -json -count=1 -timeout=90s \
   -run '^(TestRuntimePrepare|TestRuntimeRender|TestRuntimeRetire|TestRuntimeManagementService)' \
   "$TASK_TOOL_SOURCE/main.go" "$TASK_TOOL_SOURCE/render.go" \
   "$TASK_TOOL_SOURCE/recovery.go" "$TASK_TOOL_SOURCE/service.go" \
@@ -27,7 +54,9 @@ go test -p=2 -race -json -count=1 -timeout=90s \
   "$TASK_TOOL_SOURCE/recovery_test.go" "$TASK_TOOL_SOURCE/service_test.go"
 ```
 
-必须列全4个生产文件及4个测试文件，遗漏 recovery.go 或 service.go 会直接编译失败。上述实际使用的Go/镜像/COPY校验与资源限制见993ee1原始Dockerfile/source-lock及actual-phase-result.json；13个race根50子项和CLI/help均0，旧collector因预期字段缺失退出1仍保留，不把wrapper失败重标成功。测试使用typed fake API分配UID，是单元测试，不是Kubernetes实测。
+必须列全4个生产文件及4个测试文件，遗漏 recovery.go 或 service.go 会直接编译失败。`GOWORK=off` 防止外围工作区替换固定模块，`-mod=readonly` 防止构建修改原模块锁。已有原 Go 模块缓存可直接复用；全新机器需要按原 go.mod/go.sum 下载第三方依赖，不从旧 CP 的 go.mod 获取 AS。
+
+本轮实际验证是 `pg17-final-runtime-prepare-go-20261103T094304Z-26086d`：AS73c1 + Helm b386 中上述同字节工具源码，3CPU/3Gi，13个 race 根、66个 pass 事件，测试/编译/CLI help 均0、无 skip/OOM。实际导出 ELF SHA256 为 `35b6a4f5e0aff74c80f3fb6019c3c368625aa496109d2ff348268f1aeb535965`；准确 result/源码摘要见 source-lock。不同绝对源码路径或 Go 工具链的重编 ELF 不保证逐字节相同，此处不冒称可重现二进制认证。测试使用 typed fake API 分配 UID，是单元测试，不是 Kubernetes 实测；旧失败票全部保留。
 
 ## 先持有，再封存，再由原 CAS 释放
 

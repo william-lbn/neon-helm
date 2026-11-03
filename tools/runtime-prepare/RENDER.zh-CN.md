@@ -16,8 +16,13 @@
 Compute/Source模板必须为原私有regular文件（0600），公开构建文件不能被group/other写。不跟随最终symlink，读取前后核同文件/大小/mtime。输出父目录必须已存在且0700；只在新的私有目录以0600+fsync形成完整三文件，再NOREPLACE原子发布。同一原输入可读取确认，漂移输入不能覆盖已发布文件。同字节恢复仍重新fsync原三文件、输出目录及父目录，不能把前次rename后未确认耐久的Unknown直接当成功。
 
 ```sh
-# 从固定autoscaling源码根目录构建，使用同go.mod和原依赖缓存。
-go build -o /data/neon-build/bin/neon-runtime-prepare /absolute/neon-helm/tools/runtime-prepare/main.go /absolute/neon-helm/tools/runtime-prepare/render.go
+# 先按 README.zh-CN.md 的 source-lock 步骤取得隔离 AS73c1 源码并核SHA。
+# 必须从该 AS 模块根编译全4个生产文件；工具目录没有独立go.mod。
+cd "$TASK_AS_SOURCE"
+GOWORK=off CGO_ENABLED=0 go build -mod=readonly -p=2 -ldflags="-s -w" \
+  -o /data/neon-build/bin/neon-runtime-prepare \
+  "$TASK_TOOL_SOURCE/main.go" "$TASK_TOOL_SOURCE/render.go" \
+  "$TASK_TOOL_SOURCE/recovery.go" "$TASK_TOOL_SOURCE/service.go"
 
 neon-runtime-prepare -action render -kubeconfig <既有配置> -vm-json <原held-vm.json> -state /data/<本次归档>/deployment/state.json -compute-config <原私有unbound-compute.json> -resource-config <原私有unbound-resource.json> -policy-templates <原完整policy-templates.json> -native-build-manifest <原Builder-native-build.json> -build-contract <原发行build-index.json> -render-output-dir /data/<本次归档>/deployment/rendered
 

@@ -1,0 +1,41 @@
+{
+  "protocol_version": 1,
+  "scope": "neon-runtime-prepare-explicit-as-source-input-v1",
+  "module_owner": "autoscaling repository root; Helm tools/runtime-prepare has no separate go.mod/go.sum",
+  "autoscaling_repository": "https://github.com/william-lbn/autoscaling.git",
+  "autoscaling_function_branch": "codex/dsga-autoscaling-20261019",
+  "autoscaling_commit": "73c1cb9464b4315e7087674c7ec3a5928c183481",
+  "autoscaling_module_path": "github.com/neondatabase/autoscaling",
+  "autoscaling_module_files_sha256": {
+    "go.mod": "65855db77053da9298ca60c5e8a8f3d491605d0b082bfb684d6ccaeed7f7e928",
+    "go.sum": "66f2e9ce367e08053a7ec3a13cce6ade426c9e9feafd85c778618762760e85ad"
+  },
+  "production_files_sha256": {
+    "main.go": "9cf8a46a0c61b8f5095eaecfdca6ba574821ab82b06c9302c3218358bcc93082",
+    "render.go": "faea8e8764e227f4782fc8b4a89d81c1fd99a725f99380171124a361a3e865d0",
+    "recovery.go": "2d72ac9db5e39694cc14334024f8d381f5cce811fd43891d6cb51d2b93e95a23",
+    "service.go": "7fa2810e5ece9422bd446e93678d4210b2e8d2718bfb38cab38be23c390acd92"
+  },
+  "test_files_sha256": {
+    "main_test.go": "5f8f1e69b28e0711c80ae2ac3231215960b2e07ed511d97202c107467e5ec4c6",
+    "render_test.go": "f38a2ff387a0d8dfec9e04292d12d3fb7105ca6a8e3a33869d6d370b42549678",
+    "recovery_test.go": "7872bc43e1ac50150253d5f8ae9bd93cf90a1ea58ae5eb00f90220549d57d985",
+    "service_test.go": "ccffb806d97cc058a2e55892213bd2068f90140ad104d6f87498d961cc0f0fdf"
+  },
+  "actual_validation": {
+    "directory": "/data/neon-build/validation/pg17-final-runtime-prepare-go-20261103T094304Z-26086d",
+    "result_sha256": "5b9b9f5149f553f9e9423cb1f55204b3c8ce6f859f8f6ca260e698eef618bc06",
+    "tool_sha256": "35b6a4f5e0aff74c80f3fb6019c3c368625aa496109d2ff348268f1aeb535965",
+    "root_tests": 13,
+    "pass_events": 66,
+    "test_cli_help_exit": [
+      0,
+      0,
+      0
+    ],
+    "Kubernetes_business_action": false
+  },
+  "meaning": "explicit source input lock for documented build; not a Go module replacement/version requirement; no claim of different-path byte-reproducible ELF",
+  "old_e8_meaning": "older f1f build AS input metadata; not Helm Go dependency",
+  "public_protocol_change": false
+}

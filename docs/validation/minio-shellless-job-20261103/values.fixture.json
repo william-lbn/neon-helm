@@ -1,0 +1,71 @@
+{
+  "global": {
+    "initImage": "docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+    "componentImages": {
+      "pageserver": "127.0.0.1:5001/neon-candidate/pageserver@sha256:ee8c7e5f878c28cd30a1b0d5c641f11dc7deb52c9a7b542a92f25cca78c91eac",
+      "safekeeper": "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274",
+      "storageBroker": "127.0.0.1:5001/neon-candidate/storage-broker@sha256:db19776abc16b104f96bcbc116300cf93eedb78b6acf43af2c1e13fe8dfcd9aa",
+      "storageController": "127.0.0.1:5001/neon-candidate/storage-controller@sha256:af83b80b6406ba7fcb0a64bf531644f0bdcecd41033356288d6cd99c567bb6fa",
+      "proxy": "127.0.0.1:5001/neon/proxy@sha256:a1459708aac0823600b163eb07b5f4ac320c4ae606203318aa49cdb658d6980d"
+    }
+  },
+  "validation": {
+    "labAcknowledged": true,
+    "requirePinnedImages": true
+  },
+  "placement": {
+    "allowedNodeNames": [
+      "worker-117",
+      "worker-118",
+      "worker-119"
+    ]
+  },
+  "minio": {
+    "enabled": true,
+    "image": "127.0.0.1:5001/neon-test-only/minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8",
+    "mcImage": "127.0.0.1:5001/neon-test-only/mc@sha256:a1cae1fa96626493bb325e3989ef13e250596d6298d3455680038ac0db21417f",
+    "existingSecret": "neon-object-store",
+    "bucket": "neon",
+    "region": "us-east-1",
+    "persistence": {
+      "enabled": true,
+      "size": "20Gi",
+      "storageClassName": "neon-pg17-static-local"
+    },
+    "productStorage": {
+      "enabled": false
+    }
+  },
+  "pageserver": {
+    "enabled": true,
+    "cache": {
+      "size": "20Gi",
+      "storageClassName": "neon-pg17-static-local"
+    }
+  },
+  "safekeeper": {
+    "enabled": true,
+    "replicas": 3,
+    "persistence": {
+      "size": "10Gi",
+      "storageClassName": "neon-pg17-static-local"
+    }
+  },
+  "storageBroker": {
+    "enabled": true
+  },
+  "storageController": {
+    "enabled": false,
+    "managePageserver": false
+  },
+  "compute": {
+    "enabled": false
+  },
+  "computeResize": {
+    "enabled": false
+  },
+  "proxy": {
+    "enabled": false,
+    "legacyApiEnabled": false
+  }
+}

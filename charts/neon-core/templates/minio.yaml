@@ -88,9 +88,9 @@ spec:
         env:
         - { name: MINIO_ROOT_USER, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: accessKey } } }
         - { name: MINIO_ROOT_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: secretKey } } }
-        command: ["/bin/sh","-ec"]
-        args:
-        - |
-          until mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do sleep 2; done
-          mc mb --ignore-existing --region {{ .Values.minio.region }} local/{{ .Values.minio.bucket }}
+        # mc 镜像只保证自身二进制，不依赖 /bin/sh。Kubernetes 按前序 env
+        # 展开 Secret 引用，凭据不写入 Helm values、参数或命令日志。
+        - { name: MC_HOST_local, value: "http://$(MINIO_ROOT_USER):$(MINIO_ROOT_PASSWORD)@minio:9000" }
+        command: ["/usr/bin/mc"]
+        args: ["mb", "--ignore-existing", "--region", {{ .Values.minio.region | quote }}, {{ printf "local/%s" .Values.minio.bucket | quote }}]
 {{- end }}

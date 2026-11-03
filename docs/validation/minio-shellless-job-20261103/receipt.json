@@ -1,0 +1,52 @@
+{
+  "status": "PASS_DATA_CHAIN_FOUNDATION_NOT_E2E",
+  "write_set": [
+    {
+      "path": "charts/neon-core/templates/minio.yaml",
+      "absolute_path": "/data/neon-build/src/neon-helm/charts/neon-core/templates/minio.yaml",
+      "sha256": "b83292dd978054c45322630c92473f12a1cab75d2ecc15a99775fc4ea17ea811"
+    }
+  ],
+  "focused_repro": {
+    "script": "/data/neon-k8s-pg17/runs/core-storage-helm-20261103T032309Z-19a5a5/check-minio-shellless.py",
+    "sha256": "fbc373162f37bd8af0dfe2ae9e5a7ffc0d1fd3882a992d0e756e4098567e732a",
+    "command": [
+      "python3",
+      "check-minio-shellless.py",
+      "<neon-core-chart>",
+      "<final-values.json>"
+    ],
+    "checks": 9,
+    "passed": true
+  },
+  "actual_acceptance": {
+    "file": "/data/neon-k8s-pg17/runs/core-storage-helm-20261103T032309Z-19a5a5/attempt04/acceptance.json",
+    "sha256": "ddf71f2c1d1c308adecb2329d6d5c6ec0e1c67f2dd25b6f7535cae6e6218db0a",
+    "helm": {
+      "name": "neon-pg17-core",
+      "namespace": "neon",
+      "version": 4,
+      "status": "deployed"
+    },
+    "pods_ready": 6,
+    "pvc_bound": 5,
+    "authenticated_bucket_hooks_succeeded": 2,
+    "http_status_200": 5,
+    "broker_http2_settings": true
+  },
+  "mc_minimal_image_proof": {
+    "file": "/data/neon-k8s-pg17/runs/core-storage-helm-20261103T032309Z-19a5a5/mc-directory-permission-proof.public.json",
+    "sha256": "9fef4d60e1af8a21b4ef33ca562601c2b01f0d9d14d539885a4667a8ba02df0e",
+    "digest_reference": "127.0.0.1:5001/neon-test-only/mc@sha256:74bce3a4662e26913d360ef74c948b73cad6ccf5b9867634da37fc4a0d65d77a",
+    "mc_elf_sha256": "c513ccfdd3ff8eecd7b8236a4dbaeac1529ec49acb1bcb468fc909ab85a76b81",
+    "ca_sha256": "e9c7b63ee2623386e9b0a3ee32f499d01a8ea23dc83b8383ddff9f8e749543b7",
+    "changed_directories_only": [
+      "etc",
+      "etc/ssl",
+      "etc/ssl/certs"
+    ],
+    "no_shell_added": true
+  },
+  "git_policy": "仅源码、定向可重跑check和公开小票可提交；Secret文件、原失败logs及私有Info不得入Git",
+  "evidence": "/data/neon-k8s-pg17/runs/core-storage-helm-20261103T032309Z-19a5a5"
+}

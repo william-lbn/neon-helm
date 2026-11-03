@@ -24,3 +24,5 @@ Guest 最小 7Gi、最大 8Gi 时，Host 固定额外 3Gi 可覆盖 cap10Gi：7+
 
 聚焦渲染检查：`python3 charts/neon-compute/tests/pod-resources.py --output /data/新的归档目录`。
 只核本次资源接线、旧 legacy 输出与缺失/非法限额拒绝，不访问集群。
+
+受信模式不渲染Guest env或Secret磁盘，避免与原fixed Runtime启动门冲突或遮盖Root源。原镜像公开JWKS/spec:null先启动HTTP；封存后由现有management Gateway configure API核原Secret/签名/实例身份交付spec，不增加配置传输协议。

@@ -9,7 +9,6 @@ import (
 	"github.com/neondatabase/autoscaling/pkg/dsga/journal"
 	"github.com/neondatabase/autoscaling/pkg/dsga/resourceguard"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubefake "k8s.io/client-go/kubernetes/fake"
@@ -30,8 +29,6 @@ func renderUnit(t *testing.T) (*preparer, renderFiles, map[string][]byte) {
 	vm.Spec.Guest.RootDisk.Image = guest
 	vm.Spec.Guest.MemorySlotSize = resource.MustParse("1Gi")
 	vm.Spec.Guest.MemorySlots = vmv1.MemorySlots{Min: 7, Use: 7, Max: 8}
-	yes, no := true, false
-	vm.Spec.Disks = []vmv1.Disk{{Name: "compute-config", MountPath: "/neonvm/config", ReadOnly: &yes, Watch: &no, DiskSource: vmv1.DiskSource{Secret: &corev1.SecretVolumeSource{SecretName: vm.Name + "-config", Items: []corev1.KeyToPath{{Key: "config.json", Path: "compute.json"}}}}}}
 	native := []byte(`{"unit_only_Builder_bytes":"not-a-deployable-ELF-manifest"}`)
 	var templates map[string]any
 	require.NoError(t, json.Unmarshal(data[resourceguard.PolicyTemplatesSecretKey], &templates))
@@ -55,7 +52,7 @@ func renderUnit(t *testing.T) (*preparer, renderFiles, map[string][]byte) {
 	config["unit_preserved"] = map[string]any{"secret": "do-not-print-unit-credential", "array": []any{1, "two"}}
 	cfg, e := json.Marshal(config)
 	require.NoError(t, e)
-	contract := renderBuildContract{ProtocolVersion: 1, Scope: "neon-pg17-trusted-runtime-build-v1", GuestImage: guest, RunnerImage: runner, KernelImage: kernel, PolicyTemplatesSHA256: digest(policies), NativeBuildSHA256: digest(native), ComputeConfigPath: "/neonvm/config/compute.json"}
+	contract := renderBuildContract{ProtocolVersion: 1, Scope: "neon-pg17-trusted-runtime-build-v1", GuestImage: guest, RunnerImage: runner, KernelImage: kernel, PolicyTemplatesSHA256: digest(policies), NativeBuildSHA256: digest(native), ComputeConfigPath: "/neonvm/config/compute-public.json"}
 	contractRaw, e := json.Marshal(contract)
 	require.NoError(t, e)
 	dir := t.TempDir()
@@ -113,7 +110,7 @@ func TestRuntimeRenderBindsActualHeldUIDAndPreservesOriginalFields(t *testing.T)
 	require.NoError(t, e, "produced files must reach original complete Runtime library")
 }
 func TestRuntimeRenderRejectsDriftBeforePublishing(t *testing.T) {
-	for _, name := range []string{"bound-source", "key-drift", "private-signing-key", "unknown-jwk", "policy-drift", "native-build-drift", "image-drift", "public-credential-file", "retained-data-drift"} {
+	for _, name := range []string{"bound-source", "key-drift", "private-signing-key", "unknown-jwk", "policy-drift", "native-build-drift", "image-drift", "public-credential-file", "retained-data-drift", "legacy-disk", "legacy-env", "public-config-path"} {
 		t.Run(name, func(t *testing.T) {
 			p, in, _ := renderUnit(t)
 			switch name {
@@ -167,6 +164,25 @@ func TestRuntimeRenderRejectsDriftBeforePublishing(t *testing.T) {
 				require.NoError(t, os.WriteFile(in.contract, b, 0600))
 			case "public-credential-file":
 				require.NoError(t, os.Chmod(in.computeTemplate, 0644))
+			case "legacy-disk":
+				p.wanted.Spec.Disks = []vmv1.Disk{{Name: "forbidden-config", MountPath: "/neonvm/config"}}
+				_, e := renderBootstrapFiles(p.wantedWithHeldIdentityForTest(), in)
+				require.ErrorContains(t, e, "fixed runtime forbids legacy boot inputs")
+				return
+			case "legacy-env":
+				p.wanted.Spec.Guest.Env = []vmv1.EnvVar{{Name: "UNDECLARED", Value: "input"}}
+				_, e := renderBootstrapFiles(p.wantedWithHeldIdentityForTest(), in)
+				require.ErrorContains(t, e, "fixed runtime forbids legacy boot inputs")
+				return
+			case "public-config-path":
+				b, e := os.ReadFile(in.contract)
+				require.NoError(t, e)
+				var c renderBuildContract
+				require.NoError(t, json.Unmarshal(b, &c))
+				c.ComputeConfigPath = "/other/compute.json"
+				b, e = json.Marshal(c)
+				require.NoError(t, e)
+				require.NoError(t, os.WriteFile(in.contract, b, 0600))
 			case "retained-data-drift":
 				p.state.SecretDataSHA256 = strings.Repeat("f", 64)
 			}
@@ -207,4 +223,11 @@ func TestRuntimeRenderRejectsSameUIDSecondSnapshotDrift(t *testing.T) {
 	_, e := os.Lstat(in.outputDir)
 	require.True(t, os.IsNotExist(e))
 	require.Empty(t, p.state.SecretDataSHA256)
+}
+
+func (p *preparer) wantedWithHeldIdentityForTest() *vmv1.VirtualMachine {
+	v := p.wanted.DeepCopy()
+	v.UID = p.state.VMUID
+	v.ResourceVersion = "unit-held-rv"
+	return v
 }

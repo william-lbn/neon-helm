@@ -1,0 +1,6 @@
+受信Compute正式配置接线
+原Helm trusted模板注入env与Secret盘，生产fixed Runner会在出生前拒绝；盘挂到/neonvm/config也会遮盖Root可信源。
+本次仅在trusted模式省略这些legacy字段，legacy完整AST不变。原015f镜像已包含固定公开JWKS/spec:null，Compute先启HTTP再wait_spec，受管模式不预热临时PG。原Gateway configure校验实际Secret、JWT、SNI、实例身份，初配时冻结DSGA合同，无须添加Runtime协议或将凭据放argv/ISO。
+准备器仍核真实held UID/RV、完整Spec、原公钥/Build/Native/Policy摘要；固定baked路径精确为/neonvm/config/compute-public.json，拒绝legacy盘/env/命令/SSH。
+复现：执行charts/neon-compute/tests/pod-resources.py --output <新目录>及docs/validation/pg17-primary-only-network-20261103/focused-render.py --output <新目录>，实际9+12渲染通过。以autoscaling根目录依原tools/runtime-prepare/README.zh-CN.md的4个Go源码+4测试文件执行go test -race -count=1，13根66项通过；精确命令与实际cgroup见Linux收据路径。两个fixture编译失败保留，没有报绿。
+此提交修复生产配置接线，不表示真实K8s VM、Guest资格或内存扩缩容已通过。

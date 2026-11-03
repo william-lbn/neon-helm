@@ -1,0 +1,25 @@
+{
+  "scope": "trusted fixed image wait_spec -> existing management Gateway configure",
+  "result_path": "/data/neon-build/validation/pg17-fixed-configure-tool-go-20261103T044927Z-aab8b9/result.json",
+  "result_sha256": "c8d5c50f61507643fbddb1070766dac156a62fbf469853a719da0c4ad9ad94f7",
+  "race_unique_roots": 13,
+  "pass_events": 66,
+  "fail": 0,
+  "skip": 0,
+  "actual_CPU_max": "300000 100000",
+  "actual_memory_max": "3221225472",
+  "actual_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "CLI_sha256": "f1f6625b34c7fa533cc7710347677e82d59b995dd28f85d98694f1ccbf2715e7",
+  "CLI_help_exit": 0,
+  "focused_render_result": "/data/neon-build/validation/pg17-fixed-configure-render-20261103T044306Z-a3c0ec/result.json",
+  "render_cases": 21,
+  "legacy_AST_unchanged": true,
+  "source_compute_flow": "compute_tools/src/compute.rs:736-759,919-924,1866-1875",
+  "new_config_or_wire_protocol": false,
+  "VM_created": false,
+  "K8s_memory_E2E": false,
+  "prior_compile_failures_retained": [
+    "20261103T044404Z-3d6d70",
+    "20261103T044717Z-5fc2a7"
+  ]
+}

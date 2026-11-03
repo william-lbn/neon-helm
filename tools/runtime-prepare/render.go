@@ -111,22 +111,14 @@ func sameRenderBuild(vm *vmv1.VirtualMachine, c renderBuildContract, policies, n
 	if c.ProtocolVersion != 1 || c.Scope != "neon-pg17-trusted-runtime-build-v1" || vm.Spec.RunnerImage == nil || vm.Spec.Guest.KernelImage == nil || c.GuestImage != vm.Spec.Guest.RootDisk.Image || c.RunnerImage != *vm.Spec.RunnerImage || c.KernelImage != *vm.Spec.Guest.KernelImage || !hexSHA.MatchString(c.PolicyTemplatesSHA256) || !hexSHA.MatchString(c.NativeBuildSHA256) || digest(policies) != c.PolicyTemplatesSHA256 || digest(native) != c.NativeBuildSHA256 {
 		return fmt.Errorf("original release build contract differs")
 	}
-	if !filepath.IsAbs(c.ComputeConfigPath) || filepath.Clean(c.ComputeConfigPath) != c.ComputeConfigPath {
-		return fmt.Errorf("original Compute config path missing")
+	// 受信镜像只从原构建计划内的公开JWKS/spec:null启动；业务spec由既有
+	// management Gateway /configure 在真实Secret封存后交付。不能把旧Secret
+	// disk挂到/neonvm/config遮盖Root可信源，也不向固定启动入口注入env/script。
+	if c.ComputeConfigPath != "/neonvm/config/compute-public.json" {
+		return fmt.Errorf("original image public Compute config path differs")
 	}
-	mounted := false
-	for _, d := range vm.Spec.Disks {
-		if d.Secret == nil || d.Secret.SecretName != vm.Name+"-config" || d.ReadOnly == nil || !*d.ReadOnly || d.Watch == nil || *d.Watch {
-			continue
-		}
-		for _, item := range d.Secret.Items {
-			if item.Key == "config.json" && filepath.Join(d.MountPath, item.Path) == c.ComputeConfigPath {
-				mounted = true
-			}
-		}
-	}
-	if !mounted {
-		return fmt.Errorf("original config mount differs from release image plan")
+	if len(vm.Spec.Disks) != 0 || len(vm.Spec.Guest.Env) != 0 || len(vm.Spec.Guest.Command) != 0 || len(vm.Spec.Guest.Args) != 0 || vm.Spec.TLS != nil || vm.Spec.InitScript != "" || vm.Spec.EnableSSH != nil && *vm.Spec.EnableSSH {
+		return fmt.Errorf("original fixed runtime forbids legacy boot inputs")
 	}
 	// 这里只比较原产物字节与原policy指向；真正完整policy语义仍由seal取得实际
 	// Secret UID后调用公开Runtime库核验，不为预检伪造临时UID。

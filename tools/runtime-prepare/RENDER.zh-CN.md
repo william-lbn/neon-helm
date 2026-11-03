@@ -9,7 +9,7 @@
 - 原私有 Compute config 模板：只允许 `spec.dynamic_shared_buffers.vm_uid` 为空；协议2、Compute实例、最低7GiB与bootstrap字节明确，原 storage/认证/业务字段原样保留。
 - 原私有 SourceConfig 模板：Config.VMUID为空，execution_model明确trusted-controller-v1，原 Limits/固定StateDir/System/issuer1/预算ID/管理公钥完整。这里复用旧纯renderer的SourceConfig合同，不调用旧CP服务。
 - 原完整policy template字节与原 Builder NativeBirth manifest。不得从模型 Runtime 提取已绑定 UID/资格或测试0x39 key作为正式来源。
-- 原发行构建索引：protocol_version=1、scope=neon-pg17-trusted-runtime-build-v1；guest_image/runner_image/kernel_image 必须等于原held VM的准确digest，policy_templates_sha256/native_build_sha256覆盖上述原字节，compute_config_path等于原镜像计划/Secret只读挂载路径。索引是构建输入记录，不是内存预算/Source许可。
+- 原发行构建索引：protocol_version=1、scope=neon-pg17-trusted-runtime-build-v1；guest_image/runner_image/kernel_image 必须等于原held VM的准确digest，policy_templates_sha256/native_build_sha256覆盖上述原字节，compute_config_path等于原镜像构建计划固定的/neonvm/config/compute-public.json（只含公开JWKS，spec为空）；VM不注入env/挂载盘/命令。封存后通过现有management Gateway的configure API交付原Secret中的业务spec。索引是构建输入记录，不是内存预算/Source许可。
 
 工具不填默认P/A/N/Outside，不从RSS或Linux模型预算生成新上界；PCP1024/P256/System512及初始额度来自原已审policy与实际镜像。原公开Source.Validate/TotalUpperBytes先核结构、身份、公钥、完整额度可表示且适合原最低Guest。Compute和Source的唯一Ed25519验证公钥必须相同，不读取或输出签名seed。render与手工seal共用strict public-only JWK校验，只接受原六个公开字段与可选kid，d/未知成员在任何Secret API前拒绝。
 

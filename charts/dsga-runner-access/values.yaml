@@ -1,0 +1,11 @@
+# 默认不创建任何对象，不保存某次实例的可启用默认身份。
+enabled: false
+serviceAccountName: ''
+vmName: ''
+configSecretName: ''
+allowedNodeNames: [worker-117, worker-118, worker-119]
+# pre-hold 明确空名即无此 Lease 读取许可；真实引用由部署 values 显式提供。
+ownerLease: {namespace: '', name: ''}
+hostLeases: []
+# 真 hold UID 后派生唯一 state claim，再于 seal/ready 前显式补齐。
+stateClaimName: ''

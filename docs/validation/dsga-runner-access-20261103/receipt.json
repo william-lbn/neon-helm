@@ -1,0 +1,41 @@
+{
+  "status": "READY_FOR_ROOT_COMMIT_AND_HELM_REVIEW_NOT_APPLIED",
+  "repository": "/data/neon-build/src/neon-helm",
+  "branch": "codex/dsga-neon-helm-v3-20261019",
+  "base_head": "14c0a63356f226db4210c6a0ed61e81d244528a8",
+  "owned_files": {
+    "charts/dsga-runner-access/Chart.yaml": "b201da6b74d50c95bd8a1963a191f73ad5bc2e31bff52bdffe86157d432c821b",
+    "charts/dsga-runner-access/README.md": "f73a6ea5c768d0de03d341ec80669299282328b247fab7a0c6067fb5287e1a37",
+    "charts/dsga-runner-access/templates/00-guard.yaml": "7fa251bf343d26fad117dab460b2fc6cd27b82dc935dcaff7729dbce0da9a937",
+    "charts/dsga-runner-access/templates/access.yaml": "d42b9fe4edf3b5052246d997834deda3f2b5f9e5be5dba484ad6c6397759e200",
+    "charts/dsga-runner-access/tests/render-rbac.py": "4fe4aabf58f423f17ddae258a2e0a7e658cf89580eb7e995ca9964eeb66bf1b1",
+    "charts/dsga-runner-access/values.schema.json": "dccaf99abdea0ae6625dbb8cabe6be1b3dff13608d45cd5b0d58f721bbed7244",
+    "charts/dsga-runner-access/values.yaml": "2466952fac8961836ae671f46363afe1c9ebff1b65ee1768991aebd10d4a5b55"
+  },
+  "scope": "7 new files; independent SA/RBAC chart only",
+  "defaults_blank_no_stale_instance_identity": true,
+  "enabled_only_without_identity_rejected": true,
+  "default_off_no_objects": true,
+  "schema_and_RBAC_checks": {
+    "default_off": true,
+    "positive_render_cases": 2,
+    "negative_rejections": 12,
+    "only_SA_RBAC": true,
+    "cluster_accessed": false
+  },
+  "helm_lint_exit0": true,
+  "actual_unit_dead_MainPID0_exit0": true,
+  "budget_reconciled": true,
+  "pre_hold_owner_empty_no_permission": true,
+  "pre_hold_state_empty_no_update": true,
+  "post_hold_CM_update_only_exact_actual_state_name": true,
+  "VM_and_ConfigSecret_get_only_exact_names": true,
+  "Node_get_only_117_118_119": true,
+  "Lease_get_only_exact_names_namespaces": true,
+  "no_list_watch_patch_delete": true,
+  "CM_get_create_namespace_boundary_documented": true,
+  "only_fixture_identity_in_tests": true,
+  "no_VM_Service_Secret_rendered_or_real_API_mutation": true,
+  "original_prior_test_receipts_preserved": true,
+  "actual_release_values_and_UID_refs": "Root supplies from actual held/create readback before original seal/ready"
+}

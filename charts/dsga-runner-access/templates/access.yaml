@@ -1,0 +1,94 @@
+{{- if .Values.enabled }}
+{{- $name := printf "%s-runtime" .Release.Name }}
+{{- $cluster := printf "%s-%s-nodes" .Release.Namespace .Release.Name }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.serviceAccountName | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+# managed controller 在原 Pod 上显式置 true；其它复用此 SA 的 Pod 不默认取得 token。
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups: [vm.neon.tech]
+  resources: [virtualmachines]
+  resourceNames: [{{ .Values.vmName | quote }}]
+  verbs: [get]
+- apiGroups: ['']
+  resources: [secrets]
+  resourceNames: [{{ .Values.configSecretName | quote }}]
+  verbs: [get]
+- apiGroups: ['']
+  resources: [pods]
+  verbs: [get]
+# API CREATE 没有 URL 资源名可供 RBAC resourceNames 限制；只开放本 namespace 的 CM 创建。
+# get/create 对应实际 birth/state/receipt/exit publisher，不开放 delete/list/watch。
+- apiGroups: ['']
+  resources: [configmaps]
+  verbs: [get, create]
+{{- if .Values.stateClaimName }}
+- apiGroups: ['']
+  resources: [configmaps]
+  resourceNames: [{{ .Values.stateClaimName | quote }}]
+  verbs: [update]
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ $name | quote }}}
+subjects:
+- {kind: ServiceAccount, name: {{ .Values.serviceAccountName | quote }}, namespace: {{ .Release.Namespace | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $cluster | quote }}
+rules:
+- apiGroups: ['']
+  resources: [nodes]
+  resourceNames: {{ .Values.allowedNodeNames | toJson }}
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $cluster | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ $cluster | quote }}}
+subjects:
+- {kind: ServiceAccount, name: {{ .Values.serviceAccountName | quote }}, namespace: {{ .Release.Namespace | quote }}}
+{{- $root := . }}
+{{- $leases := concat (list .Values.ownerLease) .Values.hostLeases }}
+{{- range $i, $lease := $leases }}
+{{- if $lease.name }}
+{{- $leaseRole := printf "%s-%s-lease-%d" $root.Release.Namespace $root.Release.Name $i }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $leaseRole | quote }}
+  namespace: {{ $lease.namespace | quote }}
+rules:
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  resourceNames: [{{ $lease.name | quote }}]
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $leaseRole | quote }}
+  namespace: {{ $lease.namespace | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ $leaseRole | quote }}}
+subjects:
+- {kind: ServiceAccount, name: {{ $root.Values.serviceAccountName | quote }}, namespace: {{ $root.Release.Namespace | quote }}}
+{{- end }}
+{{- end }}
+{{- end }}

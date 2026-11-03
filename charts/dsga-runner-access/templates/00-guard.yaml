@@ -1,0 +1,12 @@
+{{- if .Values.enabled -}}
+{{- if eq .Values.serviceAccountName "default" -}}{{- fail "Runner requires a dedicated non-default service account" -}}{{- end -}}
+{{- if ne .Values.configSecretName (printf "%s-config" .Values.vmName) -}}{{- fail "Runner Config Secret must be the exact VM-name-config" -}}{{- end -}}
+{{- if ne (toJson (sortAlpha .Values.allowedNodeNames)) (toJson (list "worker-117" "worker-118" "worker-119")) -}}{{- fail "Runner Node reads must be exactly worker-117/118/119, excluding116" -}}{{- end -}}
+{{- $seen := dict -}}
+{{- range .Values.hostLeases -}}
+{{- if hasKey $seen .name -}}{{- fail "duplicate Host Lease name" -}}{{- end -}}
+{{- $_ := set $seen .name true -}}
+{{- end -}}
+{{- if ne (len $seen) 3 -}}{{- fail "exact three original Host Lease references required" -}}{{- end -}}
+{{- if and .Values.stateClaimName (not .Values.ownerLease.name) -}}{{- fail "post-hold state update requires the actual original owner Lease reference" -}}{{- end -}}
+{{- end -}}

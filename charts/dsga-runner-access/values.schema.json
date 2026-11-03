@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "serviceAccountName",
+    "vmName",
+    "configSecretName",
+    "allowedNodeNames",
+    "ownerLease",
+    "hostLeases",
+    "stateClaimName"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "serviceAccountName": {
+      "type": "string",
+      "maxLength": 63,
+      "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+    },
+    "vmName": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^$|^cp-[a-f0-9]{16}$"
+    },
+    "configSecretName": {
+      "type": "string",
+      "maxLength": 80,
+      "pattern": "^$|^cp-[a-f0-9]{16}-config$"
+    },
+    "allowedNodeNames": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "worker-117",
+          "worker-118",
+          "worker-119"
+        ]
+      }
+    },
+    "ownerLease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "maxLength": 63,
+          "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 253,
+          "pattern": "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "minLength": 1
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "namespace": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 63,
+                "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "hostLeases": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "name"
+        ],
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "neon-dsga-host-worker-117",
+              "neon-dsga-host-worker-118",
+              "neon-dsga-host-worker-119"
+            ]
+          }
+        }
+      }
+    },
+    "stateClaimName": {
+      "type": "string",
+      "pattern": "^$|^dsga-s-[a-f0-9]{56}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "serviceAccountName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63,
+            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "vmName": {
+            "type": "string",
+            "pattern": "^cp-[a-f0-9]{16}$"
+          },
+          "configSecretName": {
+            "type": "string",
+            "pattern": "^cp-[a-f0-9]{16}-config$"
+          },
+          "hostLeases": {
+            "minItems": 3
+          }
+        }
+      }
+    }
+  ]
+}

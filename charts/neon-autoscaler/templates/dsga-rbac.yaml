@@ -64,6 +64,28 @@ metadata:
 roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-scheduler-runtime}
 subjects:
 - {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
+{{- range $namespace := .Values.dsga.scheduler.podProtectionNamespaces }}
+---
+# 只补原Host预算需要的Pod保护元数据写；Node名单及原UID/RV条件由生产入口逐次核验。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-scheduler-pod-protection
+  namespace: {{ $namespace | quote }}
+rules:
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-scheduler-pod-protection
+  namespace: {{ $namespace | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-scheduler-pod-protection}
+subjects:
+- {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
+{{- end }}
 {{- range $n := .Values.dsga.scheduler.nodes }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

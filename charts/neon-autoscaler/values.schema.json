@@ -486,6 +486,20 @@
                   }
                 }
               }
+            },
+            "podProtectionNamespaces": {
+              "type": "array",
+              "maxItems": 3,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "kube-system",
+                  "neon-cert-manager",
+                  "neonvm-system"
+                ]
+              },
+              "description": "仅显式3既有namespace的Pod get/patch；neon旧Role不变，不创建全局Pod写权限。"
             }
           }
         }
@@ -531,6 +545,10 @@
               "scheduler": {
                 "properties": {
                   "nodes": {
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "podProtectionNamespaces": {
                     "minItems": 3,
                     "maxItems": 3
                   }

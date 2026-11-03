@@ -112,6 +112,12 @@ metadata:
   namespace: kube-system
 spec:
   replicas: 1
+  {{- if .Values.dsga.enabled }}
+  # 单例Host预算启动不得同时占两个2000Mi Scheduler；legacy保留原RollingUpdate。
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  {{- end }}
   selector:
     matchLabels:
       component: scheduler

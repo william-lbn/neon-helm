@@ -1,0 +1,32 @@
+{
+  "stage_ready": true,
+  "base_head": "e6b67a2a75331f23420bc3f58e6735c6ff9c890a",
+  "owned_files": {
+    "charts/neon-autoscaler/values.schema.json": "05d0ff2d8199d02c19002683458f96a8eb8a113c548d8c95a993e8d1c80a9e03",
+    "charts/neon-autoscaler/templates/_dsga.tpl": "2d812cff5aa84c112d78a4db2111511bf3e38ad394b696a23ca65e283f15943a",
+    "docs/validation/host-kubernetes-budget-helm-20261103/check.py": "4512b5fd71b313f3aeb7a843ad38e0650becdcd8850daca2e3a1d09d00fe0bb6"
+  },
+  "result_sha256": "b93d4dcb058311b9299389c162c5e0186bde8725693e6801f94f4ca0fa4c2819",
+  "checks": {
+    "unique_input_cases": 12,
+    "helm_invocations": 12,
+    "seconds": 2.9934835779713467,
+    "legacy_nil_preserved": true,
+    "exact_above_2pow53_strings_preserved": true,
+    "explicit_budget_10_invalid_inputs_refused": true
+  },
+  "reproduction_cli": {
+    "path": "docs/validation/host-kubernetes-budget-helm-20261103/check.py",
+    "args": [
+      "--output",
+      "NEW_EMPTY_DIRECTORY"
+    ],
+    "exit_code": 0
+  },
+  "scope": "only private explicit Host K8s input contract; actual Node drift and budget arithmetic remain AS production checks",
+  "image_or_source_or_install_values_changed": false,
+  "deployed": false,
+  "whole_host_physical_claim": false,
+  "git_diff_check_exit": 0,
+  "end_utc": "2026-11-03T01:27:53.829235+00:00"
+}

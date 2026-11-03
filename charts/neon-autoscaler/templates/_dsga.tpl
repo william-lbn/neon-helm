@@ -64,10 +64,24 @@
 {{- $domain := printf "%s/%s" $n.binding.namespace $n.binding.lease_name -}}
 {{- if or (hasKey $domains $domain) (hasKey $leaseUIDs $n.binding.lease_uid) -}}{{- fail "DSGA Host Lease domains and original UIDs must be distinct" -}}{{- end -}}
 {{- $_ := set $domains $domain true -}}{{- $_ := set $leaseUIDs $n.binding.lease_uid true -}}
-{{- if or (not $n.profile.id) (ne $n.profile.scheduler_name "autoscale-scheduler") -}}{{- fail "DSGA Host profile must be explicitly certified for autoscale-scheduler" -}}{{- end -}}
+{{- if or (not $n.profile.id) (ne $n.profile.scheduler_name "autoscale-scheduler") -}}{{- fail "DSGA Host profile must be explicit for autoscale-scheduler" -}}{{- end -}}
 {{- include "neon-autoscaler.dsga.decimal" (dict "value" $n.system_bytes "maximum" "18446744073709551615") -}}
 {{- include "neon-autoscaler.dsga.decimal" (dict "value" $n.profile.vm_overhead_bytes "maximum" "18446744073709551615") -}}
 {{- include "neon-autoscaler.dsga.decimal" (dict "value" $n.profile.pod_overhead_bytes "maximum" "18446744073709551615") -}}
+{{- /* 显式 Host K8s 容量策略不是全 Host 内核物理认证；Guest 资格另行完整核验。 */ -}}
+{{- if hasKey $n "kubernetes_budget" -}}
+{{- $p := $n.kubernetes_budget -}}
+{{- if or (not $p) (ne (int $p.protocol_version) 1) (ne $p.scope "kubernetes-node-memory-budget-v1") (ne $p.node_name $name) (ne $p.node_uid $n.binding.node_uid) (ne $p.system_reservation_bytes $n.system_bytes) -}}
+{{- fail "DSGA Kubernetes budget must match the explicit original Node and system reservation" -}}
+{{- end -}}
+{{- range $bytes := list $p.capacity_bytes $p.allocatable_bytes $p.system_reservation_bytes -}}
+{{- include "neon-autoscaler.dsga.decimal" (dict "value" $bytes "maximum" "18446744073709551615") -}}
+{{- end -}}
+{{- /* Profile 为 Go 固定 struct 字段顺序；不可对 map toJson 后改变摘要合同。 */ -}}
+{{- $profileRaw := printf "{\"id\":%s,\"scheduler_name\":%s,\"vm_overhead_bytes\":%s,\"pod_overhead_bytes\":%s}" (toJson $n.profile.id) (toJson $n.profile.scheduler_name) (toJson $n.profile.vm_overhead_bytes) (toJson $n.profile.pod_overhead_bytes) -}}
+{{- if ne $p.profile_sha256 (sha256sum $profileRaw) -}}{{- fail "DSGA Kubernetes budget must match the original Host profile SHA256" -}}{{- end -}}
+{{- /* Capacity/Allocatable 的实际 Node 漂移与防超卖算术由 AS 生产入口核验。 */ -}}
+{{- end -}}
 {{- end -}}
 {{- range $vmUID, $p := $a.automaticMemory -}}
 {{- if not (hasKey $a.prepareQualifications $vmUID) -}}{{- fail "Automatic DSGA memory requires the same original VM UID qualification" -}}{{- end -}}

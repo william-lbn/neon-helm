@@ -75,7 +75,7 @@
               "worker-119"
             ]
           },
-          "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
+          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
         }
       }
     },
@@ -415,6 +415,59 @@
                   "initialize_at_resource_version": {
                     "type": "string",
                     "pattern": "^[1-9][0-9]*$"
+                  },
+                  "kubernetes_budget": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "protocol_version",
+                      "scope",
+                      "node_name",
+                      "node_uid",
+                      "capacity_bytes",
+                      "allocatable_bytes",
+                      "system_reservation_bytes",
+                      "profile_sha256"
+                    ],
+                    "properties": {
+                      "protocol_version": {
+                        "const": 1
+                      },
+                      "scope": {
+                        "const": "kubernetes-node-memory-budget-v1"
+                      },
+                      "node_name": {
+                        "type": "string",
+                        "enum": [
+                          "worker-117",
+                          "worker-118",
+                          "worker-119"
+                        ]
+                      },
+                      "node_uid": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+                      },
+                      "capacity_bytes": {
+                        "type": "string",
+                        "pattern": "^[1-9][0-9]{0,19}$",
+                        "maxLength": 20
+                      },
+                      "allocatable_bytes": {
+                        "type": "string",
+                        "pattern": "^[1-9][0-9]{0,19}$",
+                        "maxLength": 20
+                      },
+                      "system_reservation_bytes": {
+                        "type": "string",
+                        "pattern": "^[1-9][0-9]{0,19}$",
+                        "maxLength": 20
+                      },
+                      "profile_sha256": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    }
                   }
                 }
               }

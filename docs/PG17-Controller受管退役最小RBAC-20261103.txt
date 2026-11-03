@@ -1,0 +1,12 @@
+PG17 Controller受管内存正常退役RBAC（2026-11-03）
+
+直接生产缺口：原Controller在finalizeManagedMemory读取worker-117时被现有RBAC拒绝。修复只增加默认关闭的权限接线，不修改Controller/Runner镜像或PodSpec，不直接写VM、Node、来源CM业务字段，也不越过任何finalizer。
+
+源码依据：pkg/neonvm/controllers/vm_dsga_retirement.go 105精确GET退役绑定Node；123–137必须分页LIST全部Node核无旧VM持有，因此Node list必须不带resourceNames，116会出现在只读列表里。get仍按placement.allowedNodeNames精确授予117/118/119，116 get及所有Node写不授予。175/189/206/210在原VM命名空间LIST/GET/PATCH/DELETE来源CM；唯一ownerUID/协议kind/finalizer/UID和RV条件由原生产函数继续校验。本函数链不读取HostLease，因此不加Lease权限。
+
+配置：controller.managedMemoryRetirement.enabled=false、namespaces=[]为默认；本次实际enabled=true、namespaces=[neon]。新增独立ClusterRole/Binding与neon Role/Binding，共4对象；原所有对象及PodSpec渲染完全不变。ConfigMap名称由VM/Runner出生动态派生，list没有资源名限制能力；patch/delete仅在显式命名空间，不是全局CM权限。原chart既有上游权限不在本次扩散改造。
+
+定向检查：python3 docs/validation/controller-retirement-rbac-focused.py --repo . --output /data/独立目录
+固定原基线c7b162270da6c074cd888322639c5c99756c8fbd；8项实际通过，包含默认等价、启用仅4个RBAC对象且所有旧对象/PodSpec等价、精确规则、空/非法/重复命名空间拒绝以及严格lint。只验证本次修改，不扩展无关功能矩阵。
+
+真实部署随后沿自有neonvm原Helm release追加权限。实际SubjectAccessReview正负结果、原Controller Pod UID/spec不变、原退役继续状态单独归档；渲染通过不能冒称已经真实退役完成。本轮自动审批拒绝过完整Helm values输出，命令未执行；随后只用不含凭据的源码/RBAC与公开值字段，不申请绕过敏感输出。

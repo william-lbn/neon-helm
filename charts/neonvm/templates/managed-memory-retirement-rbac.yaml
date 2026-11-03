@@ -1,0 +1,62 @@
+{{- if .Values.controller.managedMemoryRetirement.enabled }}
+{{- if not .Values.controller.managedMemoryRetirement.namespaces }}
+{{- fail "managedMemoryRetirement.enabled requires explicit VM namespaces" }}
+{{- end }}
+# 原finalizer先GET退役绑定节点，再分页LIST全部节点核无遗留持有。
+# LIST不带name字段选择器，Kubernetes不能用resourceNames限制这次LIST。
+# 这里仅开放读取；不授予Node写入，精确GET仍排除116。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: neonvm-managed-memory-retirement-reader
+rules:
+- apiGroups: [""]
+  resources: [nodes]
+  resourceNames:
+    {{- toYaml .Values.placement.allowedNodeNames | nindent 4 }}
+  verbs: [get]
+- apiGroups: [""]
+  resources: [nodes]
+  verbs: [list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: neonvm-managed-memory-retirement-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: neonvm-managed-memory-retirement-reader
+subjects:
+- kind: ServiceAccount
+  name: neonvm-controller
+  namespace: neonvm-system
+{{- range .Values.controller.managedMemoryRetirement.namespaces }}
+---
+# CM名称由原VM/Runner出生派生；仅显式VM命名空间可管理这些来源。
+# 原生产函数仍核唯一ownerUID、协议kind和finalizer，使用UID/RV条件写。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neonvm-managed-memory-retirement-sources
+  namespace: {{ . | quote }}
+rules:
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [get, list, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neonvm-managed-memory-retirement-sources
+  namespace: {{ . | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: neonvm-managed-memory-retirement-sources
+subjects:
+- kind: ServiceAccount
+  name: neonvm-controller
+  namespace: neonvm-system
+{{- end }}
+{{- end }}

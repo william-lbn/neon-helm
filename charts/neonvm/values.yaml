@@ -5,6 +5,10 @@ compatibility:
 controller:
   # False preserves historical labs; true requires a validated cgroup-capable runner.
   runnerCgroupEnabled: false
+  # 受管内存退役专用；默认不增加权限。显式填写受管VM命名空间。
+  managedMemoryRetirement:
+    enabled: false
+    namespaces: []
   # Existing labs explicitly preserve their original unsafe disk cache setting.
   # New installs retain flushes; neither option is a durability/DR certification.
   qemuDiskCacheSettings: cache.writeback=on,cache.direct=on,cache.no-flush=off

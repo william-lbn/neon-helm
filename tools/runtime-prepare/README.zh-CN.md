@@ -16,9 +16,9 @@ PCP1024、固定P、System硬限及初始数组额度来自实际内核/镜像/�
 
 ```sh
 TASK_TOOL_SOURCE="$PWD/tools/runtime-prepare"
-TASK_AS_CHECKOUT=/data/neon-build/validation/runtime-prepare-as73c1-clone
-TASK_AS_SOURCE=/data/neon-build/validation/runtime-prepare-as73c1-source
-TASK_AS_COMMIT=73c1cb9464b4315e7087674c7ec3a5928c183481
+TASK_AS_CHECKOUT=/data/neon-build/validation/runtime-prepare-as403eb25-clone
+TASK_AS_SOURCE=/data/neon-build/validation/runtime-prepare-as403eb25-source
+TASK_AS_COMMIT=403eb25b6821536c26bb1d0dbb91c7afce3ec311
 # GitHub 网络沿部署者既有显式代理设置；本步骤不改代理或网络配置。
 test ! -e "$TASK_AS_CHECKOUT" && test ! -e "$TASK_AS_SOURCE"
 git clone --filter=blob:none --no-checkout --single-branch \
@@ -56,7 +56,13 @@ GOWORK=off go test -mod=readonly -p=2 -race -json -count=1 -timeout=90s \
 
 必须列全4个生产文件及4个测试文件，遗漏 recovery.go 或 service.go 会直接编译失败。`GOWORK=off` 防止外围工作区替换固定模块，`-mod=readonly` 防止构建修改原模块锁。已有原 Go 模块缓存可直接复用；全新机器需要按原 go.mod/go.sum 下载第三方依赖，不从旧 CP 的 go.mod 获取 AS。
 
-本轮实际验证是 `pg17-final-runtime-prepare-go-20261103T094304Z-26086d`：AS73c1 + Helm b386 中上述同字节工具源码，3CPU/3Gi，13个 race 根、66个 pass 事件，测试/编译/CLI help 均0、无 skip/OOM。实际导出 ELF SHA256 为 `35b6a4f5e0aff74c80f3fb6019c3c368625aa496109d2ff348268f1aeb535965`；准确 result/源码摘要见 source-lock。不同绝对源码路径或 Go 工具链的重编 ELF 不保证逐字节相同，此处不冒称可重现二进制认证。测试使用 typed fake API 分配 UID，是单元测试，不是 Kubernetes 实测；旧失败票全部保留。
+本轮生产工具输入为 AS403eb25，Helm四个生产Go文件保持979原字节。实际同源编译在 `host-v10-six-reader-release-20261103T172102Z-ffde4b` 完成，6个读者全部编译和CLI help成功，11666份前后源码校验一致。Runtime ELF SHA256为 `c7d8c8fa5733aad8e4591efbfba6c471e392402a2662b257a965ff751c6a6f4f`；准确来源、资源与结果见 source-lock。
+
+14个 race 测试根、67个 pass 事件来自9f7061的Runtime成功子阶段（测试/CLI/help均0）。该批整体仍是FAIL，因为独立Owner测试准备使用了Linux不存在的Mac临时目录；修复后单独181634已通过，原失败票保持。ffde4b在16个AS生产文件和8个工具文件SHA逐项相同后明确复用Runtime结果，不反复刷已通过用例。
+
+新增用例验证：VM/Pod已404但Host v10仍持有原11Gi Pod floor时，工具必须拒绝确认退役；原Node owner已结清该行后，沿同一私有state和原意图继续观察，原DELETE仅派发一次，不写Node/Pod/Secret或重置账本。typed fake HTTP只证明工具协议，不替代真实Guest退出、QEMU硬限或Neon内存端到端。
+
+不同绝对源码路径或Go工具链重编的ELF不保证逐字节相同，本记录不冒称可重现二进制认证。PG/Guest normal真实硬降限及三节点实际功能仍按最终计划验收。
 
 ## 先持有，再封存，再由原 CAS 释放
 

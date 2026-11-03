@@ -38,6 +38,7 @@ type retireAPI struct {
 	service                                                                  *corev1.Service
 	deleted, deleting, replaceAfterDelete, missingFinalizer, lostDeleteReply bool
 	paged, latePod, lateNodeUnknown                                          bool
+	nodeLedger                                                               *corev1.Node
 	deletes, otherWrites, podPages, nodePages                                int
 }
 
@@ -192,6 +193,8 @@ func (f *retireAPI) serve(t *testing.T, w http.ResponseWriter, r *http.Request) 
 			list.Continue = "node-page2"
 		} else if f.lateNodeUnknown {
 			list.Items[0].Annotations = map[string]string{hostguard.OriginAnnotation: "ledger-missing"}
+		} else if f.nodeLedger != nil {
+			list.Items = []corev1.Node{*f.nodeLedger.DeepCopy()}
 		}
 		reply(list)
 	default:
@@ -305,4 +308,60 @@ func TestRuntimeRetireRequiresEveryPodAndNodePageUnheld(t *testing.T) {
 			api.mu.Unlock()
 		})
 	}
+}
+
+// 内部Host v10必须由更新后的工具真实解码。VM/Pod 404不能抹除仍持有的
+// 完整Pod硬限floor；只有原Node行已结清才允许同一退役意图完成。
+// typed HTTP仅验证本工具的调用及拒绝语义，不代替真实Host/Guest退出验收。
+func TestRuntimeRetireRetainsV10PodHardlimitUntilOriginalRowClosed(t *testing.T) {
+	p, api := readyRetireFixture(t)
+	api.paged = true
+	placements := []hostguard.Placement{{
+		Namespace: p.state.Namespace, PodName: "original-runner", PodUID: "original-runner-uid",
+		VMName: p.state.Name, VMUID: string(p.state.VMUID),
+		Incarnation: p.wanted.Spec.DSGABootstrap.Incarnation, Managed: true,
+		MemoryBytes: 7 << 30, HostOverheadBytes: 3 << 30, PodMemoryLimitBytes: 11 << 30,
+	}}
+	model := hostguard.Model{
+		ProtocolVersion: 10,
+		Binding:         hostguard.Binding{NodeName: "worker-117", NodeUID: "node117", Namespace: "kube-system", LeaseName: "original-allocator", LeaseUID: "original-allocator-uid"},
+		Origin:          strings.Repeat("a", 32), LeaseFloor: journal.Owner{HolderID: "original-allocator", Epoch: 1},
+		Sequence: 1, OutsideBytes: 4 << 30, Holds: []hostguard.Hold{},
+		Profile:    &hostguard.Profile{ID: "unit-v10-pod-floor", SchedulerName: "autoscale-scheduler", VMOverheadBytes: 3 << 30, PodOverheadBytes: 16 << 20},
+		Placements: &placements,
+	}
+	require.NoError(t, model.Validate())
+	used, err := model.UsedBytes()
+	require.NoError(t, err)
+	require.EqualValues(t, 15<<30, used, "计完整11Gi Pod，不能只按7Gi VM加3Gi记账")
+	raw, err := json.Marshal(model)
+	require.NoError(t, err)
+	node := &corev1.Node{ObjectMeta: metav1.ObjectMeta{Name: "worker-117", UID: "node117", ResourceVersion: "1", Finalizers: []string{hostguard.ProtectionFinalizer}, Annotations: map[string]string{hostguard.LedgerAnnotation: string(raw), hostguard.OriginAnnotation: "1:" + model.Origin}}}
+	api.nodeLedger = node
+	require.ErrorContains(t, p.retire(context.Background()), "original VM still has a Pod allocation")
+	require.True(t, p.state.RetireMayHaveSent)
+	require.False(t, p.state.Retired, "Pod已404也必须保留未结清原预算")
+	originalArchive := p.state.RetireArchiveSHA256
+
+	// 模拟外部原owner已正常结清该行；本工具自身从不写Node或清floor。
+	empty := []hostguard.Placement{}
+	model.Placements = &empty
+	model.Sequence++
+	require.NoError(t, model.Validate())
+	raw, err = json.Marshal(model)
+	require.NoError(t, err)
+	closed := node.DeepCopy()
+	closed.ResourceVersion = "2"
+	closed.Annotations[hostguard.LedgerAnnotation] = string(raw)
+	api.mu.Lock()
+	api.nodeLedger = closed
+	api.mu.Unlock()
+	require.NoError(t, p.retire(context.Background()))
+	require.True(t, p.state.Retired)
+	require.Equal(t, originalArchive, p.state.RetireArchiveSHA256)
+	api.mu.Lock()
+	require.Equal(t, 1, api.deletes, "原DELETE只派发一次，后续观察同一退役意图")
+	require.Zero(t, api.otherWrites, "不得写Node/Pod/Secret或重置旧账本")
+	require.Equal(t, 4, api.nodePages, "两次观察均核到第二页Node")
+	api.mu.Unlock()
 }

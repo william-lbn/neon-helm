@@ -6,6 +6,9 @@
 {{- if $a.resourceReadSocket.enabled -}}
 {{- $_ := set $dsga "resourceReadSocketPath" (printf "%s/%s" $a.resourceReadSocket.mountDirectory $a.resourceReadSocket.name) -}}
 {{- end -}}
+{{- if $a.controlSocket.enabled -}}
+{{- $_ := set $dsga "controlSocketPath" (printf "%s/%s" $a.controlSocket.mountDirectory $a.controlSocket.name) -}}
+{{- end -}}
 {{- $_ := set $config "dsga" $dsga -}}
 {{- end -}}
 {{- $config | toPrettyJson -}}
@@ -33,6 +36,21 @@
 {{- $d := .Values.dsga -}}
 {{- if ne (int $d.pgVersion) 17 -}}{{- fail "DSGA qualification is PG17 only" -}}{{- end -}}
 {{- $resource := $d.agent.resourceReadSocket -}}
+{{- $control := $d.agent.controlSocket -}}
+{{- if and $control.enabled (not $d.enabled) -}}{{- fail "Agent full control socket requires DSGA enabled" -}}{{- end -}}
+{{- if $control.enabled -}}
+{{- range $directory := list $control.hostDirectory $control.mountDirectory -}}
+{{- if or (not (kindIs "string" $directory)) (not (regexMatch "^/run/neon-dsga-[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$" (toString $directory))) (regexMatch "(^|/)\\.\\.?(/|$)" (toString $directory)) -}}
+{{- fail "Agent full control socket requires canonical private /run/neon-dsga-* directories" -}}{{- end -}}
+{{- end -}}
+{{- if or (not (kindIs "string" $control.name)) (not (regexMatch "^[A-Za-z0-9][A-Za-z0-9_.-]*[.]sock$" (toString $control.name))) (gt (len (printf "%s/%s" $control.mountDirectory $control.name)) 100) -}}
+{{- fail "Agent full control socket requires a short original socket filename" -}}{{- end -}}
+{{- if $resource.enabled -}}
+{{- if or (eq $control.hostDirectory $resource.hostDirectory) (hasPrefix (printf "%s/" $control.hostDirectory) $resource.hostDirectory) (hasPrefix (printf "%s/" $resource.hostDirectory) $control.hostDirectory) (eq $control.mountDirectory $resource.mountDirectory) (hasPrefix (printf "%s/" $control.mountDirectory) $resource.mountDirectory) (hasPrefix (printf "%s/" $resource.mountDirectory) $control.mountDirectory) -}}
+{{- fail "Agent full control and resource-read socket directories must be separate and non-overlapping" -}}{{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{- if and $resource.enabled (not $d.enabled) -}}{{- fail "Agent resource-read socket requires DSGA enabled" -}}{{- end -}}
 {{- if $resource.enabled -}}
 {{- range $directory := list $resource.hostDirectory $resource.mountDirectory -}}

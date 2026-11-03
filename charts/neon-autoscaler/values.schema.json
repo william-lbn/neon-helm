@@ -330,6 +330,31 @@
                   "type": "string"
                 }
               }
+            },
+            "controlSocket": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "enabled",
+                "hostDirectory",
+                "mountDirectory",
+                "name"
+              ],
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "hostDirectory": {
+                  "type": "string"
+                },
+                "mountDirectory": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "description": "独立完整Owner管理UDS，默认关闭。仅/run/neon-dsga-*私有目录，与resourceReadSocket目录不可相同或嵌套；不新增网络服务。"
             }
           }
         },

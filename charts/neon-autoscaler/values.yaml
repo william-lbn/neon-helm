@@ -49,6 +49,13 @@ dsga:
     pollIntervalSeconds: 5
     prepareQualifications: {}
     automaticMemory: {}
+    # 完整Owner管理UDS，默认关闭；只供root本机显式Begin/恢复，不能交给资格读取者。
+    # 三worker预建独立/run/neon-dsga-*目录root:root0700；本chart不创建/chown目录。
+    controlSocket:
+      enabled: false
+      hostDirectory: ''
+      mountDirectory: ''
+      name: ''
     # 独立资源读取UDS；目录须在原worker预建root:root 0700，Helm不创建或chown。
     # 仅供固定资格发布器读取，不能填完整管理socket或共享其目录。
     resourceReadSocket:

@@ -34,3 +34,30 @@ DSGA 单例 Scheduler 首次启动使用 Recreate，避免固定118上瞬时出�
 legacy仍使用原滚动更新。未建Host ledger时，原Reserve必须先Load/checkProfile，
 确认域已存在后才给原Pod追加保护finalizer。首次恢复只可移除本任务已证明孤立的
 Scheduler保护，不能移除其它finalizer或未知容量持有；已建账后的维护须按原退休合同结清。
+
+
+### PG17本机完整Owner管理UDS（默认关闭）
+
+`dsga.agent.controlSocket`只接通已有Agent `controlSocketPath`与localcontrol原协议，
+不新增HTTP监听器、SDK或Owner。需要确定顺序的实际7→8→7→8回归时可显式配置：
+
+```yaml
+dsga:
+  agent:
+    controlSocket:
+      enabled: true
+      hostDirectory: /run/neon-dsga-pg17-control
+      mountDirectory: /run/neon-dsga-pg17-control
+      name: control.sock
+```
+
+三个worker须由原部署者预建该独立目录`root:root 0700`；实际Agent必须以原安全主体可写，
+已有localcontrol服务创建socket `0600`并继续核SO_PEERCRED/原Owner。chart只用`hostPath.type=Directory`，
+不创建目录、不chown，不应把它与普通租户或资格发布器共享。路径只允许规范的
+`/run/neon-dsga-*`私有子目录；full与resourceReadSocket的host/mount目录不能相同或互为祖先。
+`resourceReadSocket`保持独立只读API，仍只能`resource_state`，绝不能把它当Begin或恢复入口。
+
+默认off不增加配置键或挂载，原完整manifest语义保持。仅此接线相关的可复验渲染在
+`tests/full-control-uds.py`；运行`python3 charts/neon-autoscaler/tests/full-control-uds.py --output <新的归档目录>`。
+测试只有本地render/schema/lint及默认AST比较，不创建Node/Lease/资格或执行集群操作。
+手动Owner Begin三轮只验证原执行链；真实SQL压力/空闲触发AutomaticMemory仍须独立实际验收。

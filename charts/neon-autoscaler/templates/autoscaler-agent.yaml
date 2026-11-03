@@ -97,6 +97,10 @@ spec:
         - name: dsga-broker-token
           mountPath: /var/run/secrets/neon-dsga
           readOnly: true
+        {{- if .Values.dsga.agent.controlSocket.enabled }}
+        - name: dsga-owner-control
+          mountPath: {{ .Values.dsga.agent.controlSocket.mountDirectory | quote }}
+        {{- end }}
         {{- if .Values.dsga.agent.resourceReadSocket.enabled }}
         - name: dsga-resource-read
           mountPath: {{ .Values.dsga.agent.resourceReadSocket.mountDirectory | quote }}
@@ -123,6 +127,12 @@ spec:
               audience: {{ .Values.dsga.agent.tokenAudience | quote }}
               expirationSeconds: {{ .Values.dsga.agent.tokenExpirationSeconds }}
               path: token
+      {{- if .Values.dsga.agent.controlSocket.enabled }}
+      - name: dsga-owner-control
+        hostPath:
+          path: {{ .Values.dsga.agent.controlSocket.hostDirectory | quote }}
+          type: Directory
+      {{- end }}
       {{- if .Values.dsga.agent.resourceReadSocket.enabled }}
       - name: dsga-resource-read
         hostPath:

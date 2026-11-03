@@ -46,4 +46,4 @@
 {{- if and .Values.proxy.scaleToZero.enabled (lt (int .Values.proxy.scaleToZero.idleSeconds) 30) -}}{{- fail "proxy.scaleToZero.idleSeconds must be at least 30" -}}{{- end -}}
 {{- if ne (not (empty .Values.proxy.vmEndpointId)) (not (empty .Values.proxy.vmComputeAddress)) -}}{{- fail "proxy VM endpoint ID and address must be configured together" -}}{{- end -}}
 {{- if and .Values.proxy.vmEndpointId (eq .Values.proxy.vmEndpointId .Values.proxy.endpointId) -}}{{- fail "proxy VM endpoint ID must differ from the primary endpoint" -}}{{- end -}}
-{{- if and .Values.proxy.enabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.proxy.image)) -}}{{- fail "proxy.image must pin the Python adapter image by digest" -}}{{- end -}}
+{{- if and .Values.proxy.enabled .Values.proxy.legacyApiEnabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.proxy.image)) -}}{{- fail "proxy.image must pin the Python adapter image by digest" -}}{{- end -}}

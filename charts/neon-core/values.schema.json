@@ -673,6 +673,21 @@
               "type": "string"
             }
           }
+        },
+        "nodeSelector": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kubernetes.io/hostname": {
+              "type": "string",
+              "enum": [
+                "worker-117",
+                "worker-118",
+                "worker-119"
+              ]
+            }
+          },
+          "description": "仅Controller角色的指定worker；原pool/os/arch与三节点边界仍由模板强制保留。"
         }
       }
     },

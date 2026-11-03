@@ -1,0 +1,179 @@
+{
+  "scope": "2026-11-03实际Neon基础组件部署快照，不是PG17 K8s内存伸缩端到端完成票",
+  "actual_acceptance_path": "/data/neon-k8s-pg17/runs/core-controller-proxy-20261103T043009Z-696192/acceptance.json",
+  "actual_acceptance_sha256": "ee36dab34d6a7255d4841555d4cdc208510a0cb01e8158fa9cc247efd84d6f7e",
+  "helm": {
+    "name": "neon-pg17-core",
+    "namespace": "neon",
+    "revision": 7,
+    "status": "deployed"
+  },
+  "components": [
+    {
+      "role": "controller-db",
+      "node": "worker-118",
+      "images": [
+        "docker.io/library/postgres@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6"
+      ],
+      "imageIDs": [
+        "docker.io/library/postgres@sha256:a3b7f434b2dc57ce85a67e171163eb8ab1a1ebcb39d27484661f26b1dfbe30d6"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "2Gi"
+      ]
+    },
+    {
+      "role": "minio",
+      "node": "worker-118",
+      "images": [
+        "127.0.0.1:5001/neon-test-only/minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-test-only/minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "2Gi"
+      ]
+    },
+    {
+      "role": "pageserver",
+      "node": "worker-119",
+      "images": [
+        "127.0.0.1:5001/neon-candidate/pageserver@sha256:ee8c7e5f878c28cd30a1b0d5c641f11dc7deb52c9a7b542a92f25cca78c91eac"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-candidate/pageserver@sha256:ee8c7e5f878c28cd30a1b0d5c641f11dc7deb52c9a7b542a92f25cca78c91eac"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "2Gi"
+      ]
+    },
+    {
+      "role": "proxy",
+      "node": "worker-117",
+      "images": [
+        "127.0.0.1:5001/neon/proxy@sha256:a1459708aac0823600b163eb07b5f4ac320c4ae606203318aa49cdb658d6980d"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon/proxy@sha256:a1459708aac0823600b163eb07b5f4ac320c4ae606203318aa49cdb658d6980d"
+      ],
+      "ready": true,
+      "restarts": [
+        5
+      ],
+      "memory_limits": [
+        "1Gi"
+      ]
+    },
+    {
+      "role": "safekeeper1",
+      "node": "worker-117",
+      "images": [
+        "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "2Gi"
+      ]
+    },
+    {
+      "role": "safekeeper2",
+      "node": "worker-118",
+      "images": [
+        "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "2Gi"
+      ]
+    },
+    {
+      "role": "safekeeper3",
+      "node": "worker-119",
+      "images": [
+        "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-candidate/safekeeper@sha256:952118788c5709ad01659224995b8f78bce12ed4276b8ee1fce72bccd9fac274"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "2Gi"
+      ]
+    },
+    {
+      "role": "storage-broker",
+      "node": "worker-118",
+      "images": [
+        "127.0.0.1:5001/neon-candidate/storage-broker@sha256:db19776abc16b104f96bcbc116300cf93eedb78b6acf43af2c1e13fe8dfcd9aa"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-candidate/storage-broker@sha256:db19776abc16b104f96bcbc116300cf93eedb78b6acf43af2c1e13fe8dfcd9aa"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "512Mi"
+      ]
+    },
+    {
+      "role": "storage-controller",
+      "node": "worker-119",
+      "images": [
+        "127.0.0.1:5001/neon-candidate/storage-controller@sha256:af83b80b6406ba7fcb0a64bf531644f0bdcecd41033356288d6cd99c567bb6fa"
+      ],
+      "imageIDs": [
+        "127.0.0.1:5001/neon-candidate/storage-controller@sha256:af83b80b6406ba7fcb0a64bf531644f0bdcecd41033356288d6cd99c567bb6fa"
+      ],
+      "ready": true,
+      "restarts": [
+        0
+      ],
+      "memory_limits": [
+        "1Gi"
+      ]
+    }
+  ],
+  "deployment_restarts_preserved": {
+    "initial_controller_pod_on_117_restarts": 1,
+    "initial_controller_reason": "DB首次尚未ready，连接拒绝后收敛",
+    "final_controller_on_119_restarts": 0,
+    "proxy_restarts": 5,
+    "proxy_reason": "原证书只有SAN而实际a145要求CN；补真实Service CN后自然重试成功"
+  },
+  "managed_PS_node_id": 1,
+  "actual_TLS": "PG SSLRequest + TLS1.3，真实namespace CA与Service DNS hostname均校验通过",
+  "actual_proxy_metrics_http": 200,
+  "proxy_status_http": 404,
+  "limits": "没有伪造notify事件/tenant/VM/PG地址；业务hook和真实PG内存自动伸缩仍待后续端到端",
+  "credential_values_in_ticket": false
+}

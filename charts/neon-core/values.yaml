@@ -136,6 +136,8 @@ proxy:
       type: ClusterIP
       nodePort: 30432
 storageController:
+  # 仅控制Controller角色主机名；必需pool/os/arch与三节点affinity不能被覆盖。
+  nodeSelector: {}
   resources:
     requests: {cpu: 150m, memory: 256Mi}
     limits: {cpu: 2, memory: 1Gi}

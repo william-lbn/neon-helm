@@ -28,3 +28,8 @@ placement:
   - worker-117
   - worker-118
   - worker-119
+
+# managed 路由只验证原已封定实例，不读取控制签名seed或业务密码。
+# 每项显式绑定同一个Compute的SQL Service和不可变配置Secret；默认不增加权限。
+managedRuntimeRead:
+  computes: []

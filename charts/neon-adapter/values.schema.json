@@ -115,6 +115,38 @@
           "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
         }
       }
+    },
+    "managedRuntimeRead": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "computes"
+      ],
+      "properties": {
+        "computes": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "serviceName",
+              "configSecretName"
+            ],
+            "properties": {
+              "serviceName": {
+                "type": "string",
+                "pattern": "^cp-[a-f0-9]{16}$"
+              },
+              "configSecretName": {
+                "type": "string",
+                "pattern": "^cp-[a-f0-9]{16}-config$"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",

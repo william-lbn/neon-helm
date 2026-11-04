@@ -1,6 +1,16 @@
 {{- if not .Values.compatibilityAcknowledged }}{{ fail "adapter requires compatibilityAcknowledged: this single-instance runtime is not distributed fencing or HA" }}{{ end }}
 {{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" .Values.image) }}{{ fail "adapter image must be digest pinned" }}{{ end }}
 {{- $name := .Values.fullnameOverride }}
+{{- $managedRead := .Values.managedRuntimeRead | default dict }}
+{{- $managedComputes := get $managedRead "computes" | default list }}
+{{- $seenManaged := dict }}
+{{- range $entry := $managedComputes }}
+{{- $service := required "managed read requires one exact Compute Service" $entry.serviceName }}
+{{- $config := required "managed read requires its original config Secret" $entry.configSecretName }}
+{{- if or (not (regexMatch "^cp-[a-f0-9]{16}$" $service)) (ne $config (printf "%s-config" $service)) (hasKey $seenManaged $service) }}{{ fail "managed read must pair one unique Compute Service and its exact config Secret" }}{{ end }}
+{{- $_ := set $seenManaged $service true }}
+{{- end }}
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -17,6 +27,17 @@ rules:
     resources: [secrets]
     resourceNames: [{{ .Values.routesSecret }}]
     verbs: [get]
+  {{- if $managedComputes }}
+  # 仅读当前managed路由的原配置和SQL Service，不授凭据Secret、list或写权限。
+  - apiGroups: ['']
+    resources: [secrets]
+    resourceNames: [{{ range $index, $entry := $managedComputes }}{{ if $index }}, {{ end }}{{ $entry.configSecretName | quote }}{{ end }}]
+    verbs: [get]
+  - apiGroups: ['']
+    resources: [services]
+    resourceNames: [{{ range $index, $entry := $managedComputes }}{{ if $index }}, {{ end }}{{ $entry.serviceName | quote }}{{ end }}]
+    verbs: [get]
+  {{- end }}
   - apiGroups: ['']
     resources: [configmaps]
     resourceNames: [{{ .Values.notificationsConfigMap }}]

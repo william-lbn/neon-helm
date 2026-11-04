@@ -1,0 +1,50 @@
+{
+  "scope": "managed SQL路由Adapter精确配置/SQL Service读取接线，默认不新增权限",
+  "base_commit": "51862248e9d09233d1fb6c3a71b06aea120515c7",
+  "owned_source_SHA256": {
+    "charts/neon-adapter/values.schema.json": "1f375850116ad52dddcbf9bc892aaa6063af19466ecfe3fa1675237df2c7ac6e",
+    "charts/neon-adapter/values.yaml": "9e23dc2bb6b0fd593dfb6452a506fbd4d5ad59f3b4e97168c3cee8079a68f2ba",
+    "charts/neon-adapter/templates/resources.yaml": "fbbe450fee8800dde789dc9611aea93873e9465e0b2b8b576afb2b6873fde9a1",
+    "charts/neon-adapter/README.md": "6071d9d1d78a3d747849521d4cebb9189b5fef49c9e532bee1ba84a471756069"
+  },
+  "allowed_only": [
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "secrets"
+      ],
+      "resourceNames": [
+        "cp-d8d85ed796068ab5-config"
+      ],
+      "verbs": [
+        "get"
+      ]
+    },
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "services"
+      ],
+      "resourceNames": [
+        "cp-d8d85ed796068ab5"
+      ],
+      "verbs": [
+        "get"
+      ]
+    }
+  ],
+  "default_empty_preserves_original_Role": true,
+  "mismatched_pair_or_wildcard_refused": true,
+  "secret_credentials_controlSigningSeed_Node_list_or_write_added": false,
+  "original_proposal_path": "/data/neon-k8s-pg17/runs/managed-adapter-exact-read-PREPARED-20261104T015425Z-b2d128/proposal.json",
+  "original_proposal_SHA256": "5006a540ad2371d746dc7263c1ae864423eb004a8c3f731119eddbbe40258d5b",
+  "independent_review_path": "/data/neon-k8s-pg17/reports/managed-adapter-exact-read-independent-20261104T015738Z-46ce82/independent-review.json",
+  "independent_review_SHA256": "0e8735326c67b105dca77d4ad6546b65a6329f42ccb1bed2f197893f943de21e",
+  "deployed_or_actual_SAR_passed": false,
+  "SQL_or_Native_qualification_or_memory_E_accepted": false,
+  "actual_values_private_on_Linux": "/data/neon-k8s-pg17/runs/managed-adapter-exact-read-PREPARED-20261104T015425Z-b2d128/values.actual.private.json"
+}

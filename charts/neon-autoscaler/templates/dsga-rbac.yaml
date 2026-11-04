@@ -49,6 +49,11 @@ metadata:
   name: neon-dsga-scheduler-runtime
   namespace: {{ .Values.dsga.vmNamespace }}
 rules:
+# Host读者须逐次核验VM的动态Owner Lease；新物理UID会改变名称，不能固定旧Lease。
+# 仅在配置的VM命名空间按名get，不授予list/watch或VM Lease写入权限。
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [get]
 - apiGroups: [""]
   resources: [pods]
   verbs: [get, patch]

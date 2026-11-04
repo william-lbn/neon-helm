@@ -110,6 +110,10 @@ proxy:
     requests: {cpu: 50m, memory: 128Mi}
     limits: {cpu: 1, memory: 512Mi}
   enabled: false
+  # 未声明Tracing可用；仅在提供真实OTLP/HTTP接收端后启用。普通日志与Vector metrics不受影响。
+  tracing:
+    enabled: false
+    otlpEndpoint: ""
   image: ""                  # python:3.13-slim@sha256:... for the one-endpoint API adapter
   authEndpoint: http://proxy-api:8080/cplane/ # set to a dynamic adapter for managed endpoints
   # Keep credential reads current until Redis invalidation/outbox is deployed.

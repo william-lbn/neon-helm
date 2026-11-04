@@ -589,6 +589,26 @@
               }
             }
           }
+        },
+        "tracing": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "仅在真实OTLP/HTTP接收端配置后启用可选Tracing exporter。"
+            },
+            "otlpEndpoint": {
+              "type": "string",
+              "maxLength": 2048,
+              "pattern": "^$|^https?://[^\\s]+$",
+              "description": "真实OTLP/HTTP基础endpoint；不得填凭据或以Prometheus端口代替。"
+            }
+          },
+          "required": [
+            "enabled",
+            "otlpEndpoint"
+          ]
         }
       }
     },

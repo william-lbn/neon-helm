@@ -131,11 +131,18 @@ spec:
         - --tls-cert=/tls/tls.crt
         - --tls-key=/tls/tls.key
         env:
+        # 可选Tracing须显式选择；无真实OTLP接收端时关闭exporter，日志和metrics保持。
+        - name: OTEL_SDK_DISABLED
+          value: {{ ternary "false" "true" .Values.proxy.tracing.enabled | quote }}
+        {{- if .Values.proxy.tracing.enabled }}
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: {{ required "proxy.tracing.otlpEndpoint is required when tracing is enabled" .Values.proxy.tracing.otlpEndpoint | quote }}
+        {{- end }}
         - name: NEON_PROXY_TO_CONTROLPLANE_TOKEN
           valueFrom: { secretKeyRef: { name: {{ .Values.proxy.authSecret }}, key: proxyToken } }
         ports: [{ name: postgres, containerPort: 4432 }, { name: metrics, containerPort: 7001 }]
         readinessProbe:
-          tcpSocket: { port: postgres }
+          httpGet: { path: /v1/status, port: metrics }
           initialDelaySeconds: 5
         volumeMounts: [{ name: tls, mountPath: /tls, readOnly: true }]
       volumes:

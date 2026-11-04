@@ -1,0 +1,14 @@
+{
+  "source_SHA256": {
+    "charts/neon-core/templates/proxy.yaml": "01033796447e34784c775c36d9d8e1b845283ad56bc111eb7941d43cff780340",
+    "charts/neon-core/values.yaml": "ebc570b91dffc9edac3e2e93e9fee3b6efecd8bc23b760e43ce2287154b858ec",
+    "charts/neon-core/values.schema.json": "57955f4f98f06b75f8a23f061ad39470f75626836a5ae6393f30dc118cc6e965"
+  },
+  "object_count": 26,
+  "exact_unchanged_other_objects": 25,
+  "only_changed_object": "apps/v1 Deployment neon/proxy",
+  "prepared_receipt_SHA256": "64ad0c1f8ff97021b4010bdf25f3eda23d4ab637bd93bddb28afa74f021c4edb",
+  "no_image_rebuild_required": true,
+  "runtime_deployment_not_yet_accepted": true,
+  "Compute_tracing_profile_not_yet_updated": true
+}

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: dsga-qualifier-access
+description: 原生产 Collector 的精确 Secret 与 Node 只读权限，不创建凭据或工作负载
+version: 0.1.0
+type: application

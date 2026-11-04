@@ -1,0 +1,29 @@
+{
+  "scope": "正式Collector同Agent原可信UDS的精确只读API接线；不代表资格通过",
+  "why": "实际InCluster SA缺当前原Compute config Secret与本Node get，原CLI拒绝不签发",
+  "subject": "system:serviceaccount:kube-system:autoscaler-agent",
+  "Secret": "neon/cp-d8d85ed796068ab5-config",
+  "Node": "worker-117",
+  "only_verbs": [
+    "get"
+  ],
+  "no_list_watch_create_update_patch_delete_or_wildcard": true,
+  "current_VM_UID": "0aa42803-c500-455f-9ed6-633221671351",
+  "original_state_or_Unknown_gates_changed": false,
+  "default_null_and_other_Node_refused_by_lint_template": true,
+  "lint_and_template_exit": 0,
+  "actual_API_RBAC_deployment_done": false,
+  "actual_qualification_issued": false,
+  "source_proposal": "/data/neon-k8s-pg17/runs/qualifier-access-0aa4-117-PREPARED-20261104T012338Z-f3ee61/stage-proposal.json",
+  "source_proposal_SHA256": "24a7663e6dfd5b9d927a90ce198eb448e7fdb6868866449eb058fb039e616d4e",
+  "rendered_manifest_SHA256": "67619f7603161ee7820bd1b9d748dad825ee62b69f6161f9b7b9f9ab6c535e9d",
+  "file_SHA256": {
+    "charts/dsga-qualifier-access/values.schema.json": "4f113f11501943cb99bae333dc17554d10a44eb0aa75d0a913dd92a257a68073",
+    "charts/dsga-qualifier-access/values.yaml": "56df61eb244f5b472fb6748031d7c0a6a689847bef4644e4f081eebdc88ae32d",
+    "charts/dsga-qualifier-access/Chart.yaml": "758a8775f86ba09a729df3718685793c719cce1b48278a91362954706a37d361",
+    "charts/dsga-qualifier-access/README.md": "0d9f62e185e964dabf84f0c0fc52d4a70eb0b7e9f69880bd5f53b90aea28322b",
+    "charts/dsga-qualifier-access/templates/_helpers.tpl": "47081096224118c26642d7bd8af625574c78b089a30934deec486a8702388115",
+    "charts/dsga-qualifier-access/templates/access.yaml": "fcf8faee82b07dc1b21c5fa3bccf1008f77495dab02a986dafb399ce00e29daa"
+  },
+  "other_simultaneous_blocker": "actualAgent owner_unavailable/pg_run callback exits; resolving separately, this permission change alone is not qualification PASS"
+}

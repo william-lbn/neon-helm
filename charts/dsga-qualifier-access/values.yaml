@@ -1,0 +1,7 @@
+# 全部必须由实际原 Collector 的身份和绑定显式给出；默认不能渲染权限。
+# Secret 仅限 Helm release 所在 namespace；subject 可以是原 Agent 的另一个 namespace。
+subject:
+  namespace: null
+  name: null
+configSecretName: null
+nodeName: null

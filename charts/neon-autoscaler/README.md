@@ -61,3 +61,20 @@ dsga:
 `tests/full-control-uds.py`；运行`python3 charts/neon-autoscaler/tests/full-control-uds.py --output <新的归档目录>`。
 测试只有本地render/schema/lint及默认AST比较，不创建Node/Lease/资格或执行集群操作。
 手动Owner Begin三轮只验证原执行链；真实SQL压力/空闲触发AutomaticMemory仍须独立实际验收。
+
+
+### 普通Pod停止来源的精确只读授权（默认关闭）
+
+dsga.scheduler.ordinaryStopSourceNames 默认空列表，不生成额外权限。运维者在固定
+kube-system 命名空间发布本轮不可变来源CM并读回真实UID及内容摘要后，显式填写这些
+ConfigMap精确名称。非空列表仅新增该命名空间的Role与RoleBinding：原Scheduler账号
+kube-system/autoscale-scheduler只能get这些名称，不增加list/watch/create/update/patch/delete。
+名称列表最多256项，拒绝空名、重复、通配符及非法ConfigMap DNS名；其它Agent、
+Deployment策略、Plugin配置、Host账本均不改变。
+
+信任边界是固定运维命名空间的写权限与显式来源发布流程。名称、SHA、Node ownerRef及
+blockOwnerDeletion本身不是Node签名或来源认证；本集群实际干跑没有拒绝Runner设置该ownerRef。
+消费者仍须核验完整来源内容、不可变性、实际Node/Pod绑定及原退休fence/CAS。
+只加读取权限不表示允许结清Unknown；缺少有效来源或原终态事实时仍拒绝。
+本专项沿原tests/pod-protection-rbac.py离线检查；真实具名SAR和来源CM发布另行归档，
+不把渲染成功当作实际授权或停止证明。

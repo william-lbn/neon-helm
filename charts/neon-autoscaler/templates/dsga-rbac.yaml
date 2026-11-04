@@ -91,6 +91,29 @@ roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-sched
 subjects:
 - {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
 {{- end }}
+{{- if gt (len .Values.dsga.scheduler.ordinaryStopSourceNames) 0 }}
+---
+# 固定运维命名空间的来源只按本轮精确名称读取；名称或Node ownerRef本身不代表认证。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-scheduler-ordinary-stop-source
+  namespace: kube-system
+rules:
+- apiGroups: [""]
+  resources: [configmaps]
+  resourceNames: {{ toJson .Values.dsga.scheduler.ordinaryStopSourceNames }}
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-scheduler-ordinary-stop-source
+  namespace: kube-system
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-scheduler-ordinary-stop-source}
+subjects:
+- {kind: ServiceAccount, name: autoscale-scheduler, namespace: kube-system}
+{{- end }}
 {{- range $n := .Values.dsga.scheduler.nodes }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

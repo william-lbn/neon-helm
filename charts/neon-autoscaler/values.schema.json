@@ -525,6 +525,18 @@
                 ]
               },
               "description": "仅显式3既有namespace的Pod get/patch；neon旧Role不变，不创建全局Pod写权限。"
+            },
+            "ordinaryStopSourceNames": {
+              "type": "array",
+              "maxItems": 256,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 253,
+                "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+              },
+              "description": "仅kube-system内运维者本轮实际发布并读回的普通Pod停止来源CM精确名称；仅get，不授list/watch/write。名称和Node ownerRef不能单独认证内容。"
             }
           }
         }

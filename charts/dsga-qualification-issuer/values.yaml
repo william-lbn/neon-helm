@@ -1,0 +1,18 @@
+# 原值由真实report/birth/绑定给出；任一null都不得渲染权限。
+# 专用SA的显式subject必须等于release namespace/name，不能借用Agent或Runner。
+subject:
+  namespace: null
+  name: null
+vmName: null
+configSecretName: null
+runnerPodName: null
+ownerLeaseName: null
+qualificationConfigMapName: null
+runnerClaims:
+  birth: null
+  state: null
+  exit: null
+  stoppedPod: null
+# 本轮report中HostLease与VM同在neon，不误授kube-system。
+hostLeaseName: null
+nodeName: null

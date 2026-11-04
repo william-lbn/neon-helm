@@ -1,0 +1,45 @@
+{
+  "scope": "原资格Issuer必须的独立authority，不给现Agent/Runner写权限",
+  "release": "neon-pg17-qualification-issuer",
+  "namespace": "neon",
+  "subject": "system:serviceaccount:neon:neon-pg17-qualification-issuer",
+  "only_exact_gets": [
+    "本VM",
+    "本config Secret",
+    "原RunnerPod",
+    "OwnerLease",
+    "HostLease",
+    "五个报告/生产函数派生ConfigMaps",
+    "worker-117 Node"
+  ],
+  "necessary_original_API_permissions": [
+    "create ConfigMaps only namespace neon (RBAC cannot restrict create resourceNames)",
+    "list pods for original Inspector spec.nodeName=worker-117 (RBAC does not restrict selector)",
+    "update only this VM/finalizers for original blockOwnerDeletion admission entitlement; no actual VM mutation in Issuer"
+  ],
+  "no_credential_Secret_signing_seed_admin_copy_Agent_or_Runner_write_grant": true,
+  "ServiceAccount_automountServiceAccountToken": false,
+  "Root_execution_planned": "600s dedicated-SA TokenRequest; protected transient scoped kubeconfig in original117Agent; exact original localUDS/CLI/report; unlink temporary authentication on terminal",
+  "tests": {
+    "lint_exit": 0,
+    "template_exit": 0,
+    "objects": 5,
+    "rules": 9,
+    "null_or_bad_scope_rejected": true
+  },
+  "source_proposal": "/data/neon-k8s-pg17/runs/qualification-issuer-access-0aa4-PREPARED-20261104T023831Z-b50b5f/stage-proposal.json",
+  "source_proposal_SHA256": "13d024dbd004d10efaca6c2781b6f5499972cdfe47cec5b2ced55dfc94bc1e6c",
+  "actual_values_path": "/data/neon-k8s-pg17/runs/qualification-issuer-access-0aa4-PREPARED-20261104T023831Z-b50b5f/values.actual.private.yaml",
+  "actual_values_SHA256": "74837af04755e80a12675a216751c842bb9b1dbdef2a554e30be8359eacd7a9c",
+  "source_SHA256": {
+    "charts/dsga-qualification-issuer/values.schema.json": "5e457a8211e0f56c08b8dc7092baed5d98c67c274ec81d3d19f9827720f03712",
+    "charts/dsga-qualification-issuer/values.yaml": "bdc6ce6936d19b29aab513e692aa64f80b734f08a61c9a7aa67f75e87704e59c",
+    "charts/dsga-qualification-issuer/Chart.yaml": "720722b5beca308cd77df24037bf00a30658e719216e6e65bfbd2976afafd721",
+    "charts/dsga-qualification-issuer/README.md": "c7e55ef972703dab8862777329c7ccbb16c47c2f140b4cf0bc5e152836f63b70",
+    "charts/dsga-qualification-issuer/templates/_helpers.tpl": "1594cece77c353cbda00578eddaeacb77e1aed1eed95cbc690a6e9cd04b9fe4a",
+    "charts/dsga-qualification-issuer/templates/access.yaml": "7da31ffea1ecb0f345dd9b67d47f894e1e5093f1a1d34055dd69ed25e07ae4ef"
+  },
+  "actual_deployed": false,
+  "qualification_published": false,
+  "memory_E_passed": false
+}

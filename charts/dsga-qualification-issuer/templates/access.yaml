@@ -1,0 +1,87 @@
+{{- include "dsga-qualification-issuer.validate" . -}}
+{{- $name := include "dsga-qualification-issuer.fullname" . -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.subject.name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+  - apiGroups: ["vm.neon.tech"]
+    resources: ["virtualmachines"]
+    resourceNames: [{{ .Values.vmName | quote }}]
+    verbs: ["get"]
+  # 原资格CM带blockOwnerDeletion=true；API准入要求拥有此精确owner finalizers授权。
+  # Issuer本身不调用VM更新；不授VM update/patch/delete或其它VM的finalizers。
+  - apiGroups: ["vm.neon.tech"]
+    resources: ["virtualmachines/finalizers"]
+    resourceNames: [{{ .Values.vmName | quote }}]
+    verbs: ["update"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ .Values.configSecretName | quote }}]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    resourceNames: [{{ .Values.runnerPodName | quote }}]
+    verbs: ["get"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    resourceNames: [{{ .Values.ownerLeaseName | quote }}, {{ .Values.hostLeaseName | quote }}]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: [{{ .Values.qualificationConfigMapName | quote }}, {{ .Values.runnerClaims.birth | quote }}, {{ .Values.runnerClaims.state | quote }}, {{ .Values.runnerClaims.exit | quote }}, {{ .Values.runnerClaims.stoppedPod | quote }}]
+    verbs: ["get"]
+  # CREATE尚无可供resourceNames核验的请求名，只能限制到本namespace。
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace | quote }}
+subjects:
+  - kind: ServiceAccount
+    namespace: {{ .Values.subject.namespace | quote }}
+    name: {{ .Values.subject.name | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $name }}
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    resourceNames: [{{ .Values.nodeName | quote }}]
+    verbs: ["get"]
+  # 原Inspector须跨namespace列出此Node实际Pod；RBAC不能约束fieldSelector。
+  # 原调用方仍必须spec.nodeName选择该worker；不授watch或Node写入。
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $name }}
+subjects:
+  - kind: ServiceAccount
+    namespace: {{ .Values.subject.namespace | quote }}
+    name: {{ .Values.subject.name | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $name }}

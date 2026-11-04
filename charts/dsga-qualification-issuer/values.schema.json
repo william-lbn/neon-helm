@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subject",
+    "vmName",
+    "configSecretName",
+    "runnerPodName",
+    "ownerLeaseName",
+    "qualificationConfigMapName",
+    "runnerClaims",
+    "hostLeaseName",
+    "nodeName"
+  ],
+  "properties": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "not": {
+            "enum": [
+              "autoscaler-agent",
+              "neon-pg17-runner"
+            ]
+          }
+        }
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "pattern": "^cp-[a-f0-9]{16}$"
+    },
+    "configSecretName": {
+      "type": "string",
+      "pattern": "^cp-[a-f0-9]{16}-config$"
+    },
+    "runnerPodName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 63,
+      "pattern": "^cp-[a-f0-9]{16}-[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+    },
+    "ownerLeaseName": {
+      "type": "string",
+      "pattern": "^dsga-[a-f0-9]{56}$"
+    },
+    "qualificationConfigMapName": {
+      "type": "string",
+      "pattern": "^dsga-q-[a-f0-9]{56}$"
+    },
+    "runnerClaims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "birth",
+        "state",
+        "exit",
+        "stoppedPod"
+      ],
+      "properties": {
+        "birth": {
+          "type": "string",
+          "pattern": "^dsga-b-[a-f0-9]{56}$"
+        },
+        "state": {
+          "type": "string",
+          "pattern": "^dsga-s-[a-f0-9]{56}$"
+        },
+        "exit": {
+          "type": "string",
+          "pattern": "^dsga-x-[a-f0-9]{56}$"
+        },
+        "stoppedPod": {
+          "type": "string",
+          "pattern": "^dsga-t-[a-f0-9]{56}$"
+        }
+      }
+    },
+    "hostLeaseName": {
+      "type": "string",
+      "pattern": "^neon-dsga-host-worker-(117|118|119)$"
+    },
+    "nodeName": {
+      "type": "string",
+      "enum": [
+        "worker-117",
+        "worker-118",
+        "worker-119"
+      ]
+    }
+  }
+}

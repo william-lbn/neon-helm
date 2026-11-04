@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	vmv1 "github.com/neondatabase/autoscaling/neonvm/apis/neonvm/v1"
 	control "github.com/neondatabase/autoscaling/pkg/api/dsga"
@@ -28,6 +29,100 @@ type renderBuildContract struct {
 	NativeBuildSHA256     string `json:"native_build_sha256"`
 	ComputeConfigPath     string `json:"compute_config_path"`
 }
+
+const postgresMajorAnnotation = "neon-control/postgres-major"
+
+// 默认17兼容原manifest原字节。18必须由原Helm选择显式进入；这不是资格/预算许可。
+func selectedPostgresMajor(vm *vmv1.VirtualMachine) (uint32, error) {
+	if vm == nil {
+		return 0, fmt.Errorf("original VM postgres major unavailable")
+	}
+	value, present := vm.Annotations[postgresMajorAnnotation]
+	if !present {
+		return 17, nil
+	}
+	switch value {
+	case "17":
+		return 17, nil
+	case "18":
+		return 18, nil
+	default:
+		return 0, fmt.Errorf("unsupported original VM postgres major")
+	}
+}
+
+// 只投影原canonical Native的版本/ELF引用，不从镜像名或共享Root/Runner版本猜major。
+// 完整ELF字节/FS闭包仍须由原Collector和盘读回确证，seal继续原Runtime库严格校验。
+func renderNativeMajorMatches(raw []byte, major uint32, policyRaw []byte) error {
+	var m struct {
+		ProtocolVersion uint32 `json:"protocol_version"`
+		Scope           string `json:"scope"`
+		PGMajor         uint32 `json:"pg_major"`
+		LaunchPath      string `json:"launch_path"`
+		PostgresPath    string `json:"postgres_path"`
+		InterpreterPath string `json:"interpreter_path"`
+		Files           []struct {
+			Path   string `json:"path"`
+			SHA256 string `json:"sha256"`
+		} `json:"files"`
+		ArrayHelper *struct {
+			ProtocolVersion uint32 `json:"protocol_version"`
+			Path            string `json:"path"`
+			SHA256          string `json:"sha256"`
+		} `json:"array_helper,omitempty"`
+		RuntimeClosure *struct {
+			ProtocolVersion      uint32 `json:"protocol_version"`
+			SystemManifestSHA256 string `json:"system_manifest_sha256"`
+		} `json:"runtime_closure,omitempty"`
+	}
+	if control.UnmarshalObject(raw, &m) != nil || m.ProtocolVersion != 1 || m.Scope != "neon-native-pre-main-default-loader-v1" ||
+		m.PGMajor != major || m.LaunchPath != resourceguard.FixedPostgresPath || len(m.Files) == 0 || len(m.Files) > 64 {
+		return fmt.Errorf("original Native manifest postgres major or ELF references differ")
+	}
+	clean := func(p string) bool {
+		return filepath.IsAbs(p) && filepath.Clean(p) == p && p != "/" && !strings.ContainsAny(p, "\x00\r\n")
+	}
+	hash := regexp.MustCompile("^[a-f0-9]{64}$")
+	if !clean(m.PostgresPath) || m.InterpreterPath != "" && !clean(m.InterpreterPath) {
+		return fmt.Errorf("original Native ELF path differs")
+	}
+	seen := map[string]bool{}
+	for n, f := range m.Files {
+		if !clean(f.Path) || !hash.MatchString(f.SHA256) || seen[f.Path] || n > 0 && m.Files[n-1].Path >= f.Path {
+			return fmt.Errorf("original Native ELF references not canonical")
+		}
+		seen[f.Path] = true
+	}
+	if !seen[m.PostgresPath] || m.InterpreterPath != "" && !seen[m.InterpreterPath] {
+		return fmt.Errorf("original Native ELF reference missing")
+	}
+	if m.RuntimeClosure != nil && (m.RuntimeClosure.ProtocolVersion != 1 || !hash.MatchString(m.RuntimeClosure.SystemManifestSHA256)) {
+		return fmt.Errorf("original Native runtime closure differs")
+	}
+	var policy struct {
+		PGmajor               uint32 `json:"pg_major"`
+		HelperProtocolVersion uint32 `json:"array_helper_protocol_version"`
+		HelperPath            string `json:"array_helper_path"`
+		HelperSHA256          string `json:"array_helper_elf_sha256"`
+	}
+	if json.Unmarshal(policyRaw, &policy) != nil || policy.PGmajor != major {
+		return fmt.Errorf("original native policy postgres major differs")
+	}
+	if m.ArrayHelper != nil {
+		if m.ArrayHelper.ProtocolVersion != 1 || m.ArrayHelper.Path != "/neonvm/bin/neon-dsga-array-populate" || !hash.MatchString(m.ArrayHelper.SHA256) ||
+			policy.HelperProtocolVersion != m.ArrayHelper.ProtocolVersion || policy.HelperPath != m.ArrayHelper.Path || policy.HelperSHA256 != m.ArrayHelper.SHA256 {
+			return fmt.Errorf("original native helper ELF binding differs")
+		}
+	} else if policy.HelperProtocolVersion != 0 {
+		return fmt.Errorf("original native helper ELF reference missing")
+	}
+	if major == 18 && (m.RuntimeClosure == nil || m.ArrayHelper == nil) {
+		// 不能把旧Native18 seed当最终闭包；原helper和System引用必须由本次Collector绑定。
+		return fmt.Errorf("PG18 requires original helper and canonical runtime closure")
+	}
+	return nil
+}
+
 type renderFiles struct {
 	computeTemplate, sourceTemplate, policies, nativeBuild, contract, outputDir string
 }
@@ -107,8 +202,12 @@ func fixedJSON(b json.RawMessage, out any) error {
 	return nil
 }
 func sameRenderBuild(vm *vmv1.VirtualMachine, c renderBuildContract, policies, native []byte) error {
+	major, e := selectedPostgresMajor(vm)
+	if e != nil {
+		return e
+	}
 	hexSHA := regexp.MustCompile(`^[0-9a-f]{64}$`)
-	if c.ProtocolVersion != 1 || c.Scope != "neon-pg17-trusted-runtime-build-v1" || vm.Spec.RunnerImage == nil || vm.Spec.Guest.KernelImage == nil || c.GuestImage != vm.Spec.Guest.RootDisk.Image || c.RunnerImage != *vm.Spec.RunnerImage || c.KernelImage != *vm.Spec.Guest.KernelImage || !hexSHA.MatchString(c.PolicyTemplatesSHA256) || !hexSHA.MatchString(c.NativeBuildSHA256) || digest(policies) != c.PolicyTemplatesSHA256 || digest(native) != c.NativeBuildSHA256 {
+	if c.ProtocolVersion != 1 || c.Scope != fmt.Sprintf("neon-pg%d-trusted-runtime-build-v1", major) || vm.Spec.RunnerImage == nil || vm.Spec.Guest.KernelImage == nil || c.GuestImage != vm.Spec.Guest.RootDisk.Image || c.RunnerImage != *vm.Spec.RunnerImage || c.KernelImage != *vm.Spec.Guest.KernelImage || !hexSHA.MatchString(c.PolicyTemplatesSHA256) || !hexSHA.MatchString(c.NativeBuildSHA256) || digest(policies) != c.PolicyTemplatesSHA256 || digest(native) != c.NativeBuildSHA256 {
 		return fmt.Errorf("original release build contract differs")
 	}
 	// 受信镜像只从原构建计划内的公开JWKS/spec:null启动；业务spec由既有
@@ -138,9 +237,13 @@ func sameRenderBuild(vm *vmv1.VirtualMachine, c renderBuildContract, policies, n
 		if entry.Asset == "dsga-native-birth.json" {
 			var policy struct {
 				BuildManifestSHA256 string `json:"build_manifest_sha256"`
+				PGMajor             uint32 `json:"pg_major"`
 			}
-			if json.Unmarshal(entry.Policy, &policy) != nil || policy.BuildManifestSHA256 != c.NativeBuildSHA256 {
+			if json.Unmarshal(entry.Policy, &policy) != nil || policy.BuildManifestSHA256 != c.NativeBuildSHA256 || policy.PGMajor != major {
 				return fmt.Errorf("native policy does not bind original Builder manifest")
+			}
+			if e := renderNativeMajorMatches(native, major, entry.Policy); e != nil {
+				return e
 			}
 			found++
 		}

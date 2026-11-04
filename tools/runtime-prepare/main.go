@@ -97,6 +97,9 @@ func manifest(path string) (*vmv1.VirtualMachine, string, error) {
 	if birth.ProtocolVersion != 1 || birth.Ready || birth.VMUID != "" || birth.ConfigSecretUID != "" || control.ValidateIncarnation(birth.Incarnation) != nil || control.ValidateID(birth.ComputeInstanceID, "Compute") != nil || control.Managed(v.Annotations) {
 		return nil, "", fmt.Errorf("manifest must be from CREATE held, without preclaimed UID/journal")
 	}
+	if _, e = selectedPostgresMajor(&v); e != nil {
+		return nil, "", e
+	}
 	if _, e = v.ValidateCreate(); e != nil {
 		return nil, "", fmt.Errorf("VM manifest violates original source API")
 	}
@@ -167,6 +170,17 @@ func (p *preparer) save() error {
 	return d.Sync()
 }
 func originalVM(wanted, got *vmv1.VirtualMachine, expected types.UID) error {
+	// major是原manifest选择的一部分，不是从同名live VM临时收养的许可。
+	if _, e := selectedPostgresMajor(wanted); e != nil {
+		return e
+	}
+	if _, e := selectedPostgresMajor(got); e != nil {
+		return e
+	}
+	if wanted.Annotations[postgresMajorAnnotation] != got.Annotations[postgresMajorAnnotation] {
+		return fmt.Errorf("original VM selected postgres major changed")
+	}
+
 	if got == nil || got.UID == "" || got.ResourceVersion == "" || got.DeletionTimestamp != nil || got.Namespace != wanted.Namespace || got.Name != wanted.Name || expected != "" && got.UID != expected {
 		return fmt.Errorf("original VM identity unavailable or replaced")
 	}

@@ -78,7 +78,8 @@
         "pgVersion": {
           "type": "integer",
           "enum": [
-            17
+            17,
+            18
           ]
         },
         "startupMode": {
@@ -161,7 +162,7 @@
                   }
                 }
               },
-              "description": "显式Runner CPU/内存预算；内置复制init沿正式Controller继承同限额，设备不复制。"
+              "description": "\u663e\u5f0fRunner CPU/\u5185\u5b58\u9884\u7b97\uff1b\u5185\u7f6e\u590d\u5236init\u6cbf\u6b63\u5f0fController\u7ee7\u627f\u540c\u9650\u989d\uff0c\u8bbe\u5907\u4e0d\u590d\u5236\u3002"
             }
           }
         }
@@ -196,7 +197,7 @@
               "worker-119"
             ]
           },
-          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+          "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
         }
       }
     },
@@ -274,6 +275,39 @@
             },
             "required": [
               "runtime"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "compute": {
+            "properties": {
+              "pgVersion": {
+                "const": 18
+              }
+            },
+            "required": [
+              "pgVersion"
+            ]
+          }
+        },
+        "required": [
+          "compute"
+        ]
+      },
+      "then": {
+        "properties": {
+          "compute": {
+            "properties": {
+              "startupMode": {
+                "const": "trusted-runtime-v1"
+              }
+            },
+            "required": [
+              "startupMode"
             ]
           }
         }

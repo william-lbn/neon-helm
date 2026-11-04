@@ -1,7 +1,7 @@
 experimentalAcknowledged: false
 compute:
   startupMode: legacy # 新normal模式必须显式选trusted-runtime-v1；默认保留旧入口。
-  pgVersion: 17 # 本轮只允许 PG17；镜像必须来自另行确认的真实发行锁。
+  pgVersion: 17 # 默认17不变；18必须显式trusted且使用独立确认的18镜像/Native闭包，禁止回退17镜像。
   enabled: true # false retires only the static lab VM; retain Service/config/data for explicit reactivation
   name: vm-neon-compute
   tenantId: ""

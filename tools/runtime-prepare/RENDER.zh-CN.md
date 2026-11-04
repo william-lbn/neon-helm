@@ -30,3 +30,20 @@ neon-runtime-prepare -action render -kubeconfig <既有配置> -vm-json <原held
 ```
 
 没有实际发行索引/可信key或Source时必须保持held，不能复制单机模型UID/0x39key/资格或用测试seed填补。现验证仅为typed fake API单元与工具编译，不是Kubernetes/单服务/E通过。
+
+
+## 17/18私有发行选择
+
+原PG17 scope与默认行为继续接受；显式18使用neon-pg18-trusted-runtime-build-v1。
+选择来自已有compute.pgVersion，并由trusted18的原manifest注解
+neon-control/postgres-major="18"固定；这不是新公共Binding/Request字段或额外许可。
+同UID后续注解缺失/变化同样拒绝。17默认不增加注解、不改变Helm输出字节。
+
+render在原digest/held-UID/JWK/固定image-config路径门之外，交叉核Native与native
+policy的大版本、完整PG ELF引用和helper SHA。18还要求canonical runtime_closure
+绑定System manifest，不能以旧Native18 seed或17镜像默认代替。共享Runner/Kernel/
+Root合法复用，既有启动参数/资源/原生命周期拒绝门不因major选择而弱化。
+
+直接测试仅为fakeKube/离线Helm契约：17输出逐字兼容、18明确选择、混major/
+缺闭包/未知版本/live注解漂移在输出或API之前拒绝。它们不代表真实PG18内核、
+生产normal或K8s通过；没有业务身份或public authority时仍必须保持UNBOUND。

@@ -96,3 +96,23 @@ neon-runtime-prepare -action inspect -kubeconfig <既有配置> -vm-json <原hel
 出现 DELETE 丢回复、VM 仍 deleting、网络失败、旧 Pod 尚在或任一 Node 账本未知时，动作返回未确认，保留原意图；继续用同一原 state 显式重试。不移除 finalizer、不 force delete、不修改 Node 账本或把旧 Resize 未知写成 NoEffect。Controller/Scheduler 负责原 Pod/容器退出及 Node 预算结清；工具仅在 VM 实际404、分页无旧UID Pod、全部实际 Node `InspectVMUnheld` 且再次404后记录 retired。
 
 只要退役意图已保存，旧 state 的 hold/render/seal 永久拒绝，不等待 retired 才闭门。同名不同 UID 会拒绝，不收养新对象。新 Guest 必须换新 state、Compute 身份、incarnation，并用原 hold/render/seal 创建新 UID；若沿用 VM 名，须等待旧 config Secret 正常 GC，不能接管其 UID。需要保留业务数据时沿用原 tenant/timeline/存储数据配置，验证新 Guest 实际读回故障前已提交的数据；本工具不保证任意业务高可用或数据迁移。
+
+
+## 显式17/18选择（候选源码，历史c7发行保持不变）
+
+默认compute.pgVersion仍为17，默认/显式17的Helm输出必须与原518版本逐字一致。
+18必须明确选择trusted-runtime-v1及真实18 Guest digest，不能回退17镜像。共享的
+Runner、Kernel和Root无需另造18专用ELF；实际PG18及其DSO/helper/闭包由独立产物
+锁和Collector/盘读回绑定。版本选择不产生Source、资格、预算或执行许可。
+
+trusted18在原VM manifest加入neon-control/postgres-major="18"选择注解；原manifest
+与后续live VM均强绑定这个字段，缺失只表示历史17，未知/畸形值拒绝。private build
+scope分别为neon-pg17-trusted-runtime-build-v1或neon-pg18-trusted-runtime-build-v1。
+scope、manifest选择、Native.pg_major及native-birth policy.pg_major必须一致。
+18必须有本次canonical runtime_closure和完整PG/helper ELF引用，不接受旧seed冒闭包。
+render只核原构建引用/字节SHA；实际文件内容仍由正式Collector和盘读回确证。
+
+本改动不生成Collector之前缺失的业务public config、argv/env/loader plan/JWK，也不
+放开旧CP中仍固定17的业务creation producer。当前真实PG18 normal/Source/E/K8s
+未因此通过。旧c7二进制/source-lock及已冻结PG17 chart/40700e输入均不被此源码替换；
+Root独立构建、提交、绑定和启用新private CLI后才可使用新增能力。

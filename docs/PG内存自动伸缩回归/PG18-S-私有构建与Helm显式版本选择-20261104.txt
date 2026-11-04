@@ -1,0 +1,9 @@
+PG18-S：私有构建与Helm显式版本选择（组件验收，不代表PG18全链）
+
+问题：既有私有runtime-prepare只接受PG17构建scope，compute chart schema只允许17，阻断独立PG18内核后续接线。本批沿原compute.pgVersion选择17/18，默认17不变；18须显式trusted-runtime-v1、独立Guest digest及真实Native18 helper/System闭包。共享Runner、Kernel、Root不因PG major另造一套，不向公共Request/Binding加临时版本字段。
+
+版本门：仅显式18输出原manifest的neon-control/postgres-major注解，注解本身不授权内存动作。unknown/畸形major、同UID live major漂移、build scope/Native.pg_major/policy.pg_major不一致、缺18 helper或closure均拒绝。新投影仍严格拒未知/重复字段；原seal的完整ELF和FS校验不变。默认/显式17的legacy/trusted三组Helm输出与518快照逐字节一致。Root独审核当前真实17 Native字段形状与解析投影一致；不把静态形状检查当真实18运行。
+
+精准验证：20261104T144146Z-aa51e4实际82.434秒，Helm旧schema RED精确拒18，Go旧scope RED精确拒新18用例。GREEN：19 Go根/93 PASS事件，0fail/skip，race通过；13个Helm用例与lint通过。同一源快照只编新私有CLI，SHA d24d881bbb713d990394eb95071c6ead775e3d1764e52b7b3f9fb095cfa097c1，40415416字节，help退出0。原unit dead/exit0/reconcile。组件终票c66763e590e644cf73e3ccc1de23094dfa98e25a68ca47b96a9dcec17998d7a4；独审c59095827b718b41f4fce8deee3e53ad1ef476911b6e4f6a61283add647b854c。大日志、旧RED、准确源码和命令在/data/neon-build/validation/helm-private-pg18-major-selection-20261104T144146Z-aa51e4/。
+
+仍未完成：PG18 pre-Collector的真实publicconfig/argv/env/loaderplan/JWK/业务身份需要正式来源；旧控制面项目/创建producer硬17仍需后续按统一版本能力对接。该补丁只解除后置held/render/seal接线门，不生成上述缺失授权，不认证PG18真实normal/Source/K8s。旧c7工具与正在验证的PG17 40700e计划、17/18 gitlink和发行锁均保持原样；当前PG17部署只用此前冻结chart，不偷偷切换新CLI。最新完整自有控制面仍按PG17三节点功能通过后再获取。

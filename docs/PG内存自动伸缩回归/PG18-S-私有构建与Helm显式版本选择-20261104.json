@@ -1,0 +1,17 @@
+{
+  "case_id": "PG18-S-PrivateProducerMajorSelection-20261104",
+  "status": "PASS_COMPONENT_ONLY",
+  "Go_roots": 19,
+  "Go_pass_events": 93,
+  "Go_fail": 0,
+  "Go_skip": 0,
+  "race": true,
+  "Helm_cases": 13,
+  "default_and_explicit17_stdout_byte_equal_to_518": true,
+  "private_CLI_SHA256": "d24d881bbb713d990394eb95071c6ead775e3d1764e52b7b3f9fb095cfa097c1",
+  "final_receipt_SHA256": "c66763e590e644cf73e3ccc1de23094dfa98e25a68ca47b96a9dcec17998d7a4",
+  "independent_review_SHA256": "c59095827b718b41f4fce8deee3e53ad1ef476911b6e4f6a61283add647b854c",
+  "PG18_normal_Source_K8s_E2E_passed": false,
+  "preCollector_authority_and_business_producer_gap_open": true,
+  "old_c7_and_active_PG17_plan_not_modified": true
+}

@@ -15,6 +15,9 @@ metadata:
     {{- end }}
   annotations:
     autoscaling.neon.tech/bounds: {{ dict "min" (dict "cpu" (toString .Values.compute.cpu.min) "mem" .Values.compute.memory.minBound) "max" (dict "cpu" (toString .Values.compute.cpu.max) "mem" .Values.compute.memory.maxBound) | toJson | quote }}
+    {{- if and $managed (eq (int .Values.compute.pgVersion) 18) }}
+    neon-control/postgres-major: "18"
+    {{- end }}
 spec:
   {{- include "neon-compute.placement.pod" . | nindent 2 }}
   schedulerName: autoscale-scheduler

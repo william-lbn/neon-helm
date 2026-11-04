@@ -204,3 +204,39 @@ func TestRuntimePrepareUnconfirmedCreateDoesNotAdoptSameName(t *testing.T) {
 		})
 	}
 }
+
+func TestRuntimeManifestRejectsUnknownMajorBeforeAnyAPI(t *testing.T) {
+	for _, value := range []string{"", "0", "16", "19", "018", "18.0", " 18", "true"} {
+		t.Run("major-"+value, func(t *testing.T) {
+			vm, _ := nativeUnit(t)
+			vm.Kind = "VirtualMachine"
+			vm.APIVersion = vmv1.SchemeGroupVersion.String()
+			vm.UID = ""
+			vm.ResourceVersion = ""
+			vm.Annotations = map[string]string{"neon-control/postgres-major": value}
+			raw, e := json.Marshal(vm)
+			require.NoError(t, e)
+			path := filepath.Join(t.TempDir(), "OFFLINE-held.json")
+			require.NoError(t, os.WriteFile(path, raw, 0600))
+			_, _, e = manifest(path)
+			require.ErrorContains(t, e, "postgres major")
+		})
+	}
+}
+func TestRuntimeOriginalVMMajorSelectionIsImmutable(t *testing.T) {
+	p, _, _ := renderUnit(t)
+	wanted := p.wanted.DeepCopy()
+	wanted.Annotations = map[string]string{"neon-control/postgres-major": "18"}
+	got := p.wantedWithHeldIdentityForTest()
+	got.Annotations = map[string]string{"neon-control/postgres-major": "18"}
+	require.NoError(t, originalVM(wanted, got, p.state.VMUID))
+	for _, value := range []string{"17", "", "19"} {
+		bad := got.DeepCopy()
+		if value == "" {
+			delete(bad.Annotations, "neon-control/postgres-major")
+		} else {
+			bad.Annotations["neon-control/postgres-major"] = value
+		}
+		require.Error(t, originalVM(wanted, bad, p.state.VMUID))
+	}
+}

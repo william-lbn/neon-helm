@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	vmv1 "github.com/neondatabase/autoscaling/neonvm/apis/neonvm/v1"
 	vmfake "github.com/neondatabase/autoscaling/neonvm/client/clientset/versioned/fake"
 	vmtyped "github.com/neondatabase/autoscaling/neonvm/client/clientset/versioned/typed/neonvm/v1"
@@ -29,7 +31,7 @@ func renderUnit(t *testing.T) (*preparer, renderFiles, map[string][]byte) {
 	vm.Spec.Guest.RootDisk.Image = guest
 	vm.Spec.Guest.MemorySlotSize = resource.MustParse("1Gi")
 	vm.Spec.Guest.MemorySlots = vmv1.MemorySlots{Min: 7, Use: 7, Max: 8}
-	native := []byte(`{"unit_only_Builder_bytes":"not-a-deployable-ELF-manifest"}`)
+	native := renderMajorNativeUnit(t, 17, true)
 	var templates map[string]any
 	require.NoError(t, json.Unmarshal(data[resourceguard.PolicyTemplatesSecretKey], &templates))
 	for _, raw := range templates["templates"].([]any) {
@@ -230,4 +232,187 @@ func (p *preparer) wantedWithHeldIdentityForTest() *vmv1.VirtualMachine {
 	v.UID = p.state.VMUID
 	v.ResourceVersion = "unit-held-rv"
 	return v
+}
+
+// 这些是假ELF引用的离线契约夹具；不声称18内核、Collector、normal或K8s通过。
+func renderMajorNativeUnit(t *testing.T, major uint32, closure bool) []byte {
+	t.Helper()
+	m := map[string]any{"protocol_version": 1, "scope": "neon-native-pre-main-default-loader-v1", "pg_major": major,
+		"launch_path": "/usr/local/bin/postgres", "postgres_path": "/usr/local/bin/postgres", "interpreter_path": "/lib/OFFLINE-only-loader",
+		"files":        []any{map[string]any{"path": "/lib/OFFLINE-only-loader", "sha256": strings.Repeat("e", 64)}, map[string]any{"path": "/usr/local/bin/postgres", "sha256": strings.Repeat("f", 64)}},
+		"array_helper": map[string]any{"protocol_version": 1, "path": "/neonvm/bin/neon-dsga-array-populate", "sha256": strings.Repeat("ab", 32)}}
+	if closure {
+		m["runtime_closure"] = map[string]any{"protocol_version": 1, "system_manifest_sha256": strings.Repeat("d", 64)}
+	}
+	raw, e := json.Marshal(m)
+	require.NoError(t, e)
+	return raw
+}
+
+func renderMajorFixture(t *testing.T, major uint32) (*preparer, renderFiles) {
+	t.Helper()
+	p, in, _ := renderUnit(t)
+	if major == 18 {
+		p.wanted.Annotations = map[string]string{"neon-control/postgres-major": "18"}
+		live, e := p.vms.Get(context.Background(), p.wanted.Name, metav1.GetOptions{})
+		require.NoError(t, e)
+		if live.Annotations == nil {
+			live.Annotations = map[string]string{}
+		}
+		live.Annotations["neon-control/postgres-major"] = "18"
+		_, e = p.vms.Update(context.Background(), live, metav1.UpdateOptions{})
+		require.NoError(t, e)
+	}
+	native := renderMajorNativeUnit(t, major, true)
+	require.NoError(t, os.WriteFile(in.nativeBuild, native, 0600))
+	renderMajorRewriteContract(t, in, major)
+	return p, in
+}
+func renderMajorRewriteContract(t *testing.T, in renderFiles, major uint32) {
+	t.Helper()
+	native, e := os.ReadFile(in.nativeBuild)
+	require.NoError(t, e)
+	raw, e := os.ReadFile(in.policies)
+	require.NoError(t, e)
+	var templates map[string]any
+	require.NoError(t, json.Unmarshal(raw, &templates))
+	for _, v := range templates["templates"].([]any) {
+		entry := v.(map[string]any)
+		if entry["asset"] == "dsga-native-birth.json" {
+			policy := entry["policy"].(map[string]any)
+			policy["pg_major"] = major
+			policy["build_manifest_sha256"] = digest(native)
+		}
+	}
+	policies, e := json.Marshal(templates)
+	require.NoError(t, e)
+	require.NoError(t, os.WriteFile(in.policies, policies, 0600))
+	raw, e = os.ReadFile(in.contract)
+	require.NoError(t, e)
+	var c renderBuildContract
+	require.NoError(t, json.Unmarshal(raw, &c))
+	c.Scope = fmt.Sprintf("neon-pg%d-trusted-runtime-build-v1", major)
+	c.NativeBuildSHA256 = digest(native)
+	c.PolicyTemplatesSHA256 = digest(policies)
+	raw, e = json.Marshal(c)
+	require.NoError(t, e)
+	require.NoError(t, os.WriteFile(in.contract, raw, 0600))
+}
+
+func TestRuntimeRenderExplicitMajor18Contract(t *testing.T) {
+	p, in := renderMajorFixture(t, 18)
+	require.NoError(t, p.render(context.Background(), in))
+	require.False(t, p.state.SecretCreateMayHaveSent)
+	require.False(t, p.state.ReleaseMayHaveSent)
+	vm, e := p.vms.Get(context.Background(), p.wanted.Name, metav1.GetOptions{})
+	require.NoError(t, e)
+	require.Equal(t, "18", vm.Annotations["neon-control/postgres-major"])
+	s := secretFor(vm, map[string][]byte{})
+	s.UID = "OFFLINE-actual-api-config-uid"
+	s.ResourceVersion = "1"
+	for _, key := range []string{"config.json", resourceguard.ResourceSecretKey, resourceguard.PolicyTemplatesSecretKey} {
+		raw, e := os.ReadFile(filepath.Join(in.outputDir, key))
+		require.NoError(t, e)
+		s.Data[key] = raw
+	}
+	_, e = checkedRuntime(vm, s)
+	require.NoError(t, e, "原完整Runtime policy库必须接受明确major18")
+}
+
+func TestRuntimeRenderRejectsMixedMajorBeforeOutput(t *testing.T) {
+	for _, name := range []string{"missing-choice", "wrong-scope", "native17", "policy17", "native19", "closure-missing", "closure-invalid", "helper-missing", "helper-ELF-drift", "PG-ELF-missing", "duplicate-major", "unknown-native-field", "live-major-drift"} {
+		t.Run(name, func(t *testing.T) {
+			p, in := renderMajorFixture(t, 18)
+			if name == "live-major-drift" {
+				vm, e := p.vms.Get(context.Background(), p.wanted.Name, metav1.GetOptions{})
+				require.NoError(t, e)
+				vm.Annotations["neon-control/postgres-major"] = "17"
+				_, e = p.vms.Update(context.Background(), vm, metav1.UpdateOptions{})
+				require.NoError(t, e)
+			} else if name == "missing-choice" {
+				delete(p.wanted.Annotations, "neon-control/postgres-major")
+				vm, e := p.vms.Get(context.Background(), p.wanted.Name, metav1.GetOptions{})
+				require.NoError(t, e)
+				delete(vm.Annotations, "neon-control/postgres-major")
+				_, e = p.vms.Update(context.Background(), vm, metav1.UpdateOptions{})
+				require.NoError(t, e)
+			} else if name == "wrong-scope" {
+				raw, e := os.ReadFile(in.contract)
+				require.NoError(t, e)
+				var c renderBuildContract
+				require.NoError(t, json.Unmarshal(raw, &c))
+				c.Scope = "neon-pg17-trusted-runtime-build-v1"
+				raw, e = json.Marshal(c)
+				require.NoError(t, e)
+				require.NoError(t, os.WriteFile(in.contract, raw, 0600))
+			} else {
+				raw, e := os.ReadFile(in.nativeBuild)
+				require.NoError(t, e)
+				var native map[string]any
+				require.NoError(t, json.Unmarshal(raw, &native))
+				switch name {
+				case "native17":
+					native["pg_major"] = 17
+				case "native19":
+					native["pg_major"] = 19
+				case "closure-missing":
+					delete(native, "runtime_closure")
+				case "closure-invalid":
+					native["runtime_closure"].(map[string]any)["system_manifest_sha256"] = "invalid"
+				case "helper-missing":
+					delete(native, "array_helper")
+				case "helper-ELF-drift":
+					native["array_helper"].(map[string]any)["sha256"] = strings.Repeat("7", 64)
+				case "PG-ELF-missing":
+					native["files"] = native["files"].([]any)[:1]
+				case "unknown-native-field":
+					native["caller_claims_qualified"] = true
+				}
+				raw, e = json.Marshal(native)
+				require.NoError(t, e)
+				if name == "duplicate-major" {
+					raw = bytes.Replace(raw, []byte("{"), []byte("{\"pg_major\":18,"), 1)
+				}
+				require.NoError(t, os.WriteFile(in.nativeBuild, raw, 0600))
+				renderMajorRewriteContract(t, in, 18)
+				if name == "policy17" {
+					raw, e = os.ReadFile(in.policies)
+					require.NoError(t, e)
+					var ts map[string]any
+					require.NoError(t, json.Unmarshal(raw, &ts))
+					for _, v := range ts["templates"].([]any) {
+						entry := v.(map[string]any)
+						if entry["asset"] == "dsga-native-birth.json" {
+							entry["policy"].(map[string]any)["pg_major"] = 17
+						}
+					}
+					raw, e = json.Marshal(ts)
+					require.NoError(t, e)
+					require.NoError(t, os.WriteFile(in.policies, raw, 0600))
+					cr, e := os.ReadFile(in.contract)
+					require.NoError(t, e)
+					var c renderBuildContract
+					require.NoError(t, json.Unmarshal(cr, &c))
+					c.PolicyTemplatesSHA256 = digest(raw)
+					cr, e = json.Marshal(c)
+					require.NoError(t, e)
+					require.NoError(t, os.WriteFile(in.contract, cr, 0600))
+				}
+			}
+			require.Error(t, p.render(context.Background(), in))
+			_, e := os.Stat(in.outputDir)
+			require.True(t, os.IsNotExist(e))
+			require.False(t, p.state.SecretCreateMayHaveSent)
+			require.False(t, p.state.ReleaseMayHaveSent)
+		})
+	}
+}
+
+func TestRuntimeRenderMajor17RejectsNative18Relabel(t *testing.T) {
+	p, in := renderMajorFixture(t, 17)
+	require.NoError(t, os.WriteFile(in.nativeBuild, renderMajorNativeUnit(t, 18, true), 0600))
+	renderMajorRewriteContract(t, in, 17)
+	require.Error(t, p.render(context.Background(), in))
+	_, e := os.Stat(in.outputDir)
+	require.True(t, os.IsNotExist(e))
 }

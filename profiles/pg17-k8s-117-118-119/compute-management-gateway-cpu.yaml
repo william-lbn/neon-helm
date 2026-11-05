@@ -1,0 +1,5 @@
+# 仅当前 PG17 三 worker 环境的 neon/neon-compute-management-gateway release 显式使用。
+# 不修改 chart 默认 CPU，也不覆盖镜像、内存、requests、权限、QPS 或 TTL。
+resources:
+  limits:
+    cpu: "2"

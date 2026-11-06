@@ -4,51 +4,43 @@
   "module_owner": "autoscaling repository root; Helm tools/runtime-prepare has no separate go.mod/go.sum",
   "autoscaling_repository": "https://github.com/william-lbn/autoscaling.git",
   "autoscaling_function_branch": "codex/dsga-autoscaling-20261019",
-  "autoscaling_commit": "403eb25b6821536c26bb1d0dbb91c7afce3ec311",
+  "autoscaling_commit": "3897d1d28f2188f5f1022843c4ecba5d644c622a",
   "autoscaling_module_path": "github.com/neondatabase/autoscaling",
   "autoscaling_module_files_sha256": {
     "go.mod": "65855db77053da9298ca60c5e8a8f3d491605d0b082bfb684d6ccaeed7f7e928",
     "go.sum": "66f2e9ce367e08053a7ec3a13cce6ade426c9e9feafd85c778618762760e85ad"
   },
   "production_files_sha256": {
-    "main.go": "9cf8a46a0c61b8f5095eaecfdca6ba574821ab82b06c9302c3218358bcc93082",
-    "render.go": "faea8e8764e227f4782fc8b4a89d81c1fd99a725f99380171124a361a3e865d0",
+    "main.go": "b40d3dc2d0cd7ef79e6875dd47c88611d7011f4dc1ba76414196024f4a6d96ad",
     "recovery.go": "2d72ac9db5e39694cc14334024f8d381f5cce811fd43891d6cb51d2b93e95a23",
+    "render.go": "c1216f396c08d165bb6f3992f97f0a82a0b6699fd9c24ad7e28efceeef6e7e08",
     "service.go": "7fa2810e5ece9422bd446e93678d4210b2e8d2718bfb38cab38be23c390acd92"
   },
   "test_files_sha256": {
-    "main_test.go": "5f8f1e69b28e0711c80ae2ac3231215960b2e07ed511d97202c107467e5ec4c6",
-    "render_test.go": "f38a2ff387a0d8dfec9e04292d12d3fb7105ca6a8e3a33869d6d370b42549678",
+    "main_test.go": "1b3238d2d8485ca940a3494209ec0c2f920549d90d061eccd4ee491d69da58a7",
     "recovery_test.go": "edd2fdebd7b8050562824f6b608a0e8f4495b3a9e57439ff497f29f06af0ad72",
+    "render_test.go": "c070862064461373b790d6347bdc1e2a70a370a6b5c588b5ebbbe0186f4ef11d",
     "service_test.go": "ccffb806d97cc058a2e55892213bd2068f90140ad104d6f87498d961cc0f0fdf"
   },
   "actual_validation": {
-    "directory": "/data/neon-build/validation/host-v10-six-reader-release-20261103T172102Z-ffde4b",
-    "result_sha256": "aa1679710781539c0f2c9d50118bd272030b00d77a4198eb2c9bf0eeeb2758a5",
-    "tool_sha256": "c7d8c8fa5733aad8e4591efbfba6c471e392402a2662b257a965ff751c6a6f4f",
-    "root_tests": 14,
-    "pass_events": 67,
+    "directory": "/data/neon-build/validation/PG17-自有Helm出生版本渲染-20261106T095359Z-8ec2e8",
+    "result_sha256": "78ed9d92a0033ef9d130c36a824907a2335557644156bd1d7f63a949ca36111c",
+    "tool_sha256": "76e7c8156905b918439017d2fb0f113d761ebb3167f0bee0a29c71704c118a6b",
+    "root_tests": 2,
+    "pass_events": 4,
     "test_cli_help_exit": [
       0,
       0,
       0
     ],
     "Kubernetes_business_action": false,
-    "source_files_checked_before_after": 11666,
-    "actual_Go_version": "go1.24.3",
-    "production4Go_exact_Helm979": true,
-    "runtime_unit_test_evidence": {
-      "directory": "/data/neon-build/validation/host-v10-new-roots-runtime-combined-20261103T170848Z-9f7061",
-      "result_sha256": "ddaff3310468a516db5c9be01a91c52cc5de05b156145b467bdb8b81e5d7afc7",
-      "inputs_sha256": "7dc09dc699a3cd4d028a20221219bb48606b00ab669fb0984fcf484aea960158",
-      "accepted_subphase": "runtime14/67,u0,cli0,help0",
-      "whole_batch_pass": false,
-      "whole_batch_failure": "independent Owner fixture Mac-only path; subsequent portable test fix passed181634; original FAIL unchanged",
-      "reuse_guard": "same exact16 AS productionSHA+same Helm8 toolSHA, checked by final ffde4b prepare"
-    },
-    "actual_new_VM_or_Host_migration_test": false
+    "actual_Go_version": "go version go1.24.3 linux/amd64"
   },
   "meaning": "explicit source input lock for documented build; not a Go module replacement/version requirement; no claim of different-path byte-reproducible ELF",
   "old_e8_meaning": "older f1f build AS input metadata; not Helm Go dependency",
-  "public_protocol_change": false
+  "public_protocol_change": true,
+  "native_bootstrap_versions": [
+    2,
+    3
+  ]
 }

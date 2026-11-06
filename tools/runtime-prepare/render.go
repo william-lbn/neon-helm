@@ -293,8 +293,8 @@ func renderBootstrapFiles(vm *vmv1.VirtualMachine, in renderFiles) (map[string][
 	var protocol uint32
 	var uid, compute string
 	var minimum, bootstrap uint64
-	if fixedJSON(dynamic["protocol_version"], &protocol) != nil || protocol != 2 || fixedJSON(dynamic["vm_uid"], &uid) != nil || uid != "" || fixedJSON(dynamic["compute_instance_id"], &compute) != nil || compute != source.Config.ComputeInstanceID || fixedJSON(dynamic["minimum_guest_memory_bytes"], &minimum) != nil || fixedJSON(dynamic["bootstrap_buffer_bytes"], &bootstrap) != nil || bootstrap == 0 {
-		return nil, fmt.Errorf("original unbound native v2 creation template required")
+	if fixedJSON(dynamic["protocol_version"], &protocol) != nil || !control.SupportedNativeBootstrapVersion(protocol) || fixedJSON(dynamic["vm_uid"], &uid) != nil || uid != "" || fixedJSON(dynamic["compute_instance_id"], &compute) != nil || compute != source.Config.ComputeInstanceID || fixedJSON(dynamic["minimum_guest_memory_bytes"], &minimum) != nil || fixedJSON(dynamic["bootstrap_buffer_bytes"], &bootstrap) != nil || bootstrap == 0 {
+		return nil, fmt.Errorf("original unbound native creation template with a supported bootstrap version required")
 	}
 	slot, exact := vm.Spec.Guest.MemorySlotSize.AsInt64()
 	minSlots := uint64(vm.Spec.Guest.MemorySlots.Min)

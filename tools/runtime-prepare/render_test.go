@@ -416,3 +416,44 @@ func TestRuntimeRenderMajor17RejectsNative18Relabel(t *testing.T) {
 	_, e := os.Stat(in.outputDir)
 	require.True(t, os.IsNotExist(e))
 }
+
+// 使用原渲染与密封入口：只在新 VM 的不可变配置内保留受支持的出生协议。
+// 原来冻结的公钥、UID、预算与运行时合同照常校验，未知版本不发布文件。
+func TestRuntimeRenderBudgetBootstrapPreservesOriginalVersion(t *testing.T) {
+	for _, version := range []uint32{3, 4} {
+		t.Run(fmt.Sprint(version), func(t *testing.T) {
+			p, in, _ := renderUnit(t)
+			raw, err := os.ReadFile(in.computeTemplate)
+			require.NoError(t, err)
+			var cfg map[string]any
+			require.NoError(t, json.Unmarshal(raw, &cfg))
+			cfg["spec"].(map[string]any)["dynamic_shared_buffers"].(map[string]any)["protocol_version"] = version
+			raw, err = json.Marshal(cfg)
+			require.NoError(t, err)
+			require.NoError(t, os.WriteFile(in.computeTemplate, raw, 0600))
+			err = p.render(context.Background(), in)
+			if version != 3 {
+				require.Error(t, err)
+				_, err = os.Stat(filepath.Join(in.outputDir, "config.json"))
+				require.True(t, os.IsNotExist(err))
+				return
+			}
+			require.NoError(t, err)
+			vm, err := p.vms.Get(context.Background(), p.wanted.Name, metav1.GetOptions{})
+			require.NoError(t, err)
+			s := secretFor(vm, map[string][]byte{})
+			s.UID = "unit-api-secret-uid"
+			s.ResourceVersion = "1"
+			for _, key := range []string{"config.json", resourceguard.ResourceSecretKey, resourceguard.PolicyTemplatesSecretKey} {
+				s.Data[key], err = os.ReadFile(filepath.Join(in.outputDir, key))
+				require.NoError(t, err)
+			}
+			require.NoError(t, json.Unmarshal(s.Data["config.json"], &cfg))
+			dynamic := cfg["spec"].(map[string]any)["dynamic_shared_buffers"].(map[string]any)
+			require.Equal(t, float64(version), dynamic["protocol_version"])
+			require.Equal(t, string(vm.UID), dynamic["vm_uid"])
+			_, err = checkedRuntime(vm, s)
+			require.NoError(t, err)
+		})
+	}
+}

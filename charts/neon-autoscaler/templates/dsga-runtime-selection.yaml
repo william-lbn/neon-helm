@@ -1,0 +1,29 @@
+{{- if and .Values.dsga.enabled .Values.dsga.agent.runtimeSelectionNamespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.dsga.agent.runtimeSelectionNamespace | quote }}
+  labels:
+    app.kubernetes.io/part-of: neon-control-plane
+---
+# 选择与资格是不同对象：选择存在平台命名空间，资格仍来自原独立 Issuer。
+# Agent 对此空间只有 get，不能凭其 VM 命名空间的 Outside CREATE 权限改策略。
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: neon-dsga-runtime-selection-observer
+  namespace: {{ .Values.dsga.agent.runtimeSelectionNamespace | quote }}
+rules:
+- apiGroups: [""]
+  resources: [configmaps]
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: neon-dsga-runtime-selection-observer
+  namespace: {{ .Values.dsga.agent.runtimeSelectionNamespace | quote }}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: neon-dsga-runtime-selection-observer}
+subjects:
+- {kind: ServiceAccount, name: autoscaler-agent, namespace: kube-system}
+{{- end }}

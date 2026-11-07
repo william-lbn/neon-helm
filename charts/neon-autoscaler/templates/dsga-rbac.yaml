@@ -10,7 +10,7 @@ rules:
   verbs: [get, create, update]
 - apiGroups: [""]
   resources: [configmaps]
-  {{- if gt (len .Values.dsga.agent.prepareQualifications) 0 }}
+  {{- if or (gt (len .Values.dsga.agent.prepareQualifications) 0) .Values.dsga.agent.runtimeSelectionNamespace }}
   verbs: [get, create]
   {{- else }}
   verbs: [get]

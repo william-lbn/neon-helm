@@ -47,6 +47,8 @@ dsga:
     requestTimeoutSeconds: 10
     computeTimeoutSeconds: 100
     pollIntervalSeconds: 5
+    # 专用平台配置命名空间；Agent 仅 get，租户/Agent 不拥有写入权限。
+    runtimeSelectionNamespace: ''
     prepareQualifications: {}
     automaticMemory: {}
     # 完整Owner管理UDS，默认关闭；只供root本机显式Begin/恢复，不能交给资格读取者。

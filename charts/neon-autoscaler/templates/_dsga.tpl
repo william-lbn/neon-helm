@@ -3,6 +3,9 @@
 {{- if .Values.dsga.enabled -}}
 {{- $a := .Values.dsga.agent -}}
 {{- $dsga := dict "gatewayURL" $a.gatewayURL "managementCAFile" "/etc/neon-dsga/management/ca.crt" "projectedTokenFile" "/var/run/secrets/neon-dsga/token" "requestTimeoutSeconds" $a.requestTimeoutSeconds "computeTimeoutSeconds" $a.computeTimeoutSeconds "pollIntervalSeconds" $a.pollIntervalSeconds "prepareQualifications" $a.prepareQualifications "automaticMemory" $a.automaticMemory -}}
+{{- if $a.runtimeSelectionNamespace -}}
+{{- $_ := set $dsga "runtimeSelectionNamespace" $a.runtimeSelectionNamespace -}}
+{{- end -}}
 {{- if $a.resourceReadSocket.enabled -}}
 {{- $_ := set $dsga "resourceReadSocketPath" (printf "%s/%s" $a.resourceReadSocket.mountDirectory $a.resourceReadSocket.name) -}}
 {{- end -}}
@@ -37,6 +40,12 @@
 {{- if ne (int $d.pgVersion) 17 -}}{{- fail "DSGA qualification is PG17 only" -}}{{- end -}}
 {{- $resource := $d.agent.resourceReadSocket -}}
 {{- $control := $d.agent.controlSocket -}}
+{{- if $d.agent.runtimeSelectionNamespace -}}
+{{- if or (not $d.enabled) (not $resource.enabled) (eq $d.agent.runtimeSelectionNamespace $d.vmNamespace) -}}
+{{- fail "Dynamic runtime selection requires a separate platform namespace and original resource reader" -}}
+{{- end -}}
+{{- end -}}
+
 {{- if and $control.enabled (not $d.enabled) -}}{{- fail "Agent full control socket requires DSGA enabled" -}}{{- end -}}
 {{- if $control.enabled -}}
 {{- range $directory := list $control.hostDirectory $control.mountDirectory -}}

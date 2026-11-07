@@ -56,7 +56,7 @@
               ]
             }
           },
-          "description": "只允许三worker中的额外hostname，不得覆盖固定pool/os/arch。"
+          "description": "\u53ea\u5141\u8bb8\u4e09worker\u4e2d\u7684\u989d\u5916hostname\uff0c\u4e0d\u5f97\u8986\u76d6\u56fa\u5b9apool/os/arch\u3002"
         }
       }
     },
@@ -90,7 +90,7 @@
               "worker-119"
             ]
           },
-          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+          "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
         }
       }
     },
@@ -303,6 +303,16 @@
                     "type": "integer",
                     "minimum": 3,
                     "maximum": 1000
+                  },
+                  "minimumVMMemoryBytes": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,19}$",
+                    "maxLength": 20
+                  },
+                  "maximumVMMemoryBytes": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{0,19}$",
+                    "maxLength": 20
                   }
                 }
               }
@@ -354,7 +364,12 @@
                   "type": "string"
                 }
               },
-              "description": "独立完整Owner管理UDS，默认关闭。仅/run/neon-dsga-*私有目录，与resourceReadSocket目录不可相同或嵌套；不新增网络服务。"
+              "description": "\u72ec\u7acb\u5b8c\u6574Owner\u7ba1\u7406UDS\uff0c\u9ed8\u8ba4\u5173\u95ed\u3002\u4ec5/run/neon-dsga-*\u79c1\u6709\u76ee\u5f55\uff0c\u4e0eresourceReadSocket\u76ee\u5f55\u4e0d\u53ef\u76f8\u540c\u6216\u5d4c\u5957\uff1b\u4e0d\u65b0\u589e\u7f51\u7edc\u670d\u52a1\u3002"
+            },
+            "runtimeSelectionNamespace": {
+              "type": "string",
+              "pattern": "^$|^neon-control-[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+              "maxLength": 63
             }
           }
         },
@@ -524,7 +539,7 @@
                   "neonvm-system"
                 ]
               },
-              "description": "仅显式3既有namespace的Pod get/patch；neon旧Role不变，不创建全局Pod写权限。"
+              "description": "\u4ec5\u663e\u5f0f3\u65e2\u6709namespace\u7684Pod get/patch\uff1bneon\u65e7Role\u4e0d\u53d8\uff0c\u4e0d\u521b\u5efa\u5168\u5c40Pod\u5199\u6743\u9650\u3002"
             },
             "ordinaryStopSourceNames": {
               "type": "array",
@@ -536,7 +551,7 @@
                 "maxLength": 253,
                 "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
               },
-              "description": "仅kube-system内运维者本轮实际发布并读回的普通Pod停止来源CM精确名称；仅get，不授list/watch/write。名称和Node ownerRef不能单独认证内容。"
+              "description": "\u4ec5kube-system\u5185\u8fd0\u7ef4\u8005\u672c\u8f6e\u5b9e\u9645\u53d1\u5e03\u5e76\u8bfb\u56de\u7684\u666e\u901aPod\u505c\u6b62\u6765\u6e90CM\u7cbe\u786e\u540d\u79f0\uff1b\u4ec5get\uff0c\u4e0d\u6388list/watch/write\u3002\u540d\u79f0\u548cNode ownerRef\u4e0d\u80fd\u5355\u72ec\u8ba4\u8bc1\u5185\u5bb9\u3002"
             }
           }
         }

@@ -1,0 +1,11 @@
+# 可由Mac本地Worker或同一集群发行复用；无令牌内容/业务凭据。
+workloadNamespace: neon
+agentNamespace: kube-system
+agentDaemonSet: autoscaler-agent
+apiServiceAccount: neon-control-api
+workerServiceAccount: neon-control-worker
+qualifierServiceAccount: qualification-issuer
+nodeReadClusterRole: neon-control-runtime-worker-nodes
+allowedNodes: [worker-117, worker-118, worker-119]
+hostLeaseNamespace: neon
+hostLeaseNames: [neon-dsga-host-worker-117, neon-dsga-host-worker-118, neon-dsga-host-worker-119]

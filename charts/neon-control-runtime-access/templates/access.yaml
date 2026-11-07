@@ -1,0 +1,158 @@
+{{- if ne .Values.hostLeaseNamespace .Values.workloadNamespace -}}{{ fail "Host leases must share the managed workload namespace for scoped delegation" }}{{- end -}}
+{{- if or (not (hasPrefix "neon-control-" .Release.Namespace)) (eq .Release.Namespace .Values.workloadNamespace) -}}{{ fail "dedicated neon-control-* namespace must differ from workload namespace" }}{{- end -}}
+{{- $ns := .Release.Namespace -}}
+{{- $prefix := printf "%s-%s" $ns .Release.Name | trunc 48 | trimSuffix "-" -}}
+{{- if ne (sortAlpha .Values.allowedNodes | join ",") "worker-117,worker-118,worker-119" -}}{{ fail "allowedNodes must be exactly worker-117/118/119" }}{{- end -}}
+{{- if ne (sortAlpha .Values.hostLeaseNames | join ",") "neon-dsga-host-worker-117,neon-dsga-host-worker-118,neon-dsga-host-worker-119" -}}{{ fail "exact Host leases required" }}{{- end -}}
+{{- range $account := list .Values.apiServiceAccount .Values.workerServiceAccount .Values.qualifierServiceAccount }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: {{ $account | quote }}, namespace: {{ $ns | quote }}}
+automountServiceAccountToken: false
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: {{ .Values.nodeReadClusterRole | quote }}}
+rules:
+  - apiGroups: ['']
+    resources: [nodes]
+    resourceNames: {{ toJson .Values.allowedNodes }}
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: {{ printf "%s-node-read" $prefix | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ .Values.nodeReadClusterRole | quote }}}
+subjects:
+{{- range $account := list .Values.apiServiceAccount .Values.workerServiceAccount .Values.qualifierServiceAccount }}
+  - {kind: ServiceAccount, name: {{ $account | quote }}, namespace: {{ $ns | quote }}}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: {{ printf "%s-qualifier-inventory" $prefix | quote }}}
+rules:
+  # 原Host审计需跨namespace列出节点Pod；RBAC不支持fieldSelector约束。
+  - {apiGroups: [''], resources: [pods], verbs: [list]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: {{ printf "%s-qualifier-inventory" $prefix | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ printf "%s-qualifier-inventory" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.qualifierServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: {{ printf "%s-runner-delegation" $prefix | quote }}}
+rules:
+  # 不授bind/escalate；Kubernetes继续核Worker是否已持有被委派的原Node读取权限。
+  - {apiGroups: [rbac.authorization.k8s.io], resources: [clusterrolebindings], verbs: [get, create]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: {{ printf "%s-runner-delegation" $prefix | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ printf "%s-runner-delegation" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.workerServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: {{ printf "%s-api" $prefix | quote }}, namespace: {{ .Values.workloadNamespace | quote }}}
+rules:
+  - {apiGroups: [''], resources: [secrets], verbs: [get, create]}
+  - {apiGroups: [''], resources: [services, configmaps, pods], verbs: [get]}
+  - {apiGroups: [vm.neon.tech], resources: [virtualmachines], verbs: [get]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: {{ printf "%s-api" $prefix | quote }}, namespace: {{ .Values.workloadNamespace | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-api" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.apiServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: {{ printf "%s-worker" $prefix | quote }}, namespace: {{ .Values.workloadNamespace | quote }}}
+rules:
+  - {apiGroups: [''], resources: [secrets, services, configmaps], verbs: [get, create, update]}
+  - {apiGroups: [''], resources: [pods], verbs: [get, list]}
+  - {apiGroups: [''], resources: [serviceaccounts], verbs: [get, create]}
+  - {apiGroups: [vm.neon.tech], resources: [virtualmachines], verbs: [get, create, update, patch, delete]}
+  - {apiGroups: [vm.neon.tech], resources: [virtualmachines/finalizers], verbs: [update]}
+  - {apiGroups: [coordination.k8s.io], resources: [leases], verbs: [get]}
+  - {apiGroups: [rbac.authorization.k8s.io], resources: [roles, rolebindings], verbs: [get, create]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: {{ printf "%s-worker" $prefix | quote }}, namespace: {{ .Values.workloadNamespace | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-worker" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.workerServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: {{ printf "%s-host-read" $prefix | quote }}, namespace: {{ .Values.hostLeaseNamespace | quote }}}
+rules:
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    resourceNames: {{ toJson .Values.hostLeaseNames }}
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: {{ printf "%s-host-read" $prefix | quote }}, namespace: {{ .Values.hostLeaseNamespace | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-host-read" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.qualifierServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: {{ printf "%s-platform-worker" $prefix | quote }}, namespace: {{ $ns | quote }}}
+rules:
+  - {apiGroups: [''], resources: [configmaps], verbs: [get, create, update]}
+  - {apiGroups: [batch], resources: [jobs], verbs: [get, create]}
+  - {apiGroups: [''], resources: [pods], verbs: [get, list]}
+  - {apiGroups: [''], resources: [pods/log], verbs: [get]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: {{ printf "%s-platform-worker" $prefix | quote }}, namespace: {{ $ns | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-platform-worker" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.workerServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: {{ printf "%s-platform-api" $prefix | quote }}, namespace: {{ $ns | quote }}}
+rules:
+  - {apiGroups: [''], resources: [configmaps], verbs: [get]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: {{ printf "%s-platform-api" $prefix | quote }}, namespace: {{ $ns | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-platform-api" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.apiServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: {{ printf "%s-agent-observation" $prefix | quote }}, namespace: {{ .Values.agentNamespace | quote }}}
+rules:
+  - apiGroups: [apps]
+    resources: [daemonsets]
+    resourceNames: [{{ .Values.agentDaemonSet | quote }}]
+    verbs: [get]
+  - {apiGroups: [''], resources: [pods], verbs: [get, list]}
+  # 中心运维身份只读代理；业务用户不持有该SA。HTTP代码固定原DS/Node/端口/GET。
+  - {apiGroups: [''], resources: [pods/proxy], verbs: [get]}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: {{ printf "%s-agent-observation" $prefix | quote }}, namespace: {{ .Values.agentNamespace | quote }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ printf "%s-agent-observation" $prefix | quote }}}
+subjects:
+  - {kind: ServiceAccount, name: {{ .Values.apiServiceAccount | quote }}, namespace: {{ $ns | quote }}}
+  - {kind: ServiceAccount, name: {{ .Values.workerServiceAccount | quote }}, namespace: {{ $ns | quote }}}

@@ -4,7 +4,7 @@
   "module_owner": "autoscaling repository root; Helm tools/runtime-prepare has no separate go.mod/go.sum",
   "autoscaling_repository": "https://github.com/william-lbn/autoscaling.git",
   "autoscaling_function_branch": "codex/dsga-autoscaling-20261019",
-  "autoscaling_commit": "3897d1d28f2188f5f1022843c4ecba5d644c622a",
+  "autoscaling_commit": "f97329300a3a96f0c0098e7e80deec201afa2dd5",
   "autoscaling_module_path": "github.com/neondatabase/autoscaling",
   "autoscaling_module_files_sha256": {
     "go.mod": "65855db77053da9298ca60c5e8a8f3d491605d0b082bfb684d6ccaeed7f7e928",
@@ -23,14 +23,12 @@
     "service_test.go": "ccffb806d97cc058a2e55892213bd2068f90140ad104d6f87498d961cc0f0fdf"
   },
   "actual_validation": {
-    "directory": "/data/neon-build/validation/PG17-自有Helm出生版本渲染-20261106T095359Z-8ec2e8",
-    "result_sha256": "78ed9d92a0033ef9d130c36a824907a2335557644156bd1d7f63a949ca36111c",
-    "tool_sha256": "76e7c8156905b918439017d2fb0f113d761ebb3167f0bee0a29c71704c118a6b",
-    "root_tests": 2,
-    "pass_events": 4,
+    "directory": "/data/neon-build/validation/PG17-PG18-同源生命周期工具-f9732930",
+    "result_sha256": "c123e60f65ff98b65019288918042125d66244470f2ff847390e3b0436390e78",
+    "tool_sha256": "d6492276f41ec6dd429c81a3704abb7ba4c5da99e6834e37c199a50912a47ed9",
+    "root_tests": 20,
+    "pass_events": 96,
     "test_cli_help_exit": [
-      0,
-      0,
       0
     ],
     "Kubernetes_business_action": false,

@@ -1,0 +1,40 @@
+{
+  "范围": "同一在线缩容账本读取合同覆盖 Scheduler、Agent、管理 Gateway、Controller、Runner 和正式换代 CLI。此归档针对本次变更直接影响的消费者。",
+  "AS源码": "f97329300a3a96f0c0098e7e80deec201afa2dd5",
+  "Gateway源码": "1bcb81b2ca4eb8748d8ca77fe51c91c0a6f0d550",
+  "发布的三个镜像": {
+    "runner": {
+      "pin": "127.0.0.1:5001/neon-candidate/neonvm-runner@sha256:b0320526e3d6c93f97a0a5a93d804482e5e895f63d0eb36fe8dbc310bcef1ff6",
+      "elf_sha256": "3eebb1a05af17bb4730a7cd89c2b8ffb9534df2bd6fb3c7b955f2ddf8a7ed405",
+      "visible": "neon-pg17-pg18-visible/neonvm-runner:common-f97329300a3a"
+    },
+    "manager": {
+      "pin": "127.0.0.1:5001/neon-candidate/neonvm-controller@sha256:4535077a4014a53849e0927ee9b3ddc21b3861600418930b1baf78e8267e9370",
+      "elf_sha256": "384a4f466ec139feb420e57e590ab8548f3fa9e9eba2720eb76f42840091366b",
+      "visible": "neon-pg17-pg18-visible/neonvm-controller:common-f97329300a3a"
+    },
+    "gateway": {
+      "pin": "127.0.0.1:5001/neon-candidate/compute-gateway@sha256:3912944a07c9711d70701546e11504fd0dbe84d557a471d437f5576c0a299a94",
+      "elf_sha256": "570759acc78d704a0930082f3f6bd33b89ea33831176522b25a37d2781dd97cb",
+      "visible": "neon-pg17-pg18-visible/compute-gateway:common-f97329300a3a"
+    }
+  },
+  "真实W49对照": [
+    "旧Gateway在typed decode拒绝原持久取消收据",
+    "新相同接口与依赖接受同一原收据"
+  ],
+  "现场后验": "自有Helm Gateway第10版、neonvm第8版Ready。原16/2随后以W50 aborted_after_reconcile结束，实际8GiB，SQL准入保持开放。当前旧Compute的运行中Runner仍属前一镜像，待正式保数据换代复验。",
+  "数据验收": "147笔业务已由三Safekeeper确认。此次部分取消结算不计作7GiB缩容成功。",
+  "生命周期工具": {
+    "directory": "/data/neon-build/validation/PG17-PG18-同源生命周期工具-f9732930",
+    "result_sha256": "c123e60f65ff98b65019288918042125d66244470f2ff847390e3b0436390e78",
+    "tool_sha256": "d6492276f41ec6dd429c81a3704abb7ba4c5da99e6834e37c199a50912a47ed9",
+    "root_tests": 20,
+    "pass_events": 96,
+    "test_cli_help_exit": [
+      0
+    ],
+    "Kubernetes_business_action": false,
+    "actual_Go_version": "go version go1.24.3 linux/amd64"
+  }
+}

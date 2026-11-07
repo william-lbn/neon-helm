@@ -1,0 +1,54 @@
+{
+  "compatibilityAcknowledged": true,
+  "fullnameOverride": "neon-control-adapter",
+  "hookTokenSecret": "neon-control-hook-auth",
+  "image": "127.0.0.1:5001/neon-candidate/control-adapter@sha256:bb98132de06b2c1e7d93347552ba3fb6733c824101efa8d2e126a854ec2ae0e6",
+  "managedRuntimeRead": {
+    "computes": [
+      {
+        "configSecretName": "cp-d8d85ed796068ab5-config",
+        "serviceName": "cp-d8d85ed796068ab5"
+      },
+      {
+        "configSecretName": "cp-24c41e23bb104ead-config",
+        "serviceName": "cp-24c41e23bb104ead"
+      }
+    ]
+  },
+  "maxConcurrentWakes": 8,
+  "notificationsConfigMap": "neon-control-notifications",
+  "pageserverNodeID": 1,
+  "placement": {
+    "allowedNodeNames": [
+      "worker-117",
+      "worker-118",
+      "worker-119"
+    ]
+  },
+  "podAnnotations": {},
+  "priorityClassName": "",
+  "proxyTokenSecret": "neon-proxy-auth",
+  "resources": {
+    "limits": {
+      "cpu": "1",
+      "memory": "256Mi"
+    },
+    "requests": {
+      "cpu": "100m",
+      "memory": "64Mi"
+    }
+  },
+  "routesSecret": "neon-control-routes",
+  "securityContext": {
+    "allowPrivilegeEscalation": false,
+    "capabilities": {
+      "drop": [
+        "ALL"
+      ]
+    },
+    "readOnlyRootFilesystem": true,
+    "runAsNonRoot": true,
+    "runAsUser": 65532
+  },
+  "wakeTimeout": "300s"
+}

@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "Helm_revision": 6,
+  "changed_objects": [
+    [
+      "Role",
+      "neon-control-adapter"
+    ]
+  ],
+  "checks": [
+    {
+      "verb": "get",
+      "resource": "secret/cp-24c41e23bb104ead-config",
+      "allowed": true
+    },
+    {
+      "verb": "get",
+      "resource": "service/cp-24c41e23bb104ead",
+      "allowed": true
+    },
+    {
+      "verb": "get",
+      "resource": "secret/cp-24c41e23bb104ead-credentials",
+      "allowed": false
+    },
+    {
+      "verb": "list",
+      "resource": "secrets",
+      "allowed": false
+    },
+    {
+      "verb": "update",
+      "resource": "secret/cp-24c41e23bb104ead-config",
+      "allowed": false
+    }
+  ],
+  "adapter_image": "127.0.0.1:5001/neon-candidate/control-adapter@sha256:bb98132de06b2c1e7d93347552ba3fb6733c824101efa8d2e126a854ec2ae0e6"
+}

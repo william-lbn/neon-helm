@@ -1,0 +1,8 @@
+{
+  "configSecretName": "cp-24c41e23bb104ead-config",
+  "nodeName": "worker-117",
+  "subject": {
+    "name": "autoscaler-agent",
+    "namespace": "kube-system"
+  }
+}

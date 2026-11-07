@@ -1,0 +1,14 @@
+{
+  "status": "PASS_EXACT_ISSUER_26_SAR",
+  "Helm_exit": 0,
+  "actual_Issuer_SAR_count": 26,
+  "Issuer_positive": 14,
+  "Issuer_negative": 12,
+  "all_Issuer_expected_matched": true,
+  "actual_Agent_create_fact_separate": true,
+  "Agent_historical_expected": false,
+  "Agent_current_Source_enabled_expected": true,
+  "Issuer_published": false,
+  "Source_updated": false,
+  "seconds": 9.592359247035347
+}

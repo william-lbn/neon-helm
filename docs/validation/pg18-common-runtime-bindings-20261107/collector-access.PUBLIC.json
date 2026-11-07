@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "verb": "get",
+      "resource": "secret/cp-24c41e23bb104ead-config",
+      "allowed": true
+    },
+    {
+      "verb": "list",
+      "resource": "secrets",
+      "allowed": false
+    },
+    {
+      "verb": "get",
+      "resource": "secret/cp-24c41e23bb104ead-credentials",
+      "allowed": false
+    },
+    {
+      "verb": "update",
+      "resource": "secret/cp-24c41e23bb104ead-config",
+      "allowed": false
+    }
+  ],
+  "existing_chart_reused": true
+}

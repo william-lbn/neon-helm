@@ -150,7 +150,16 @@ storageController:
     limits: {cpu: 2, memory: 2Gi}
   enabled: false              # fresh clusters only; never flip on existing emergency-mode data
   managePageserver: false      # explicit opt-in only after a tenant migration rehearsal
-  devMode: true               # no JWT auth; isolated lab only
+  devMode: true               # only for staged/legacy lab; final management requires false
+  management:
+    enabled: false
+    authenticationEnabled: true
+    serviceName: storage-controller-management
+    port: 1235
+    tlsSecret: neon-storage-controller-tls
+    issuerName: ""            # optional existing namespaced cert-manager Issuer
+    authSecret: ""            # public_key/pageserver_token/safekeeper_token/peer_token
+    pageserverUpcallSecret: "" # token (generations_api), ca.crt; no creation credential
   hookUrl: ""                 # required when enabled; implements notify-attach/safekeepers
   hookTokenSecret: ""         # secret key token, passed as --control-plane-jwt-token
   dbImage: ""                 # postgres:16@sha256:...

@@ -596,13 +596,13 @@
           "properties": {
             "enabled": {
               "type": "boolean",
-              "description": "仅在真实OTLP/HTTP接收端配置后启用可选Tracing exporter。"
+              "description": "\u4ec5\u5728\u771f\u5b9eOTLP/HTTP\u63a5\u6536\u7aef\u914d\u7f6e\u540e\u542f\u7528\u53ef\u9009Tracing exporter\u3002"
             },
             "otlpEndpoint": {
               "type": "string",
               "maxLength": 2048,
               "pattern": "^$|^https?://[^\\s]+$",
-              "description": "真实OTLP/HTTP基础endpoint；不得填凭据或以Prometheus端口代替。"
+              "description": "\u771f\u5b9eOTLP/HTTP\u57fa\u7840endpoint\uff1b\u4e0d\u5f97\u586b\u51ed\u636e\u6216\u4ee5Prometheus\u7aef\u53e3\u4ee3\u66ff\u3002"
             }
           },
           "required": [
@@ -707,7 +707,54 @@
               ]
             }
           },
-          "description": "仅Controller角色的指定worker；原pool/os/arch与三节点边界仍由模板强制保留。"
+          "description": "\u4ec5Controller\u89d2\u8272\u7684\u6307\u5b9aworker\uff1b\u539fpool/os/arch\u4e0e\u4e09\u8282\u70b9\u8fb9\u754c\u4ecd\u7531\u6a21\u677f\u5f3a\u5236\u4fdd\u7559\u3002"
+        },
+        "management": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "authenticationEnabled",
+            "serviceName",
+            "port",
+            "tlsSecret",
+            "issuerName",
+            "authSecret",
+            "pageserverUpcallSecret"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "authenticationEnabled": {
+              "type": "boolean"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 65535
+            },
+            "serviceName": {
+              "type": "string",
+              "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+            },
+            "tlsSecret": {
+              "type": "string",
+              "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+            },
+            "issuerName": {
+              "type": "string",
+              "pattern": "^$|^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+            },
+            "authSecret": {
+              "type": "string",
+              "pattern": "^$|^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+            },
+            "pageserverUpcallSecret": {
+              "type": "string",
+              "pattern": "^$|^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+            }
+          }
         }
       }
     },
@@ -762,7 +809,7 @@
               "worker-119"
             ]
           },
-          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+          "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
         }
       }
     }

@@ -42,12 +42,22 @@ rules:
     resources: [configmaps]
     resourceNames: [{{ .Values.notificationsConfigMap }}]
     verbs: [get, update]
-  # Native placement validation uses the existing Controller via the API server.
-  # This is a read permission for one Service, not access to arbitrary proxies.
+  {{- if .Values.storageManagement.enabled }}
+  - apiGroups: ['']
+    resources: [services]
+    resourceNames: [{{ .Values.storageManagement.profile.service_name | quote }}]
+    verbs: [get]
+  - apiGroups: ['']
+    resources: [secrets]
+    resourceNames: [{{ .Values.storageManagement.profile.credential_secret_name | quote }}]
+    verbs: [get]
+  {{- else }}
+  # 兼容旧部署；选定原生认证后不再授Kube代理通路。
   - apiGroups: ['']
     resources: [services/proxy]
     resourceNames: ['http:storage-controller:1234']
     verbs: [get]
+  {{- end }}
   - apiGroups: [apps]
     resources: [deployments]
     verbs: [get]
@@ -99,6 +109,9 @@ spec:
           command: [/opt/neon-control/control-adapter]
           securityContext: {{ toYaml .Values.securityContext | nindent 12 }}
           env:
+            {{- if .Values.storageManagement.enabled }}
+            - {name: NEON_ADAPTER_STORAGE_PROFILE, value: {{ .Values.storageManagement.profile | toJson | quote }}}
+            {{- end }}
             - name: POD_NAMESPACE
               valueFrom: {fieldRef: {fieldPath: metadata.namespace}}
             - {name: ROUTES_SECRET, value: {{ .Values.routesSecret | quote }}}

@@ -33,3 +33,8 @@ placement:
 # 每项显式绑定同一个Compute的SQL Service和不可变配置Secret；默认不增加权限。
 managedRuntimeRead:
   computes: []
+
+# 原生TLS/JWT读通路；仅引用只读Secret，不能给Adapter控制面create_token。
+storageManagement:
+  enabled: false
+  profile: {}

@@ -1,4 +1,10 @@
 {{- if .Values.storageController.enabled }}
+{{- $mgmt := .Values.storageController.management -}}
+{{- if and $mgmt.enabled (or (eq (int $mgmt.port) 1234) (eq $mgmt.serviceName "storage-controller")) -}}{{ fail "management requires its own Service and HTTPS port" }}{{- end -}}
+{{- if and $mgmt.enabled (not $mgmt.authenticationEnabled) (not .Values.storageController.devMode) -}}{{ fail "TLS-only transition must be explicitly devMode; final mode requires authentication" }}{{- end -}}
+{{- if and $mgmt.enabled $mgmt.authenticationEnabled .Values.storageController.devMode -}}{{ fail "authenticated management requires storageController.devMode=false" }}{{- end -}}
+{{- if and $mgmt.enabled $mgmt.authenticationEnabled (or (empty $mgmt.authSecret) (empty .Values.storageController.hookTokenSecret)) -}}{{ fail "native management requires original auth and hook Secret references" }}{{- end -}}
+{{- if and $mgmt.enabled .Values.storageController.managePageserver (empty $mgmt.pageserverUpcallSecret) -}}{{ fail "managed Pageserver requires its original generations_api Secret" }}{{- end -}}
 {{- $roleSelector := .Values.storageController.nodeSelector | default dict -}}
 {{- if not (kindIs "map" $roleSelector) -}}{{ fail "storageController.nodeSelector must be a hostname map" }}{{- end -}}
 {{- range $key, $value := $roleSelector -}}
@@ -89,6 +95,11 @@ spec:
         command: ["/usr/local/bin/storage_controller"]
         args:
         - --listen=0.0.0.0:1234
+        {{- if $mgmt.enabled }}
+        - --listen-https=0.0.0.0:{{ $mgmt.port }}
+        - --ssl-key-file=/run/neon/storage-tls/tls.key
+        - --ssl-cert-file=/run/neon/storage-tls/tls.crt
+        {{- end }}
         {{- if .Values.storageController.hookUrl }}
         - --control-plane-url={{ .Values.storageController.hookUrl }}
         {{- end }}
@@ -105,10 +116,31 @@ spec:
         - name: CONTROLLER_HOOK_TOKEN
           valueFrom: { secretKeyRef: { name: {{ .Values.storageController.hookTokenSecret }}, key: token } }
         {{- end }}
-        ports: [{ name: http, containerPort: 1234 }]
+        {{- if and $mgmt.enabled $mgmt.authenticationEnabled }}
+        - name: PUBLIC_KEY
+          valueFrom: { secretKeyRef: { name: {{ $mgmt.authSecret }}, key: public_key } }
+        - name: PAGESERVER_JWT_TOKEN
+          valueFrom: { secretKeyRef: { name: {{ $mgmt.authSecret }}, key: pageserver_token } }
+        - name: SAFEKEEPER_JWT_TOKEN
+          valueFrom: { secretKeyRef: { name: {{ $mgmt.authSecret }}, key: safekeeper_token } }
+        - name: PEER_JWT_TOKEN
+          valueFrom: { secretKeyRef: { name: {{ $mgmt.authSecret }}, key: peer_token } }
+        {{- end }}
+        ports:
+        - { name: http, containerPort: 1234 }
+        {{- if $mgmt.enabled }}
+        - { name: https, containerPort: {{ $mgmt.port }} }
+        volumeMounts:
+        - { name: management-tls, mountPath: /run/neon/storage-tls, readOnly: true }
+        {{- end }}
         readinessProbe:
           tcpSocket: { port: http }
           initialDelaySeconds: 5
+      {{- if $mgmt.enabled }}
+      volumes:
+      - name: management-tls
+        secret: { secretName: {{ $mgmt.tlsSecret }}, defaultMode: 292 }
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -116,4 +148,27 @@ metadata: { name: storage-controller }
 spec:
   selector: { app: storage-controller }
   ports: [{ name: http, port: 1234, targetPort: http }]
+{{- if $mgmt.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata: { name: {{ $mgmt.serviceName }} }
+spec:
+  type: ClusterIP
+  selector: { app: storage-controller }
+  ports: [{ name: https, port: {{ $mgmt.port }}, targetPort: https }]
+{{- if $mgmt.issuerName }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata: { name: {{ $mgmt.tlsSecret }} }
+spec:
+  secretName: {{ $mgmt.tlsSecret }}
+  issuerRef: { name: {{ $mgmt.issuerName }}, kind: Issuer }
+  dnsNames:
+  - {{ printf "%s.%s.svc" $mgmt.serviceName .Release.Namespace | quote }}
+  - {{ printf "%s.%s.svc.cluster.local" $mgmt.serviceName .Release.Namespace | quote }}
+  privateKey: { algorithm: ECDSA, size: 256, rotationPolicy: Always }
+{{- end }}
+{{- end }}
 {{- end }}

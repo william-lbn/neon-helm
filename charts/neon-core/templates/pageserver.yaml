@@ -12,7 +12,12 @@ data:
     listen_http_addr='0.0.0.0:9898'
     availability_zone='k8s-lab'
     {{ if and .Values.storageController.enabled .Values.storageController.managePageserver }}
+    {{ if .Values.storageController.management.enabled }}
+    control_plane_api='https://{{ .Values.storageController.management.serviceName }}.{{ .Release.Namespace }}.svc:{{ .Values.storageController.management.port }}/upcall/v1/'
+    ssl_ca_file='/run/neon/storage-upcall/ca.crt'
+    {{ else }}
     control_plane_api='http://storage-controller:1234/upcall/v1/'
+    {{ end }}
     control_plane_emergency_mode=false
     {{ else }}
     control_plane_api='http://0.0.0.0:6666'
@@ -69,10 +74,22 @@ spec:
           {{ if and .Values.storageController.enabled .Values.storageController.managePageserver }}
           cp /config/metadata.json /data/.neon/metadata.json
           {{ end }}
+          {{ if and .Values.storageController.enabled .Values.storageController.managePageserver .Values.storageController.management.enabled }}
+          # 原生Pageserver只从TOML读取upcall JWT；来自专用只读投影，永不写ConfigMap/Helm值。
+          umask 077
+          upcall_token="$(cat /run/neon/storage-upcall/token)"
+          case "$upcall_token" in ''|*[!A-Za-z0-9_.-]*) exit 1;; esac
+          printf "\ncontrol_plane_api_token='%s'\n" "$upcall_token" >> /data/.neon/pageserver.toml
+          chmod 600 /data/.neon/pageserver.toml
+          unset upcall_token
+          {{ end }}
           chown -R 1000:1000 /data/.neon || true
         volumeMounts:
         - { name: data, mountPath: /data }
         - { name: config, mountPath: /config }
+        {{- if and .Values.storageController.enabled .Values.storageController.managePageserver .Values.storageController.management.enabled }}
+        - { name: storage-upcall, mountPath: /run/neon/storage-upcall, readOnly: true }
+        {{- end }}
       containers:
       - name: pageserver
         image: "{{ include "neon-lab.component-image" (list . "pageserver") }}"
@@ -94,6 +111,9 @@ spec:
           initialDelaySeconds: 3
         volumeMounts:
         - { name: data, mountPath: /data }
+        {{- if and .Values.storageController.enabled .Values.storageController.managePageserver .Values.storageController.management.enabled }}
+        - { name: storage-upcall, mountPath: /run/neon/storage-upcall, readOnly: true }
+        {{- end }}
         {{- with .Values.pageserver.resources }}
         resources:
 {{ toYaml . | nindent 10 }}
@@ -103,6 +123,10 @@ spec:
         persistentVolumeClaim: { claimName: pageserver-cache }
       - name: config
         configMap: { name: pageserver-config }
+      {{- if and .Values.storageController.enabled .Values.storageController.managePageserver .Values.storageController.management.enabled }}
+      - name: storage-upcall
+        secret: { secretName: {{ .Values.storageController.management.pageserverUpcallSecret }}, defaultMode: 292 }
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

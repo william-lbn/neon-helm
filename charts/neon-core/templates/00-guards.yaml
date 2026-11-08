@@ -7,6 +7,10 @@
 {{- if and .Values.storageController.enabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.storageController.dbImage)) -}}{{- fail "storageController.dbImage must be pinned by digest" -}}{{- end -}}
 {{- if and .Values.compute.enabled (not .Values.pageserver.enabled) -}}{{- fail "compute needs pageserver" -}}{{- end -}}
 {{- if and .Values.compute.enabled (not (has .Values.compute.mode (list "wrapper" "public"))) -}}{{- fail "compute.mode must be wrapper or public" -}}{{- end -}}
+{{- $computeProfile := .Values.compute.buildProfile | default "full" -}}
+{{- if not (has $computeProfile (list "full" "dsga-core")) -}}{{- fail "compute.buildProfile must be full or dsga-core" -}}{{- end -}}
+{{- if and .Values.compute.enabled (eq (int .Values.compute.pgVersion) 18) (ne $computeProfile "dsga-core") -}}{{- fail "PG18 compute requires the explicitly supported dsga-core buildProfile" -}}{{- end -}}
+{{- if and (eq $computeProfile "dsga-core") (or (ne (int .Values.compute.pgVersion) 18) (ne .Values.compute.mode "public")) -}}{{- fail "dsga-core buildProfile requires PG18 and public compute mode" -}}{{- end -}}
 {{- if and .Values.compute.enabled (eq .Values.compute.mode "public") (or .Values.compute.allowLabAutoBootstrap (not .Values.proxy.enabled) (not (regexMatch "^[a-fA-F0-9]{32}$" .Values.compute.tenantId)) (not (regexMatch "^[a-fA-F0-9]{32}$" .Values.compute.timelineId))) -}}{{- fail "public compute requires proxy auth and explicit 32-hex tenant/timeline IDs" -}}{{- end -}}
 {{- if and .Values.compute.enabled (eq .Values.compute.mode "public") .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.compute.configImage)) -}}{{- fail "public compute configImage must be pinned to a digest" -}}{{- end -}}
 {{- if and .Values.pageserver.enabled (not .Values.storageBroker.enabled) -}}{{- fail "pageserver needs broker" -}}{{- end -}}

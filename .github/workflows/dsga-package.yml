@@ -1,0 +1,89 @@
+name: Package locked DSGA Helm candidate
+
+on:
+  workflow_call:
+    inputs:
+      helm_sha:
+        description: Full immutable neon-helm source SHA from distribution source_lock
+        required: true
+        type: string
+      release_version:
+        description: Shared image and Chart SemVer, for example 0.2.0-dsga.123456.1.amd64
+        required: true
+        type: string
+      distribution_artifact:
+        description: Artifact in the calling workflow run containing distribution-manifest.json
+        required: true
+        type: string
+
+# This workflow only creates an artifact in the calling run. Neon publishes it
+# after its image verification gates; no cross-repository write token is needed.
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Validate immutable inputs
+        env:
+          HELM_SHA: ${{ inputs.helm_sha }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          DISTRIBUTION_ARTIFACT: ${{ inputs.distribution_artifact }}
+        run: |
+          node <<'JS'
+          const assert = require('node:assert/strict');
+          assert.match(process.env.HELM_SHA, /^[a-f0-9]{40}$/);
+          assert.match(process.env.RELEASE_VERSION, /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)-dsga\.[1-9][0-9]*\.[1-9][0-9]*\.amd64$/);
+          assert.ok(process.env.RELEASE_VERSION.endsWith(`-dsga.${process.env.GITHUB_RUN_ID}.${process.env.GITHUB_RUN_ATTEMPT}.amd64`), 'Release version must belong to this run attempt');
+          assert.match(process.env.DISTRIBUTION_ARTIFACT, /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/);
+          JS
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: william-lbn/neon-helm
+          ref: ${{ inputs.helm_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify checked out source
+        env:
+          HELM_SHA: ${{ inputs.helm_sha }}
+        run: test "$(git rev-parse HEAD)" = "$HELM_SHA"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.19.0'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --fund=false
+      - run: bash tools/install-helm.sh "$RUNNER_TEMP/neon-helm"
+      - run: echo "$RUNNER_TEMP/neon-helm" >> "$GITHUB_PATH"
+      - name: Install pinned offline-validator dependency
+        run: |
+          python3.12 -m venv "$RUNNER_TEMP/neon-helm-python"
+          "$RUNNER_TEMP/neon-helm-python/bin/pip" install --only-binary=:all: --require-hashes -r tools/requirements-ci.txt
+          echo "$RUNNER_TEMP/neon-helm-python/bin" >> "$GITHUB_PATH"
+      - run: npm run check
+      - run: npm test
+      - run: npm run helm
+      - run: npm run helm:dsga
+      - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        with:
+          name: ${{ inputs.distribution_artifact }}
+          path: artifacts/distribution-input
+      - name: Build image-locked Chart packages
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          HELM_SHA: ${{ inputs.helm_sha }}
+        run: |
+          node tools/package-dsga-release.mjs \
+            --manifest artifacts/distribution-input/distribution-manifest.json \
+            --version "$RELEASE_VERSION" --helm-sha "$HELM_SHA" \
+            --output artifacts/dsga-release
+          cd artifacts/dsga-release
+          sha256sum --check HELM-SHA256SUMS
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: dsga-helm-${{ inputs.release_version }}
+          path: artifacts/dsga-release/
+          if-no-files-found: error
+          retention-days: 90

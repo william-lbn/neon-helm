@@ -1,0 +1,5 @@
+{
+  "subject": {"namespace": "neon", "name": "offline-collector"},
+  "configSecretName": "cp-0123456789abcdef-config",
+  "nodeName": "worker-117"
+}

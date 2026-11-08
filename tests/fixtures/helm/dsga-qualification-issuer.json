@@ -1,0 +1,16 @@
+{
+  "subject": {"namespace": "neon", "name": "dsga-qualification-issuer"},
+  "vmName": "cp-0123456789abcdef",
+  "configSecretName": "cp-0123456789abcdef-config",
+  "runnerPodName": "cp-0123456789abcdef-offline",
+  "ownerLeaseName": "dsga-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "qualificationConfigMapName": "dsga-q-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "runnerClaims": {
+    "birth": "dsga-b-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "state": "dsga-s-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "exit": "dsga-x-dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "stoppedPod": "dsga-t-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "hostLeaseName": "neon-dsga-host-worker-117",
+  "nodeName": "worker-117"
+}

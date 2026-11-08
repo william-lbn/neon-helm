@@ -1,6 +1,6 @@
 apiVersion: v2
 name: dsga-platform-qualifier
-version: 0.1.0
+version: 0.1.32
 type: application
 description: 独立 RBAC 平台资格发布 Job；默认关闭，不认证平台或生成来源
 home: https://github.com/william-lbn/neon-helm

@@ -350,6 +350,10 @@
         "mode": {
           "type": "string"
         },
+        "buildProfile": {
+          "type": "string",
+          "enum": ["full", "dsga-core"]
+        },
         "configImage": {
           "type": "string"
         },

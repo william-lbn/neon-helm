@@ -1,7 +1,7 @@
 name: Linux Helm quality
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/dsga-neon-helm-v3-20261019']
     tags: ['v*']
   pull_request:
   workflow_dispatch:
@@ -15,16 +15,25 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with: {node-version: '24.19.0', cache: npm}
       - run: npm ci --ignore-scripts --no-audit --fund=false
       - run: bash tools/install-helm.sh "$RUNNER_TEMP/neon-helm"
       - run: echo "$RUNNER_TEMP/neon-helm" >> "$GITHUB_PATH"
+      - name: Install pinned offline-validator dependency
+        run: |
+          python3.12 -m venv "$RUNNER_TEMP/neon-helm-python"
+          "$RUNNER_TEMP/neon-helm-python/bin/pip" install --only-binary=:all: --require-hashes -r tools/requirements-ci.txt
+          echo "$RUNNER_TEMP/neon-helm-python/bin" >> "$GITHUB_PATH"
       - run: bash tools/install-actionlint.sh "$RUNNER_TEMP/neon-actionlint"
       - run: '"$RUNNER_TEMP/neon-actionlint/actionlint" -color'
       - run: npm run check
       - run: npm test
       - run: npm run helm
+      - run: npm run helm:dsga
       - run: npm run package -- --output artifacts/packages
       - run: sha256sum artifacts/packages/*.tgz artifacts/packages/index.yaml > artifacts/packages/SHA256SUMS
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

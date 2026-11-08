@@ -109,7 +109,7 @@ def run_checks(output):
         path = output / (name + '.yaml')
         if v is not None:
             path.write_text(yaml.safe_dump(v, sort_keys=False))
-        command = ['/usr/bin/helm', 'lint' if lint else 'template']
+        command = [os.environ.get('HELM_BIN', 'helm'), 'lint' if lint else 'template']
         if not lint:
             command += ['qualifier-offline']
         command += [str(CHART)]

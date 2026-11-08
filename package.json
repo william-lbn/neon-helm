@@ -1,6 +1,6 @@
 {
   "name": "neon-helm-tools",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "private": true,
   "type": "module",
   "engines": {
@@ -10,6 +10,8 @@
     "test": "node --test tests/*.test.mjs",
     "check": "node tools/check-source.mjs",
     "helm": "node tools/ci-helm.mjs",
+    "helm:dsga": "node tools/ci-dsga-helm.mjs",
+    "package:dsga": "node tools/package-dsga-release.mjs",
     "plan": "node tools/stack.mjs plan",
     "package": "node tools/stack.mjs package",
     "helm:pg17": "python3 tools/check-pg17-helm.py",

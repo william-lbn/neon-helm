@@ -1,5 +1,5 @@
 apiVersion: v2
 name: dsga-qualification-issuer
 description: 原本地资格Issuer的独立身份与精确业务权限，不创建工作负载或资格
-version: 0.1.0
+version: 0.1.32
 type: application

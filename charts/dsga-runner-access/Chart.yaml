@@ -1,5 +1,5 @@
 apiVersion: v2
 name: dsga-runner-access
 description: PG17 受管 Runner 的独立最小 SA/RBAC，不创建 VM 或凭据
-version: 0.1.0
+version: 0.1.32
 type: application

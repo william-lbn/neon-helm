@@ -1,5 +1,5 @@
 apiVersion: v2
 name: neon-control-runtime-access
 description: 控制面自动供应的部署身份与限定权限，不创建预算或业务工作负载
-version: 0.1.0
+version: 0.1.32
 type: application

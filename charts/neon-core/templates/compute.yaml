@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata: { name: compute-public-config }
 data:
   config.json: |-
-{{ .Files.Get "files/compute-public-config.json" | indent 4 }}
+{{ include "neon-lab.compute-public-config" . | indent 4 }}
 ---
 {{- end }}
 apiVersion: apps/v1
@@ -36,10 +36,12 @@ spec:
           for setting in settings:
               if setting['name'] in ids:
                   setting['value'] = ids[setting['name']]
+              {{- if eq (.Values.compute.buildProfile | default "full") "full" }}
               if setting['name'] == 'shared_preload_libraries':
                   libraries = setting['value'].split(',')
                   if 'ulid' not in libraries:
                       setting['value'] += ',ulid'
+              {{- end }}
           secret = os.environ['PG_ROLE_SECRET']
           if not secret.startswith('SCRAM-SHA-256$'):
               raise SystemExit('expected SCRAM verifier')

@@ -73,6 +73,7 @@ compute:
   replicaCount: 1             # 0 retains a cold legacy test Compute without deleting data
   enabled: false
   mode: wrapper               # public: run pinned upstream compute image with a ConfigMap init; wrapper: custom build
+  buildProfile: full          # full: PG14-17 extensions; dsga-core: PG18 core SQL only, requires public mode
   configImage: ""             # python:3.13-slim@sha256:... required for public mode
   allowLabAutoBootstrap: false
   pgVersion: 16

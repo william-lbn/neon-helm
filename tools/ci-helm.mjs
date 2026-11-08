@@ -2,19 +2,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {root,readJSON,helm,documents,merge,pinned} from './lib.mjs';
+import {ciValues,ciNamespace,ciKubeVersion} from './ci-values.mjs';
 const output=path.join(root,'artifacts/helm');fs.mkdirSync(output,{recursive:true});
 const results=[];
 const functionsFixture={enabled:true,existingConfigSecret:'functions-common-ci',existingIssuerSecret:'functions-issuer-ci',proxyCASecret:'proxy-public-ca-ci',proxyCAKey:'ca.crt'};
 const s3Fixture={enabled:true,origin:'http://192.168.146.100:30893',region:'us-east-2',labHTTP:true,serviceType:'NodePort',nodePort:30893};
 for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
-  const profile=readJSON('profiles/lab/'+chart+'.json');
+  const profile=ciValues(chart);
   // Optional static Compute needs actual tenant identities at deployment time.
   // Synthetic IDs are restricted to this offline rendering fixture.
   if(chart==='neon-compute')Object.assign(profile.compute,{tenantId:'1'.repeat(32),timelineId:'2'.repeat(32)});
   const file=path.join(output,chart+'.json');fs.writeFileSync(file,JSON.stringify(profile));
   const args=['charts/'+chart,'-f',file];
-  helm(['lint',...args,'--strict']);
-  const result=helm(['template',chart,...args,'-n',chart==='neonvm'||chart==='neon-autoscaler'?'default':'neon','--kube-version','1.36.4']);
+  // Release-bound RBAC validates both name and namespace even during lint.
+  // Helm lint uses the fixed release name "release-name".
+  const lintProfile=structuredClone(profile);
+  if(chart==='dsga-qualification-issuer')lintProfile.subject.name='release-name';
+  const lintFile=path.join(output,chart+'.lint.json');fs.writeFileSync(lintFile,JSON.stringify(lintProfile));
+  helm(['lint','charts/'+chart,'-f',lintFile,'-n',ciNamespace(chart),'--kube-version',ciKubeVersion(chart),'--strict']);
+  const result=helm(['template',chart,...args,'-n',ciNamespace(chart),'--kube-version',ciKubeVersion(chart)]);
   const objs=documents(result.stdout);
   for(const obj of objs) {
     assert.notEqual(obj.kind,'Secret','Secrets must remain external');
@@ -167,7 +173,7 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
     }
   }
   const invalid=path.join(output,chart+'.invalid.json');fs.writeFileSync(invalid,JSON.stringify(merge(profile,{unknownSetting:true})));
-  assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',invalid,'--kube-version','1.36.4'],{allowFailure:true}).status,0,'Unknown settings must fail schema validation');
+  assert.notEqual(helm(['template',chart,'charts/'+chart,'-f',invalid,'-n',ciNamespace(chart),'--kube-version',ciKubeVersion(chart)],{allowFailure:true}).status,0,'Unknown settings must fail schema validation');
   results.push({chart,lint:'pass',render:'pass',unknownSettingRejected:true,objects:objs.length});
 }
 for(const [chart,overlay] of [

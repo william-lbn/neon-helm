@@ -137,6 +137,18 @@ spec:
         - /usr/bin/kube-scheduler
         - --config=/etc/kubernetes/autoscale-scheduler-config/scheduler-config.yaml
         image: {{ .Values.images.scheduler | quote }}
+        {{- if .Values.dsga.enabled }}
+        # Host owner接管及原账本初始化期间先完成启动；原存活/就绪探针保持不变。
+        # 仅延后kubelet存活判定，不延长插件内部有界初始化或放宽Unknown责任。
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 24
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /healthz

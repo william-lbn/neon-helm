@@ -113,10 +113,13 @@ metadata:
 spec:
   replicas: 1
   {{- if .Values.dsga.enabled }}
-  # 单例Host预算启动不得同时占两个2000Mi Scheduler；legacy保留原RollingUpdate。
+  # 先停止旧副本，再允许新owner接管；Recreate会等待旧Pod自身Host finalizer而死锁。
+  # 旧Pod预算仍保留至原终态证明闭合；不以副本数替代原Node容量准入。
   strategy:
-    type: Recreate
-    rollingUpdate: null
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   {{- end }}
   selector:
     matchLabels:

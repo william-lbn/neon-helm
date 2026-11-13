@@ -529,17 +529,18 @@
             },
             "podProtectionNamespaces": {
               "type": "array",
-              "maxItems": 3,
+              "maxItems": 4,
               "uniqueItems": true,
               "items": {
                 "type": "string",
                 "enum": [
                   "kube-system",
                   "neon-cert-manager",
-                  "neonvm-system"
+                  "neonvm-system",
+                  "neon-control-runtime"
                 ]
               },
-              "description": "\u4ec5\u663e\u5f0f3\u65e2\u6709namespace\u7684Pod get/patch\uff1bneon\u65e7Role\u4e0d\u53d8\uff0c\u4e0d\u521b\u5efa\u5168\u5c40Pod\u5199\u6743\u9650\u3002"
+              "description": "\u4ec5\u663e\u5f0f\u767d\u540d\u5355namespace\u7684Pod get/patch\uff1bneon\u65e7Role\u4e0d\u53d8\uff0c\u4e0d\u521b\u5efa\u5168\u5c40Pod\u5199\u6743\u9650\u3002"
             },
             "ordinaryStopSourceNames": {
               "type": "array",
@@ -601,8 +602,11 @@
                     "maxItems": 3
                   },
                   "podProtectionNamespaces": {
-                    "minItems": 3,
-                    "maxItems": 3
+                    "allOf": [
+                      {"contains": {"const": "kube-system"}},
+                      {"contains": {"const": "neon-cert-manager"}},
+                      {"contains": {"const": "neonvm-system"}}
+                    ]
                   }
                 }
               }

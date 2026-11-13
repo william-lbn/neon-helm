@@ -113,10 +113,13 @@ metadata:
 spec:
   replicas: 1
   {{- if .Values.dsga.enabled }}
-  # 单例Host预算启动不得同时占两个2000Mi Scheduler；legacy保留原RollingUpdate。
+  # 先停止旧副本，再允许新owner接管；Recreate会等待旧Pod自身Host finalizer而死锁。
+  # 旧Pod预算仍保留至原终态证明闭合；不以副本数替代原Node容量准入。
   strategy:
-    type: Recreate
-    rollingUpdate: null
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   {{- end }}
   selector:
     matchLabels:
@@ -137,6 +140,18 @@ spec:
         - /usr/bin/kube-scheduler
         - --config=/etc/kubernetes/autoscale-scheduler-config/scheduler-config.yaml
         image: {{ .Values.images.scheduler | quote }}
+        {{- if .Values.dsga.enabled }}
+        # Host owner接管及原账本初始化期间先完成启动；原存活/就绪探针保持不变。
+        # 仅延后kubelet存活判定，不延长插件内部有界初始化或放宽Unknown责任。
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 24
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /healthz

@@ -66,7 +66,7 @@ dsga:
       mountDirectory: ''
       name: ''
   scheduler:
-    # DSGA启用时显式仅补这3个既有命名空间；neon已有Role不重复，默认关闭不新增权限。
+    # 显式补齐现有系统命名空间；自动资格 Job 使用 neon-control-runtime 时也列入。
     podProtectionNamespaces: []
     # 运维者发布并读回的来源CM精确名单；仅在kube-system授予get，默认不增加权限。
     ordinaryStopSourceNames: []

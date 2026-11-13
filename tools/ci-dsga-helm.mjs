@@ -21,10 +21,9 @@ try {
   execute('qualifier', python, ['charts/dsga-platform-qualifier/tests/check_render.py', '--output-dir', path.join(run, 'qualifier')]);
   execute('runner-rbac', python, ['charts/dsga-runner-access/tests/render-rbac.py']);
   execute('pod-protection', python, ['charts/neon-autoscaler/tests/pod-protection-rbac.py', '--output', path.join(run, 'pod-protection')]);
-  // The original 0820655 baseline predates the later legitimate Lease-read
-  // permission. Compare against the audited integration head for this release;
-  // all socket isolation and no-additional-RBAC assertions still run unchanged.
-  execute('control-socket', python, ['charts/neon-autoscaler/tests/full-control-uds.py', '--baseline-commit', '85ebf7f23521667fad84791b78b5fa36fac24ada', '--output', path.join(run, 'control-socket')]);
+  // The deployed integration baseline includes the separately tested scheduler
+  // startup, takeover, and fixed qualification namespace contract.
+  execute('control-socket', python, ['charts/neon-autoscaler/tests/full-control-uds.py', '--baseline-commit', 'd34ae9f28687b39d94e2f630c0bb910538314975', '--output', path.join(run, 'control-socket')]);
   execute('pod-resources', python, ['charts/neon-compute/tests/pod-resources.py', '--output', path.join(run, 'pod-resources')]);
   const baseline = path.join(run, 'pg17-baseline'); fs.mkdirSync(baseline);
   const archive = path.join(run, 'pg17-baseline.tar');

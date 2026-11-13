@@ -47,6 +47,8 @@ storageBroker:
   replicas: 1
 pageserver:
   enabled: true
+  # The managed Compute catalog uses this PG-only name in the single Pageserver lab.
+  managedComputeService: false
   # 复制配置的 init-container，不能因生命周期短而绕过 Host 完整账本。
   initResources:
     requests: {cpu: 25m, memory: 32Mi}

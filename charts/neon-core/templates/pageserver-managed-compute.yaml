@@ -1,0 +1,18 @@
+{{- if .Values.pageserver.managedComputeService }}
+{{- if not (and .Values.pageserver.enabled (eq (int .Values.pageserver.replicas) 1) .Values.storageController.enabled .Values.storageController.managePageserver) }}
+{{- fail "pageserver.managedComputeService requires exactly one managed core Pageserver" }}
+{{- end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: pageserver-managed
+spec:
+  type: ClusterIP
+  selector:
+    app: pageserver
+  ports:
+  - name: pg
+    port: 6400
+    targetPort: pg
+    protocol: TCP
+{{- end }}

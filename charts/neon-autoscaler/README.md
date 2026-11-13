@@ -14,6 +14,8 @@ Helm release names and namespaces come from stack/stack.json. Preserve their
 identities during migration. CI lints, renders and packages this chart on Linux.
 
 PG17 Host 预算必须把三 worker 上所有普通 Pod（包括 kube-system）的真实硬限入账。
+自动资格 Job 在 `neon-control-runtime` 由同一 Scheduler 调度时，把该命名空间加入原列表。
+
 启用 DSGA 时，显式设置 `dsga.scheduler.podProtectionNamespaces` 为
 `[kube-system, neon-cert-manager, neonvm-system]`，仅新增各 namespace 的 pods get/patch
 Role 与绑定；neon 原 Role 不变，不额外授予 delete/update/exec/secret/node 权限。

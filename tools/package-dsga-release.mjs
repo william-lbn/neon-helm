@@ -32,6 +32,8 @@ export const RELEASE_VERSION = /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9
 const SHA = /^[a-f0-9]{40}$/;
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const REGISTRY = 'docker.io/williamluckyli';
+const CONTROL_PLANE_IMAGES = ['control-api', 'control-web', 'control-gateway', 'control-dataapi',
+  'control-postgrest', 'control-adapter', 'control-auth', 'control-ai', 'control-storage-gateway'];
 
 function requireThat(value, message) {
   if (!value) throw new Error(message);
@@ -44,10 +46,11 @@ function exactSet(actual, expected, label) {
     new Set(actual).size === actual.length &&
     JSON.stringify([...actual].sort()) === JSON.stringify([...expected].sort()), `${label} differs from the supported distribution contract`);
 }
-export function expectedImages() {
+export function expectedImages(includeControlPlane = false) {
   return [
     'neon', 'neon-build-tools', ...CORE_BINARIES.map(v => v.replaceAll('_', '-')),
     ...COMPUTE_COMPONENTS, ...AUTOSCALING_IMAGES,
+    ...(includeControlPlane ? CONTROL_PLANE_IMAGES : []),
     ...Object.keys(POSTGRES_PROFILES).flatMap(v => [
       `compute-node-${v}`, `vm-compute-node-${v}`,
       ...(POSTGRES_PROFILES[v] === 'full' ? [`neon-test-extensions-${v}`] : []),
@@ -83,18 +86,25 @@ export function validateManifest(manifest, {releaseVersion, helmSha}) {
   requireThat(object(lock.compute_components), 'Missing compute component inventory');
   exactSet(Object.keys(lock.compute_components), COMPUTE_COMPONENTS, 'Compute component inventory');
   exactSet(lock.autoscaling_images, AUTOSCALING_IMAGES, 'Autoscaling image inventory');
+  const control = lock.control_plane;
+  if (control !== undefined) {
+    requireThat(object(control) && control.repository === 'william-lbn/control-plane' && SHA.test(control.commit || ''),
+      'Missing immutable Control Plane source');
+    exactSet(control.images, CONTROL_PLANE_IMAGES, 'Control Plane image inventory');
+  }
   requireThat(object(manifest.images), 'Missing image records');
-  exactSet(Object.keys(manifest.images), expectedImages(), 'Complete image inventory');
+  exactSet(Object.keys(manifest.images), expectedImages(control !== undefined), 'Complete image inventory');
   for (const [name, record] of Object.entries(manifest.images)) {
     requireThat(object(record) && record.kind === 'runtime' && record.name === name, `Invalid image identity for ${name}`);
     requireThat(record.image === `${lock.registry}/${name}:${releaseVersion}`, `Wrong component, registry or version for ${name}`);
     requireThat(DIGEST.test(record.digest || ''), `Missing immutable digest for ${name}`);
     const autoscaling = AUTOSCALING_IMAGES.includes(name);
-    const repository = autoscaling ? lock.autoscaling_repository : 'william-lbn/neon';
-    const commit = autoscaling ? lock.autoscaling_commit : manifest.neon_commit;
+    const controlComponent = CONTROL_PLANE_IMAGES.includes(name);
+    const repository = controlComponent ? control.repository : autoscaling ? lock.autoscaling_repository : 'william-lbn/neon';
+    const commit = controlComponent ? control.commit : autoscaling ? lock.autoscaling_commit : manifest.neon_commit;
     requireThat(record.source_repository === repository && record.source_commit === commit, `Image source mismatch for ${name}`);
-    if ('architecture' in record) requireThat(record.architecture === manifest.architecture, `Image architecture mismatch for ${name}`);
-    if ('execution' in record) {
+    if (controlComponent || 'architecture' in record) requireThat(record.architecture === manifest.architecture, `Image architecture mismatch for ${name}`);
+    if (controlComponent || 'execution' in record) {
       const [, runId, attempt] = releaseVersion.match(/-dsga\.([0-9]+)\.([0-9]+)\.amd64$/);
       requireThat(object(record.execution) && record.execution.repository === 'william-lbn/neon' &&
         record.execution.run_id === runId && record.execution.run_attempt === attempt &&

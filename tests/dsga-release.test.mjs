@@ -18,6 +18,41 @@ test('complete candidate locks all four repositories and 49 image records', () =
   assert.equal(manifest.images['neon-test-extensions-v18'], undefined);
 });
 
+function withControlPlane() {
+  const manifest = fixtureManifest();
+  const images = expectedImages(true).filter(name => name.startsWith('control-'));
+  const release = {repository: 'william-lbn/control-plane', commit: 'e'.repeat(40), images};
+  const execution = structuredClone(manifest.images.neon.execution);
+  manifest.source_lock.control_plane = release;
+  for (const name of images) {
+    manifest.images[name] = {
+      kind: 'runtime', name, image: `${manifest.source_lock.registry}/${name}:${manifest.version}`,
+      digest: `sha256:${'c'.repeat(64)}`, source_repository: release.repository,
+      source_commit: release.commit, architecture: 'linux/amd64', execution: structuredClone(execution),
+    };
+  }
+  return manifest;
+}
+test('unified inventory retains the exact declared Control Plane artifacts', () => {
+  const manifest = withControlPlane();
+  assert.equal(validate(manifest), manifest);
+  assert.equal(expectedImages(true).length, expectedImages().length + 9);
+  assert.match(imageReference(manifest, 'control-api'), /control-api@sha256:[a-f0-9]{64}$/);
+});
+test('Control Plane artifact omission, source drift and receipt omissions are rejected', () => {
+  for (const [change, reason] of [
+    [m => { delete m.images['control-api']; }, /image inventory/],
+    [m => { m.images['control-api'].source_commit = m.neon_commit; }, /source mismatch/],
+    [m => { m.source_lock.control_plane.repository = 'another/control-plane'; }, /immutable Control Plane/],
+    [m => { delete m.images['control-api'].architecture; }, /architecture/],
+    [m => { delete m.images['control-api'].execution; }, /different run or attempt/],
+  ]) {
+    const manifest = withControlPlane();
+    change(manifest);
+    assert.throws(() => validate(manifest), reason);
+  }
+});
+
 const invalidCases = [
   ['missing digest', m => { delete m.images['neonvm-runner'].digest; }, /digest/],
   ['tag used as digest', m => { m.images.pageserver.digest = 'latest'; }, /digest/],

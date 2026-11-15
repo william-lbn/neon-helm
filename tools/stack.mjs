@@ -5,10 +5,12 @@ import {randomUUID} from 'node:crypto';
 import {parseArgs} from 'node:util';
 import {root, readJSON, validatePlan, helm, kube, get, documents, lockedValues, rendered, privateDirectory,
   writePrivate, compatibleAdoption, clusterScoped, fileDigest} from './lib.mjs';
+import {diskHeadroom, plannedDiskBytes} from './stack-disk.mjs';
 
 const {values: flags, positionals} = parseArgs({allowPositionals: true, options: {
   'overlay-dir': {type: 'string'}, output: {type: 'string'}, 'maintenance-window': {type: 'boolean'},
   'adopt-unowned': {type: 'boolean'}, profile: {type: 'string', default: 'lab'},
+  'disk-working-set-bytes': {type: 'string'},
 }});
 const command = positionals[0] || 'plan';
 const plan = validatePlan(readJSON('stack/stack.json'));
@@ -23,6 +25,19 @@ function environment() {
   if (nodes.length < 3 || nodes.some(n => n.status.nodeInfo.architecture !== 'amd64' ||
     !n.status.conditions.some(c => c.type === 'Ready' && c.status === 'True') ||
     n.status.conditions.some(c => ['MemoryPressure', 'DiskPressure'].includes(c.type) && c.status === 'True'))) throw new Error('Three ready amd64 nodes without resource pressure are required');
+  const workingSetBytes = plannedDiskBytes(flags['disk-working-set-bytes']);
+  const observations = [];
+  receipt.diskPreflight = {workingSetBytes, observations};
+  for (const node of nodes) {
+    const name = node.metadata.name;
+    const endpoint = `/api/v1/nodes/${encodeURIComponent(name)}/proxy`;
+    const summary = JSON.parse(kube(['get', '--raw', `${endpoint}/stats/summary`]).stdout);
+    const config = JSON.parse(kube(['get', '--raw', `${endpoint}/configz`]).stdout);
+    observations.push({node: name, signals: diskHeadroom(name, summary, config.kubeletconfig, workingSetBytes)});
+  }
+  const exhausted = observations.flatMap(({node, signals}) => signals.filter(s => s.headroom < 0)
+    .map(s => `${node} ${s.signal} short by ${-s.headroom}`));
+  if (exhausted.length) throw new Error('Insufficient disk headroom for deployment on ' + exhausted.join(', '));
   for (const crd of ['certificates.cert-manager.io', 'network-attachment-definitions.k8s.cni.cncf.io', 'ippools.whereabouts.cni.cncf.io']) {
     if (!get('customresourcedefinition', crd)) throw new Error('Missing external prerequisite ' + crd);
   }

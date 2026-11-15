@@ -131,6 +131,14 @@ node tools/stack.mjs apply --maintenance-window --overlay-dir /secure/neon-overl
 node tools/stack.mjs verify --overlay-dir /secure/neon-overlay --output /secure/neon-verify-001
 ```
 
+Both `preflight` and `apply` read the candidate nodes' Kubelet disk statistics
+and effective eviction configuration. Estimate the peak bytes needed per node
+for new image downloads, unpacking, and temporary data. Pass that total as
+`--disk-working-set-bytes <bytes>` to both commands. `result.json` records the
+available space, eviction thresholds, reclaim margin, and planned consumption
+for each filesystem. This check runs before `apply` starts backing up metadata
+or stopping controllers. [Kubernetes node-pressure eviction](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/#minimum-eviction-reclaim)
+
 Each attempt directory is immutable. `apply` waits for each release before the
 next, uses image digests, preserves mutable state, and records previous release
 values/manifests and metadata backups privately. A failure stops subsequent

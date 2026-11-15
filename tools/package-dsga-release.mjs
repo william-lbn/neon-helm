@@ -35,6 +35,11 @@ const REGISTRY = 'docker.io/williamluckyli';
 const CONTROL_PLANE_IMAGES = ['control-api', 'control-web', 'control-gateway', 'control-dataapi',
   'control-postgrest', 'control-adapter', 'control-auth', 'control-ai', 'control-storage-gateway'];
 
+const CONTROL_PLANE_CHARTS = {
+  'neon-control-plane': 'neon-control-plane',
+  'neon-storage-gateway': 'storage-gateway',
+};
+
 function requireThat(value, message) {
   if (!value) throw new Error(message);
 }
@@ -126,6 +131,23 @@ export function releaseOverlays(manifest, pgMajor) {
   requireThat([17, 18].includes(pgMajor), 'Only PG17/PG18 deployment overlays are supported');
   const ref = name => imageReference(manifest, name);
   return {
+    ...(manifest.source_lock.control_plane && {
+      'neon-control-plane': {
+        api: {
+          image: {reference: ref('control-api')},
+          creationEnabled: false,
+          computeImage: ref(`vm-compute-node-v${pgMajor}`),
+        },
+        web: {image: {reference: ref('control-web')}},
+        aiGateway: {image: ref('control-ai')},
+        managedAuth: {runtimeImage: ref('control-auth')},
+        dataAPI: {gatewayImage: ref('control-dataapi'), postgrestImage: ref('control-postgrest')},
+      },
+      'compute-management-gateway': {image: {reference: ref('control-gateway')}},
+      'data-api-gateway': {image: {reference: ref('control-dataapi')}},
+      'neon-adapter': {image: ref('control-adapter')},
+      'neon-storage-gateway': {image: {reference: ref('control-storage-gateway')}},
+    }),
     neonvm: {
       experimentalAcknowledged: false,
       images: {controller: ref('neonvm-controller'), runner: ref('neonvm-runner'), vxlanController: ref('neonvm-vxlan-controller')},
@@ -194,13 +216,34 @@ export function parseManifest(raw) {
   return value;
 }
 
-export function packageRelease({manifestPath, releaseVersion, helmSha, output}) {
+export function controlPlaneSourceCommit({manifestPath, releaseVersion, helmSha}) {
+  return readDistribution(manifestPath, releaseVersion, helmSha).manifest.source_lock.control_plane?.commit;
+}
+
+function readDistribution(manifestPath, releaseVersion, helmSha) {
+  const raw = fs.readFileSync(manifestPath, 'utf8');
+  requireThat(Buffer.byteLength(raw) <= 2 * 1024 * 1024, 'Distribution manifest is unexpectedly large');
+  return {raw, manifest: validateManifest(parseManifest(raw), {releaseVersion, helmSha})};
+}
+
+function controlPlaneDirectory(commit, checkout) {
+  requireThat(Boolean(commit) === Boolean(checkout), 'Control Plane source must match the distribution inventory');
+  if (!checkout) return undefined;
+  const cwd = fs.realpathSync(checkout);
+  requireThat(execute('git', ['rev-parse', '--show-toplevel'], {cwd}).trim() === cwd, 'Expected a separate Control Plane checkout root');
+  requireThat(execute('git', ['rev-parse', 'HEAD'], {cwd}).trim() === commit, 'Control Plane checkout differs from the locked commit');
+  requireThat(execute('git', ['status', '--porcelain', '--untracked-files=all', '--ignored=matching', '--', 'charts'], {cwd}).trim() === '',
+    'Control Plane Chart source must match the locked tree');
+  return path.join(cwd, 'charts');
+}
+
+export function packageRelease({manifestPath, releaseVersion, helmSha, output, controlPlaneSource}) {
   const source = execute('git', ['rev-parse', 'HEAD']).trim();
   requireThat(source === helmSha, 'Requested Helm SHA is not the checked out HEAD');
   requireThat(execute('git', ['status', '--porcelain', '--untracked-files=normal']).trim() === '', 'Refusing to label a dirty source tree with a clean Helm SHA');
-  const raw = fs.readFileSync(manifestPath, 'utf8');
-  requireThat(Buffer.byteLength(raw) <= 2 * 1024 * 1024, 'Distribution manifest is unexpectedly large');
-  const manifest = validateManifest(parseManifest(raw), {releaseVersion, helmSha});
+  const {raw, manifest} = readDistribution(manifestPath, releaseVersion, helmSha);
+  const controlCommit = manifest.source_lock.control_plane?.commit;
+  const controlCharts = controlPlaneDirectory(controlCommit, controlPlaneSource);
   const destination = path.resolve(output);
   requireThat(!fs.existsSync(destination), 'Release output must be new; never merge stale packages from another run');
   const parent = path.dirname(destination);
@@ -211,9 +254,10 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
   const checksum = hash(raw);
   const qualifiedCharts = new Set(Object.keys(releaseOverlays(manifest, 17)));
   try {
-    const charts = fs.readdirSync(path.join(root, 'charts'), {withFileTypes: true})
+    const helmCharts = fs.readdirSync(path.join(root, 'charts'), {withFileTypes: true})
       .filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
-    requireThat(charts.length > 0, 'No charts found');
+    requireThat(helmCharts.length > 0, 'No charts found');
+    const charts = [...new Set([...helmCharts, ...(controlCharts ? Object.keys(CONTROL_PLANE_CHARTS) : [])])].sort();
     const lock = {
       schema_version: 2, version: releaseVersion, chart_version: releaseVersion,
       distribution_manifest_sha256: checksum, architecture: manifest.architecture,
@@ -230,7 +274,7 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
         pg18_public_sql_build_profile: 'dsga-core',
         pg18_public_sql_container_verified_by_helm_packaging: false,
         autoscaler_platform_qualification_pg_major: 17,
-        external_control_plane_images_rebuilt: false,
+        external_control_plane_images_rebuilt: Boolean(controlCharts),
       },
     };
     writeJSON(path.join(pending, 'dsga-release-lock.json'), lock);
@@ -243,7 +287,10 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
     const receipts = [];
     for (const chart of charts) {
       const directory = path.join(staging, chart);
-      fs.cpSync(path.join(root, 'charts', chart), directory, {recursive: true, dereference: false});
+      const controlChart = controlCharts && Object.hasOwn(CONTROL_PLANE_CHARTS, chart);
+      const chartSource = controlChart ? path.join(controlCharts, CONTROL_PLANE_CHARTS[chart]) : path.join(root, 'charts', chart);
+      const chartSourceCommit = controlChart ? controlCommit : helmSha;
+      fs.cpSync(chartSource, directory, {recursive: true, dereference: false});
       const metadataFile = path.join(directory, 'Chart.yaml');
       const metadata = parseDocument(fs.readFileSync(metadataFile, 'utf8'));
       requireThat(!metadata.errors.length && metadata.get('name') === chart, `Invalid Chart identity: ${chart}`);
@@ -257,6 +304,7 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
         'neon.tech/neon-commit': manifest.neon_commit,
         'neon.tech/autoscaling-commit': manifest.source_lock.autoscaling_commit,
         'neon.tech/helm-commit': helmSha,
+        'neon.tech/chart-source-commit': chartSourceCommit,
         'neon.tech/postgres17-commit': manifest.source_lock.postgres.v17,
         'neon.tech/postgres18-commit': manifest.source_lock.postgres.v18,
         'neon.tech/release-tier': 'candidate',
@@ -276,7 +324,9 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
 
       // Only the offline fixture acknowledges experimental settings. Package
       // defaults and released overlays keep their acknowledgements disabled.
-      const fixture = merge(ciValues(chart), overlay);
+      const renderValues = controlChart ? documents(fs.readFileSync(path.join(directory, 'ci/render-values.yaml'), 'utf8'))[0] : ciValues(chart);
+      if (controlChart) fs.rmSync(path.join(directory, 'ci'), {recursive: true});
+      const fixture = merge(renderValues, overlay);
       if ('experimentalAcknowledged' in fixture) fixture.experimentalAcknowledged = true;
       if (fixture.validation) fixture.validation.labAcknowledged = true;
       if (chart === 'neon-compute') Object.assign(fixture.compute, {tenantId: '1'.repeat(32), timelineId: '2'.repeat(32)});
@@ -292,18 +342,21 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
       execute(helm, ['package', directory, '--destination', pending]);
       const filename = `${chart}-${releaseVersion}.tgz`;
       const packagedMeta = documents(execute(helm, ['show', 'chart', path.join(pending, filename)]))[0];
-      requireThat(packagedMeta.version === releaseVersion && packagedMeta.annotations['neon.tech/helm-commit'] === helmSha, `Packaged Chart metadata mismatch: ${chart}`);
-      receipts.push({chart, file: filename, sha256: hash(fs.readFileSync(path.join(pending, filename))), lint: 'pass', offline_render: 'pass'});
+      requireThat(packagedMeta.version === releaseVersion && packagedMeta.annotations['neon.tech/helm-commit'] === helmSha &&
+        packagedMeta.annotations['neon.tech/chart-source-commit'] === chartSourceCommit, `Packaged Chart metadata mismatch: ${chart}`);
+      receipts.push({chart, file: filename, source_commit: chartSourceCommit,
+        sha256: hash(fs.readFileSync(path.join(pending, filename))), lint: 'pass', offline_render: 'pass'});
     }
     execute(helm, ['repo', 'index', pending, '--url', `https://github.com/william-lbn/neon/releases/download/${releaseVersion}`]);
     writeJSON(path.join(pending, 'helm-package-receipt.json'), {
       schema_version: 1, release_version: releaseVersion, helm_commit: helmSha,
+      ...(controlCommit && {control_plane_commit: controlCommit}),
       distribution_manifest_sha256: checksum, charts: receipts,
       qualification: manifest.qualification, deployed: false,
       pg18_legacy_deployment_blocked: true,
     });
     fs.writeFileSync(path.join(pending, 'DSGA-HELM-README.md'), `# DSGA 候选发行 ${releaseVersion}\n\n` +
-      `这组 Chart 与同目录 distribution-manifest.json 的四库源码和镜像摘要绑定。先运行 \`sha256sum -c HELM-SHA256SUMS\`。${charts.length} 个 Chart 均采用同一版本；六组运行组件的镜像绑定来自本次发行，控制面和其它产品镜像保留原独立来源。\n\n` +
+      `这组 Chart 与同目录 distribution-manifest.json 的源码和镜像摘要绑定。先运行 \`sha256sum -c HELM-SHA256SUMS\`。${charts.length} 个 Chart 均采用同一版本；${qualifiedCharts.size} 组 Chart 绑定本次发行的镜像。\n\n` +
       `## 当前能力边界\n\n` +
       `- 平台：linux/amd64；现有受管部署仍要求 Kubernetes 1.31.x 和原 worker-117/118/119 放置约束。\n` +
       `- release_tier=candidate，vm_system_mode=legacy，production_ready=false，physical_memory_release_qualified=false。打包通过不构成正常启动闭包、Host 物理归还或生产验收。\n` +
@@ -328,7 +381,14 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output}) 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const {values} = parseArgs({options: {
     manifest: {type: 'string'}, version: {type: 'string'}, 'helm-sha': {type: 'string'}, output: {type: 'string'},
+    'control-plane-source': {type: 'string'}, 'print-control-plane-commit': {type: 'boolean'},
   }});
-  for (const name of ['manifest', 'version', 'helm-sha', 'output']) requireThat(values[name], `Missing --${name}`);
-  console.log(JSON.stringify(packageRelease({manifestPath: values.manifest, releaseVersion: values.version, helmSha: values['helm-sha'], output: values.output})));
+  for (const name of ['manifest', 'version', 'helm-sha']) requireThat(values[name], `Missing --${name}`);
+  const input = {manifestPath: values.manifest, releaseVersion: values.version, helmSha: values['helm-sha']};
+  if (values['print-control-plane-commit']) {
+    console.log(controlPlaneSourceCommit(input) ?? '');
+  } else {
+    requireThat(values.output, 'Missing --output');
+    console.log(JSON.stringify(packageRelease({...input, output: values.output, controlPlaneSource: values['control-plane-source']})));
+  }
 }

@@ -39,6 +39,24 @@ test('unified inventory retains the exact declared Control Plane artifacts', () 
   assert.equal(expectedImages(true).length, expectedImages().length + 9);
   assert.match(imageReference(manifest, 'control-api'), /control-api@sha256:[a-f0-9]{64}$/);
 });
+test('unified Control Plane overlays bind first-party images and retain the create gate', () => {
+  const manifest = withControlPlane();
+  const overlay = releaseOverlays(manifest, 18);
+  const control = overlay['neon-control-plane'];
+  assert.equal(control.api.image.reference, imageReference(manifest, 'control-api'));
+  assert.equal(control.api.creationEnabled, false);
+  assert.equal(control.api.computeImage, imageReference(manifest, 'vm-compute-node-v18'));
+  assert.equal(control.web.image.reference, imageReference(manifest, 'control-web'));
+  assert.equal(control.dataAPI.postgrestImage, imageReference(manifest, 'control-postgrest'));
+  assert.equal(control.dataAPI.gatewayImage, imageReference(manifest, 'control-dataapi'));
+  assert.equal(control.managedAuth.runtimeImage, imageReference(manifest, 'control-auth'));
+  assert.equal(control.aiGateway.image, imageReference(manifest, 'control-ai'));
+  assert.equal(overlay['compute-management-gateway'].image.reference, imageReference(manifest, 'control-gateway'));
+  assert.equal(overlay['data-api-gateway'].image.reference, imageReference(manifest, 'control-dataapi'));
+  assert.equal(overlay['neon-adapter'].image, imageReference(manifest, 'control-adapter'));
+  assert.equal(overlay['neon-storage-gateway'].image.reference, imageReference(manifest, 'control-storage-gateway'));
+  assert.equal(releaseOverlays(fixtureManifest(), 18)['neon-control-plane'], undefined);
+});
 test('Control Plane artifact omission, source drift and receipt omissions are rejected', () => {
   for (const [change, reason] of [
     [m => { delete m.images['control-api']; }, /image inventory/],

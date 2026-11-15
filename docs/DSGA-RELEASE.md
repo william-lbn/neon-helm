@@ -38,15 +38,17 @@ JSON 重复键被拒绝，防止审阅者看到的值与实际解析值不同。
 
 输出目录是平面目录，便于调用方直接附加到 Release：
 
-- 全部 15 个 Chart 的 `.tgz`，版本统一。
+- Helm 源码中的 15 个 Chart 使用统一版本。清单包含 Control Plane 时，发行另含 Storage Gateway，共 16 个 Chart。
 - 原样保留的 `distribution-manifest.json`。
-- `dsga-release-lock.json`，包含四仓 SHA、镜像摘要映射和能力限制；每个 Chart 的 `files/` 中也嵌入同一份锁。
-- `pg17-<chart>.values.json` 和 `pg18-<chart>.values.json`，各六份，只来自当前 manifest。
+- `dsga-release-lock.json`，包含清单声明的所有仓库 SHA、镜像摘要映射和能力限制；每个 Chart 的 `files/` 中也嵌入同一份锁。
+- `pg17-<chart>.values.json` 和 `pg18-<chart>.values.json`，按已绑定的 Chart 生成，只来自当前 manifest。
 - `helm-package-receipt.json`、指向 Neon Release 的 `index.yaml`、中文说明和 `HELM-SHA256SUMS`。
 
 本次 manifest 直接覆盖的运行 Chart 是 `neon-core`、`neon-managed-pageserver`、`neon-compute`、`neonvm`、`neon-autoscaler`、`dsga-platform-qualifier`。这些 Chart 的镜像默认值和覆盖文件都使用 `repository@sha256:...`，不依赖可移动的 `latest` 标签。
 
-其它 Chart 随 Helm 仓库一起打包，但其控制面等业务镜像没有被这四仓流水线重建：保留原 `appVersion`，并标记 `neon.tech/image-binding=separate-product-not-rebuilt`。新的运行覆盖文件不读取九月底的 `profiles/lab` 镜像锁。既有 lab profile 仅用于离线渲染 fixture，生成器再明确覆盖本次对应的镜像字段。
+统一清单含 `source_lock.control_plane` 时，`neon-control-plane` 和 `neon-storage-gateway` 直接取自已锁定的 Control Plane 提交。Compute Management Gateway、Data API Gateway 和 Adapter 使用 Helm 仓库中的平台模板及本次镜像摘要。每个包记录其模板来源提交。控制面创建入口在发行默认值中关闭，实际启用须配对部署凭据、平台目录和对应资格。
+
+未绑定本次镜像的 Chart 保留原 `appVersion` 并带 `neon.tech/image-binding=separate-product-not-rebuilt` 标记。旧清单继续支持原有 15 个 Helm 本地 Chart。渲染 fixture 仅供离线验证。
 
 ## 4. 候选版本不授予运行资格
 
@@ -99,10 +101,13 @@ npm run helm:dsga
 ```bash
 task_helm_sha="$(git rev-parse HEAD)"
 task_release_version="$(node -p "require('./artifacts/input/distribution-manifest.json').version")"
+# Checkout the exact source_lock.control_plane.commit in artifacts/control-plane-source.
+# Omit --control-plane-source for a legacy manifest without Control Plane.
 node tools/package-dsga-release.mjs \
   --manifest artifacts/input/distribution-manifest.json \
   --version "$task_release_version" \
   --helm-sha "$task_helm_sha" \
+  --control-plane-source artifacts/control-plane-source \
   --output artifacts/dsga-release
 cd artifacts/dsga-release
 sha256sum --check HELM-SHA256SUMS

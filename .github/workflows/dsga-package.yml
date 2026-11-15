@@ -70,15 +70,37 @@ jobs:
         with:
           name: ${{ inputs.distribution_artifact }}
           path: artifacts/distribution-input
-      - name: Build image-locked Chart packages
+      - name: Read the validated Control Plane source lock
+        id: control
         env:
           RELEASE_VERSION: ${{ inputs.release_version }}
           HELM_SHA: ${{ inputs.helm_sha }}
         run: |
+          commit="$(node tools/package-dsga-release.mjs \
+            --manifest artifacts/distribution-input/distribution-manifest.json \
+            --version "$RELEASE_VERSION" --helm-sha "$HELM_SHA" --print-control-plane-commit)"
+          printf 'commit=%s\n' "$commit" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.control.outputs.commit != ''
+        with:
+          repository: william-lbn/control-plane
+          ref: ${{ steps.control.outputs.commit }}
+          path: artifacts/control-plane-source
+          persist-credentials: false
+      - name: Build image-locked Chart packages
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          HELM_SHA: ${{ inputs.helm_sha }}
+          CONTROL_PLANE_COMMIT: ${{ steps.control.outputs.commit }}
+        run: |
+          args=()
+          if [[ -n "$CONTROL_PLANE_COMMIT" ]]; then
+            args+=(--control-plane-source artifacts/control-plane-source)
+          fi
           node tools/package-dsga-release.mjs \
             --manifest artifacts/distribution-input/distribution-manifest.json \
             --version "$RELEASE_VERSION" --helm-sha "$HELM_SHA" \
-            --output artifacts/dsga-release
+            --output artifacts/dsga-release "${args[@]}"
           cd artifacts/dsga-release
           sha256sum --check HELM-SHA256SUMS
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1

@@ -139,6 +139,21 @@ available space, eviction thresholds, reclaim margin, and planned consumption
 for each filesystem. This check runs before `apply` starts backing up metadata
 or stopping controllers. [Kubernetes node-pressure eviction](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/#minimum-eviction-reclaim)
 
+Before removing a DSGA Guest, Runner, kernel, or qualifier cache entry, check the active
+catalog and the immutable plans of queued, running, and retryable Operations.
+These references can stay live while the node has zero Compute Pods.
+
+```bash
+node tools/dsga-image-pins.mjs --namespace "$namespace" \
+  --api-deployment "$release-api" --metadata-pod "$metadata_pod" \
+  --image "$candidate_digest_ref" --node "$node"
+```
+
+Exit code 3 identifies a dependency for the selected node. The command reports
+image references and their source, using a read-only metadata query. Check the
+current Pods, NeonVMs, CRI references, and retained rollback plans before any
+cache removal.
+
 Each attempt directory is immutable. `apply` waits for each release before the
 next, uses image digests, preserves mutable state, and records previous release
 values/manifests and metadata backups privately. A failure stops subsequent

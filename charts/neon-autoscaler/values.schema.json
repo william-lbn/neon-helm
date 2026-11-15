@@ -211,6 +211,56 @@
                 }
               }
             },
+            "cacheShadow": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "tenantId",
+                  "timelineId",
+                  "sampleIntervalSeconds",
+                  "maximumSampleAgeSeconds",
+                  "minimumWindowMinutes",
+                  "slopeWindowMinutes",
+                  "maximumSlopeIncrease"
+                ],
+                "properties": {
+                  "tenantId": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{32}$"
+                  },
+                  "timelineId": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{32}$"
+                  },
+                  "sampleIntervalSeconds": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 60
+                  },
+                  "maximumSampleAgeSeconds": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 300
+                  },
+                  "minimumWindowMinutes": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 60
+                  },
+                  "slopeWindowMinutes": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 30
+                  },
+                  "maximumSlopeIncrease": {
+                    "type": "number",
+                    "exclusiveMinimum": 1
+                  }
+                }
+              }
+            },
             "automaticMemory": {
               "type": "object",
               "maxProperties": 128,

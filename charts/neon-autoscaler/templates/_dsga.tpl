@@ -3,6 +3,9 @@
 {{- if .Values.dsga.enabled -}}
 {{- $a := .Values.dsga.agent -}}
 {{- $dsga := dict "gatewayURL" $a.gatewayURL "managementCAFile" "/etc/neon-dsga/management/ca.crt" "projectedTokenFile" "/var/run/secrets/neon-dsga/token" "requestTimeoutSeconds" $a.requestTimeoutSeconds "computeTimeoutSeconds" $a.computeTimeoutSeconds "pollIntervalSeconds" $a.pollIntervalSeconds "prepareQualifications" $a.prepareQualifications "automaticMemory" $a.automaticMemory -}}
+{{- if $a.cacheShadow -}}
+{{- $_ := set $dsga "cacheShadow" $a.cacheShadow -}}
+{{- end -}}
 {{- if $a.runtimeSelectionNamespace -}}
 {{- $_ := set $dsga "runtimeSelectionNamespace" $a.runtimeSelectionNamespace -}}
 {{- end -}}
@@ -40,6 +43,9 @@
 {{- if ne (int $d.pgVersion) 17 -}}{{- fail "DSGA qualification is PG17 only" -}}{{- end -}}
 {{- $resource := $d.agent.resourceReadSocket -}}
 {{- $control := $d.agent.controlSocket -}}
+{{- if and $d.agent.cacheShadow (not $d.enabled) -}}
+{{- fail "Cache shadow observation requires DSGA enabled" -}}
+{{- end -}}
 {{- if $d.agent.runtimeSelectionNamespace -}}
 {{- if or (not $d.enabled) (not $resource.enabled) (eq $d.agent.runtimeSelectionNamespace $d.vmNamespace) -}}
 {{- fail "Dynamic runtime selection requires a separate platform namespace and original resource reader" -}}

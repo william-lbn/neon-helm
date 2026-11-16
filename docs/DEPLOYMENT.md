@@ -136,8 +136,12 @@ and effective eviction configuration. Estimate the peak bytes needed per node
 for new image downloads, unpacking, and temporary data. Pass that total as
 `--disk-working-set-bytes <bytes>` to both commands. `result.json` records the
 available space, eviction thresholds, reclaim margin, and planned consumption
-for each filesystem. This check runs before `apply` starts backing up metadata
-or stopping controllers. [Kubernetes node-pressure eviction](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/#minimum-eviction-reclaim)
+for each filesystem. The image filesystem must also have enough space to stay
+below Kubelet's effective image GC threshold during the planned work. An unused
+locally imported Guest can be collected while the node reports no DiskPressure.
+Production image digests need a registry reachable from every eligible node.
+This check runs before `apply` starts backing up metadata or stopping controllers.
+[Kubernetes node-pressure eviction](https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/#minimum-eviction-reclaim) [Kubelet image reclamation code](https://github.com/kubernetes/kubernetes/blob/v1.31.2/pkg/kubelet/images/image_gc_manager.go#L323-L363)
 
 Before removing a DSGA Guest, Runner, kernel, or qualifier cache entry, check the active
 catalog and the immutable plans of queued, running, and retryable Operations.

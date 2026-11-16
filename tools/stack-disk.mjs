@@ -20,6 +20,18 @@ function threshold(value, capacity) {
   throw new Error(`Invalid Kubelet disk eviction threshold ${value}`);
 }
 
+function imageGCFreeBytes(config, capacity) {
+  const high = config.imageGCHighThresholdPercent;
+  if (high === undefined) return 0;
+  if (!Number.isInteger(high) || high < 0 || high > 100) {
+    throw new Error(`Invalid Kubelet image GC high threshold ${high}`);
+  }
+  if (high === 0) return capacity + 1;
+  // Kubelet rounds free percentage down and starts image GC at usage >= high.
+  // At a high threshold of 85, a free fraction of 15.9% still triggers GC.
+  return Number((BigInt(capacity) * BigInt(101 - high) + 99n) / 100n);
+}
+
 export function plannedDiskBytes(value = '0') {
   if (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
     throw new Error('--disk-working-set-bytes requires a nonnegative integer byte count');
@@ -44,8 +56,9 @@ export function diskHeadroom(node, summary, config, workingSetBytes) {
     const hard = threshold(config.evictionHard?.[signal], capacity);
     const soft = threshold(config.evictionSoft?.[signal], capacity);
     const reclaim = Math.max(hard, soft) === 0 ? 0 : threshold(config.evictionMinimumReclaim?.[signal], capacity);
-    const reserved = Math.max(hard, soft) + reclaim;
-    return {signal, capacity, available, hard, soft, reclaim, planned, headroom: available - reserved - planned};
+    const imageGC = signal === 'imagefs.available' ? imageGCFreeBytes(config, capacity) : 0;
+    const reserved = Math.max(Math.max(hard, soft) + reclaim, imageGC);
+    return {signal, capacity, available, hard, soft, reclaim, imageGC, planned, headroom: available - reserved - planned};
   }
 
   return fields.flatMap(({name, stats}) => {

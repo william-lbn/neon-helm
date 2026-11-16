@@ -35,10 +35,28 @@ test('soft and inode thresholds use the actual available units from the correct 
   assert.equal(images.headroom, 8_093_463_808 - 100_000_000);
 });
 
+test('projected imagefs still clears eviction when Kubelet would collect cached Guest images', () => {
+  const config = {
+    evictionHard: {'nodefs.available': '5%', 'imagefs.available': '5%'},
+    evictionMinimumReclaim: {'nodefs.available': '10%', 'imagefs.available': '10%'},
+    imageGCHighThresholdPercent: 85,
+  };
+  const live = structuredClone(sample);
+  live.node.fs.availableBytes = live.node.runtime.imageFs.availableBytes = 8_481_882_112;
+  const planned = 536_870_912;
+  const [node, images] = diskHeadroom('worker-117', live, config, planned);
+  assert.equal(node.headroom, 67_248_128);
+  assert.equal(images.imageGC, 8_402_947_277);
+  assert.equal(images.headroom, -457_936_077);
+  live.node.runtime.imageFs.availableBytes = images.imageGC + planned;
+  assert.equal(diskHeadroom('worker-117', live, config, planned)[1].headroom, 0);
+});
+
 test('missing or malformed deployment inputs fail before any stack mutation', () => {
   assert.throws(() => diskHeadroom('worker-119', sample, {}, 0), /configuration is unavailable/);
   assert.throws(() => diskHeadroom('worker-117', {node: {...sample.node, runtime: {}}}, {}, 0), /imagefs.available is unavailable/);
   assert.throws(() => diskHeadroom('worker-117', sample, {evictionHard: {'nodefs.available': 'large'}}, 0), /Invalid Kubelet/);
+  assert.throws(() => diskHeadroom('worker-117', sample, {imageGCHighThresholdPercent: 105}, 0), /image GC high threshold/);
   assert.equal(plannedDiskBytes(), 0);
   assert.throws(() => plannedDiskBytes('2Gi'), /integer byte count/);
   assert.throws(() => plannedDiskBytes('9007199254740993'), /integer byte count/);

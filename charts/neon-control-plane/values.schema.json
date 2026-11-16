@@ -644,6 +644,45 @@
           "type": "object"
         }
       }
+    },
+    "realtime": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "subscriptionLimit",
+        "sourceLimit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "subscriptionLimit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sourceLimit": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "subscriptionLimit": {
+            "minimum": 1
+          },
+          "sourceLimit": {
+            "minimum": 1
+          }
+        }
+      }
     }
   },
   "definitions": {

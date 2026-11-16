@@ -1,4 +1,13 @@
 {{- define "neonControl.runtimeEnv" -}}
+{{- if .Values.realtime.enabled }}
+{{- if not (and .Values.backendCredentials.enabled .Values.worker.enabled) }}
+{{- fail "Realtime requires Backend credentials and a separated Worker" }}
+{{- end }}
+- {name: NEON_REALTIME_ENABLED, value: 'true'}
+- {name: NEON_REALTIME_SUBSCRIPTION_LIMIT, value: {{ .Values.realtime.subscriptionLimit | quote }}}
+- {name: NEON_REALTIME_SOURCE_LIMIT, value: {{ .Values.realtime.sourceLimit | quote }}}
+- {name: NEON_REALTIME_CREDENTIAL_NAMESPACE, value: {{ include "neonControl.realtimeCredentialNamespace" . | quote }}}
+{{- end }}
 {{- if and .Values.objectStorage.s3.enabled (not .Values.objectStorage.enabled) }}
 {{- fail "S3 requires objectStorage.enabled" }}
 {{- end }}

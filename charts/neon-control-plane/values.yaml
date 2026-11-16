@@ -76,6 +76,11 @@ backendCredentials:
   enabled: false
   existingSecret: ''
   labHTTP: false
+# 仅显式启用；必须使用已验证支持 Realtime 的 Control Plane 发行。
+realtime:
+  enabled: false
+  subscriptionLimit: 0
+  sourceLimit: 0
 dataAPI:
   enabled: false
   # Native Driver v1 requires this explicit development transport exception.

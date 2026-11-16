@@ -3,13 +3,18 @@
 {{- if not .Values.aiGateway.enabled -}}
 {{- $config = regexReplaceAll "(?s)    location \\^~ /ai/v1/ \\{.*?    \\}\\r?\\n" $config "" -}}
 {{- end -}}
+{{- if not .Values.realtime.enabled -}}
+{{- $config = regexReplaceAll "(?s)    location \\^~ /realtime/v1/ \\{.*?    \\}\\r?\\n" $config "" -}}
+{{- end -}}
+{{/* 对实际挂载字节计算摘要，使开关或入口变化触发原 Web 的正常滚动。 */}}
+{{- $config = $config | replace "neon-control-api:8788" (printf "%s-api:8788" $name) | replace "neon-control-ai:8791" (printf "%s-ai:8791" $name) -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ $name }}-web
 data:
   nginx.conf: |
-    {{- $config | replace "neon-control-api:8788" (printf "%s-api:8788" $name) | replace "neon-control-ai:8791" (printf "%s-ai:8791" $name) | nindent 4 }}
+    {{- $config | nindent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,7 +33,7 @@ spec:
         {{- include "neonControl.labels" . | nindent 8 }}
         app.kubernetes.io/component: web
       annotations:
-        checksum/config: {{ printf "%s-%t" (.Files.Get "files/nginx.conf") .Values.aiGateway.enabled | sha256sum }}
+        checksum/config: {{ $config | sha256sum }}
     spec:
       automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}

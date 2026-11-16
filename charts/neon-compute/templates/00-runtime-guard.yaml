@@ -1,4 +1,5 @@
-{{- if eq .Values.compute.startupMode "trusted-runtime-v1" -}}
+{{/* 关闭的发行overlay只保存物料选择；没有VM创建时不伪造实例身份。启用仍核全部原合同。 */}}
+{{- if and .Values.compute.enabled (eq .Values.compute.startupMode "trusted-runtime-v1") -}}
 {{- $r := .Values.compute.runtime -}}
 {{- if or (not (regexMatch "^ep_[a-f0-9]{16}$" $r.endpointId)) (ne .Values.compute.name (printf "cp-%s" (trimPrefix "ep_" $r.endpointId))) (not (regexMatch "^[A-Za-z0-9]([A-Za-z0-9_-]{0,61}[A-Za-z0-9])?$" $r.projectId)) -}}{{- fail "trusted runtime requires the original cp-Endpoint name and project/endpoint labels accepted by the existing credential broker" -}}{{- end -}}
 {{- if ne $r.executionModel "trusted-controller-v1" -}}{{- fail "trusted runtime requires the sealed trusted-controller-v1 execution model" -}}{{- end -}}

@@ -287,10 +287,14 @@
             "properties": {
               "pgVersion": {
                 "const": 18
+              },
+              "enabled": {
+                "const": true
               }
             },
             "required": [
-              "pgVersion"
+              "pgVersion",
+              "enabled"
             ]
           }
         },

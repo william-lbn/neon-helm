@@ -13,6 +13,7 @@ import {createHash} from 'node:crypto';
 import {parseDocument, stringify} from 'yaml';
 import {root, merge, documents} from './lib.mjs';
 import {ciValues, ciNamespace, ciKubeVersion} from './ci-values.mjs';
+import {NORMAL_IMAGES, NORMAL_MODE, verifyNormalManifest} from './normal-release-contract.mjs';
 
 export const CORE_BINARIES = [
   'pageserver', 'safekeeper', 'proxy', 'pg_sni_router', 'storage_broker',
@@ -51,11 +52,12 @@ function exactSet(actual, expected, label) {
     new Set(actual).size === actual.length &&
     JSON.stringify([...actual].sort()) === JSON.stringify([...expected].sort()), `${label} differs from the supported distribution contract`);
 }
-export function expectedImages(includeControlPlane = false) {
+export function expectedImages(includeControlPlane = false, normal = false) {
   return [
     'neon', 'neon-build-tools', ...CORE_BINARIES.map(v => v.replaceAll('_', '-')),
     ...COMPUTE_COMPONENTS, ...AUTOSCALING_IMAGES,
     ...(includeControlPlane ? CONTROL_PLANE_IMAGES : []),
+    ...(normal ? NORMAL_IMAGES : []),
     ...Object.keys(POSTGRES_PROFILES).flatMap(v => [
       `compute-node-${v}`, `vm-compute-node-${v}`,
       ...(POSTGRES_PROFILES[v] === 'full' ? [`neon-test-extensions-${v}`] : []),
@@ -67,11 +69,13 @@ export function validateManifest(manifest, {releaseVersion, helmSha}) {
   requireThat(object(manifest), 'Manifest must be an object');
   requireThat(typeof releaseVersion === 'string' && RELEASE_VERSION.test(releaseVersion), 'Expected canonical DSGA candidate SemVer ending in .amd64');
   requireThat(SHA.test(helmSha || ''), 'Expected full immutable Helm SHA');
-  requireThat(manifest.schema_version === 2 && manifest.channel === 'dsga', 'Expected schema_version=2 and channel=dsga');
+  requireThat([2, 3].includes(manifest.schema_version) && manifest.channel === 'dsga', 'Expected schema_version=2/3 and channel=dsga');
+  const normal = manifest.schema_version === 3;
   requireThat(manifest.version === releaseVersion && manifest.chart_version === releaseVersion, 'Manifest/image/Chart version mismatch');
   requireThat(manifest.architecture === 'linux/amd64', 'Current DSGA Helm deployment templates support linux/amd64 only');
   requireThat(SHA.test(manifest.neon_commit || '') && SHA.test(manifest.verification_commit || ''), 'Missing immutable Neon/verification commit');
-  requireThat(manifest.release_tier === 'candidate' && manifest.vm_system_mode === 'legacy', 'This workflow only packages the explicitly unqualified legacy candidate VM lane');
+  requireThat(manifest.release_tier === 'candidate' && manifest.vm_system_mode === (normal ? 'mixed' : 'legacy'),
+    'Expected the explicitly unqualified legacy candidate or schema 3 mixed VM lane');
   requireThat(object(manifest.qualification) && manifest.qualification.production_ready === false &&
     manifest.qualification.physical_memory_release_qualified === false, 'A package build cannot grant production or physical-memory-release qualification');
   const lock = manifest.source_lock;
@@ -98,24 +102,30 @@ export function validateManifest(manifest, {releaseVersion, helmSha}) {
     exactSet(control.images, CONTROL_PLANE_IMAGES, 'Control Plane image inventory');
   }
   requireThat(object(manifest.images), 'Missing image records');
-  exactSet(Object.keys(manifest.images), expectedImages(control !== undefined), 'Complete image inventory');
+  exactSet(Object.keys(manifest.images), expectedImages(control !== undefined, normal), 'Complete image inventory');
   for (const [name, record] of Object.entries(manifest.images)) {
     requireThat(object(record) && record.kind === 'runtime' && record.name === name, `Invalid image identity for ${name}`);
     requireThat(record.image === `${lock.registry}/${name}:${releaseVersion}`, `Wrong component, registry or version for ${name}`);
     requireThat(DIGEST.test(record.digest || ''), `Missing immutable digest for ${name}`);
-    const autoscaling = AUTOSCALING_IMAGES.includes(name);
+    const autoscaling = AUTOSCALING_IMAGES.includes(name) || name === 'vm-kernel-normal';
     const controlComponent = CONTROL_PLANE_IMAGES.includes(name);
     const repository = controlComponent ? control.repository : autoscaling ? lock.autoscaling_repository : 'william-lbn/neon';
     const commit = controlComponent ? control.commit : autoscaling ? lock.autoscaling_commit : manifest.neon_commit;
     requireThat(record.source_repository === repository && record.source_commit === commit, `Image source mismatch for ${name}`);
-    if (controlComponent || 'architecture' in record) requireThat(record.architecture === manifest.architecture, `Image architecture mismatch for ${name}`);
-    if (controlComponent || 'execution' in record) {
+    if (normal || controlComponent || 'architecture' in record) requireThat(record.architecture === manifest.architecture, `Image architecture mismatch for ${name}`);
+    if (normal || controlComponent || 'execution' in record) {
       const [, runId, attempt] = releaseVersion.match(/-dsga\.([0-9]+)\.([0-9]+)\.amd64$/);
       requireThat(object(record.execution) && record.execution.repository === 'william-lbn/neon' &&
         record.execution.run_id === runId && record.execution.run_attempt === attempt &&
         record.execution.run_url === `https://github.com/william-lbn/neon/actions/runs/${runId}/attempts/${attempt}`,
       `Image execution belongs to a different run or attempt: ${name}`);
     }
+  }
+  if (normal) verifyNormalManifest(manifest, parseManifest);
+  else {
+    requireThat(manifest.vm_system_modes === undefined && !Object.values(manifest.images).some(record =>
+      record.guest_disk?.system_mode === NORMAL_MODE || record.guest_disk?.normal_guest !== undefined),
+    'Schema 2 legacy candidate cannot carry unverified normal evidence');
   }
   return manifest;
 }
@@ -130,6 +140,7 @@ export function imageReference(manifest, name) {
 export function releaseOverlays(manifest, pgMajor) {
   requireThat([17, 18].includes(pgMajor), 'Only PG17/PG18 deployment overlays are supported');
   const ref = name => imageReference(manifest, name);
+  const normal = manifest.schema_version === 3 && manifest.vm_system_modes?.[`v${pgMajor}`] === NORMAL_MODE;
   return {
     ...(manifest.source_lock.control_plane && {
       'neon-control-plane': {
@@ -179,9 +190,9 @@ export function releaseOverlays(manifest, pgMajor) {
     'neon-compute': {
       experimentalAcknowledged: false,
       compute: {
-        enabled: false, pgVersion: pgMajor, startupMode: 'legacy',
+        enabled: false, pgVersion: pgMajor, startupMode: normal ? 'trusted-runtime-v1' : 'legacy',
         image: ref(`vm-compute-node-v${pgMajor}`),
-        runtime: {runnerImage: ref('neonvm-runner'), kernelImage: ref('vm-kernel')},
+        runtime: {runnerImage: ref('neonvm-runner'), kernelImage: ref(normal ? 'vm-kernel-normal' : 'vm-kernel')},
       },
     },
     'neon-managed-pageserver': {image: ref('pageserver')},
@@ -259,12 +270,13 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output, c
     requireThat(helmCharts.length > 0, 'No charts found');
     const charts = [...new Set([...helmCharts, ...(controlCharts ? Object.keys(CONTROL_PLANE_CHARTS) : [])])].sort();
     const lock = {
-      schema_version: 2, version: releaseVersion, chart_version: releaseVersion,
+      schema_version: manifest.schema_version, version: releaseVersion, chart_version: releaseVersion,
       distribution_manifest_sha256: checksum, architecture: manifest.architecture,
       neon_commit: manifest.neon_commit, verification_commit: manifest.verification_commit,
       source_lock: manifest.source_lock,
       images: Object.fromEntries(Object.keys(manifest.images).sort().map(name => [name, imageReference(manifest, name)])),
       release_tier: manifest.release_tier, vm_system_mode: manifest.vm_system_mode,
+      ...(manifest.schema_version === 3 && {vm_system_modes: manifest.vm_system_modes}),
       qualification: manifest.qualification,
       chart_image_bindings: [...qualifiedCharts].sort(),
       deployment_constraints: {
@@ -308,7 +320,7 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output, c
         'neon.tech/postgres17-commit': manifest.source_lock.postgres.v17,
         'neon.tech/postgres18-commit': manifest.source_lock.postgres.v18,
         'neon.tech/release-tier': 'candidate',
-        'neon.tech/vm-system-mode': 'legacy',
+        'neon.tech/vm-system-mode': manifest.vm_system_mode,
         'neon.tech/production-ready': 'false',
         'neon.tech/physical-memory-release-qualified': 'false',
         'neon.tech/image-binding': qualifiedCharts.has(chart) ? 'current-distribution' : 'separate-product-not-rebuilt',
@@ -359,10 +371,12 @@ export function packageRelease({manifestPath, releaseVersion, helmSha, output, c
       `这组 Chart 与同目录 distribution-manifest.json 的源码和镜像摘要绑定。先运行 \`sha256sum -c HELM-SHA256SUMS\`。${charts.length} 个 Chart 均采用同一版本；${qualifiedCharts.size} 组 Chart 绑定本次发行的镜像。\n\n` +
       `## 当前能力边界\n\n` +
       `- 平台：linux/amd64；现有受管部署仍要求 Kubernetes 1.31.x 和原 worker-117/118/119 放置约束。\n` +
-      `- release_tier=candidate，vm_system_mode=legacy，production_ready=false，physical_memory_release_qualified=false。打包通过不构成正常启动闭包、Host 物理归还或生产验收。\n` +
+      `- release_tier=candidate，vm_system_mode=${manifest.vm_system_mode}，production_ready=false，physical_memory_release_qualified=false。打包通过不构成正常启动闭包、Host 物理归还或生产验收。\n` +
       `- PG17 为 full 构建，PG18 为 dsga-core 构建。PG18 没有 neon-test-extensions-v18 制品。\n` +
       `- pg18-neon-core.values.json 显式选择 public / dsga-core SQL 配置，仅预加载本次交付的 neon、pg_stat_statements；不会加载未交付的第三方扩展。此路径已验证离线渲染及配置初始化，不代表容器或完整存储链路实跑验收。\n` +
-      `- PG18 现有受管 Chart 需要 trusted-runtime-v1；本次 legacy VM 镜像不满足该条件。pg18-neon-compute.values.json 记录正确摘要并保持关闭，直接启用将被现有 schema 拒绝。需要另行取得完整 normal-split 镜像与真实资格后才能部署该闭包。\n` +
+      (manifest.schema_version === 3
+        ? `- PG17/PG18 同时具有 normal-split-v3 原物料/独立读回闭包；旧PG仍为legacy。两组受管overlay选择 trusted-runtime-v1 与专用 normal 内核并保持关闭。启用仍须原实例身份、预算、配置及实际平台资格，源码/打包通过不发放运行许可。\n`
+        : `- PG18 现有受管 Chart 需要 trusted-runtime-v1；本次 legacy VM 镜像不满足该条件。pg18-neon-compute.values.json 记录正确摘要并保持关闭，直接启用将被现有 schema 拒绝。需要另行取得完整 normal-split 镜像与真实资格后才能部署该闭包。\n`) +
       `- 所有发行 overlay 保留实验确认/自动伸缩/Compute/Qualifier 的安全关闭默认值。真实租户、VM UID、预算、CA、Lease、节点身份及认证报告由实际部署输入提供。\n\n` +
       `## 使用文件\n\n` +
       `每个 pg17-<chart>.values.json / pg18-<chart>.values.json 都是对应单个 Chart 的镜像覆盖文件，可与已核实的部署 values 合并；不得将离线渲染 fixture 用于部署。Chart 内嵌 files/dsga-release-lock.json，同目录锁还说明未被本次构建重建的组件。\n\n` +

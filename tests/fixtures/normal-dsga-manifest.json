@@ -1,0 +1,1205 @@
+{
+  "version": "0.2.0-dsga.123456.2.amd64",
+  "architecture": "linux/amd64",
+  "neon_commit": "ffffffffffffffffffffffffffffffffffffffff",
+  "verification_commit": "ffffffffffffffffffffffffffffffffffffffff",
+  "source_lock": {
+    "registry": "docker.io/williamluckyli",
+    "autoscaling_repository": "william-lbn/autoscaling",
+    "autoscaling_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+    "control_plane": {
+      "repository": "william-lbn/control-plane",
+      "commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "images": [
+        "control-api",
+        "control-web",
+        "control-gateway",
+        "control-dataapi",
+        "control-postgrest",
+        "control-adapter",
+        "control-auth",
+        "control-ai",
+        "control-storage-gateway"
+      ]
+    },
+    "postgres_repository": "william-lbn/postgres",
+    "postgres": {
+      "v14": "2155cb165d05f617eb2c8ad7e43367189b627703",
+      "v15": "2aaab3bb4a13557aae05bb2ae0ef0a132d0c4f85",
+      "v16": "a42351fcd41ea01edede1daed65f651e838988fc",
+      "v17": "646159ec9e7a5a53ca19cf77184efd8684431855",
+      "v18": "55481bcfb9d2e72c4d4033babba58ac433a2bc88"
+    },
+    "core_binaries": [
+      "pageserver",
+      "safekeeper",
+      "proxy",
+      "pg_sni_router",
+      "storage_broker",
+      "storage_controller",
+      "endpoint_storage",
+      "storage_scrubber",
+      "neon_local",
+      "pagectl",
+      "compute_ctl",
+      "fast_import",
+      "local_proxy",
+      "vm-monitor",
+      "storcon_cli",
+      "pagebench",
+      "compaction-simulator",
+      "wal_craft"
+    ],
+    "compute_components": {
+      "pgbouncer": "/usr/local/bin/pgbouncer",
+      "postgres-exporter": "/bin/postgres_exporter",
+      "pgbouncer-exporter": "/bin/pgbouncer_exporter",
+      "sql-exporter": "/bin/sql_exporter"
+    },
+    "autoscaling_images": [
+      "autoscaling-go-base",
+      "vm-kernel",
+      "vm-builder",
+      "neonvm-controller",
+      "neonvm-vxlan-controller",
+      "neonvm-runner",
+      "neonvm-daemon",
+      "autoscale-scheduler",
+      "autoscaler-agent",
+      "cluster-autoscaler-neonvm",
+      "dsga-platform-qualifier"
+    ],
+    "postgres_profiles": {
+      "v14": "full",
+      "v15": "full",
+      "v16": "full",
+      "v17": "full",
+      "v18": "dsga-core"
+    },
+    "normal_guest_inputs": {
+      "architecture": "linux/amd64",
+      "build_plan_sha256": "562887e138657ce35200d2d7fc2fc362bc9fd328bd9d58a75aad5e3e2e1614cd",
+      "ordinary_package_lock_sha256": "20f70bf0e7f50dfacdd9177425b0d1d056e4c0821116cf2a5dc50aa7288a9c49"
+    },
+    "helm_repository": "william-lbn/neon-helm",
+    "helm_commit": "264248d3a30621b14a32af031ec865fab8830fe9"
+  },
+  "images": {
+    "autoscale-scheduler": {
+      "kind": "runtime",
+      "name": "autoscale-scheduler",
+      "image": "docker.io/williamluckyli/autoscale-scheduler:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "autoscaler-agent": {
+      "kind": "runtime",
+      "name": "autoscaler-agent",
+      "image": "docker.io/williamluckyli/autoscaler-agent:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000002",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "autoscaling-go-base": {
+      "kind": "runtime",
+      "name": "autoscaling-go-base",
+      "image": "docker.io/williamluckyli/autoscaling-go-base:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000003",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "cluster-autoscaler-neonvm": {
+      "kind": "runtime",
+      "name": "cluster-autoscaler-neonvm",
+      "image": "docker.io/williamluckyli/cluster-autoscaler-neonvm:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000004",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "compaction-simulator": {
+      "kind": "runtime",
+      "name": "compaction-simulator",
+      "image": "docker.io/williamluckyli/compaction-simulator:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000005",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "compute-ctl": {
+      "kind": "runtime",
+      "name": "compute-ctl",
+      "image": "docker.io/williamluckyli/compute-ctl:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000006",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "compute-node-v14": {
+      "kind": "runtime",
+      "name": "compute-node-v14",
+      "image": "docker.io/williamluckyli/compute-node-v14:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000007",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "compute-node-v15": {
+      "kind": "runtime",
+      "name": "compute-node-v15",
+      "image": "docker.io/williamluckyli/compute-node-v15:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000008",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "compute-node-v16": {
+      "kind": "runtime",
+      "name": "compute-node-v16",
+      "image": "docker.io/williamluckyli/compute-node-v16:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000009",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "compute-node-v17": {
+      "kind": "runtime",
+      "name": "compute-node-v17",
+      "image": "docker.io/williamluckyli/compute-node-v17:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000000a",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "postgres_source": "646159ec9e7a5a53ca19cf77184efd8684431855",
+      "postgres_elf_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+      "runtime_elf_sha256": {
+        "compute_ctl": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    "compute-node-v18": {
+      "kind": "runtime",
+      "name": "compute-node-v18",
+      "image": "docker.io/williamluckyli/compute-node-v18:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000000b",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "postgres_source": "55481bcfb9d2e72c4d4033babba58ac433a2bc88",
+      "postgres_elf_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+      "runtime_elf_sha256": {
+        "compute_ctl": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    "control-adapter": {
+      "kind": "runtime",
+      "name": "control-adapter",
+      "image": "docker.io/williamluckyli/control-adapter:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000000c",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-ai": {
+      "kind": "runtime",
+      "name": "control-ai",
+      "image": "docker.io/williamluckyli/control-ai:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000000d",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-api": {
+      "kind": "runtime",
+      "name": "control-api",
+      "image": "docker.io/williamluckyli/control-api:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000000e",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-auth": {
+      "kind": "runtime",
+      "name": "control-auth",
+      "image": "docker.io/williamluckyli/control-auth:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000000f",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-dataapi": {
+      "kind": "runtime",
+      "name": "control-dataapi",
+      "image": "docker.io/williamluckyli/control-dataapi:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000010",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-gateway": {
+      "kind": "runtime",
+      "name": "control-gateway",
+      "image": "docker.io/williamluckyli/control-gateway:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000011",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-postgrest": {
+      "kind": "runtime",
+      "name": "control-postgrest",
+      "image": "docker.io/williamluckyli/control-postgrest:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000012",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-storage-gateway": {
+      "kind": "runtime",
+      "name": "control-storage-gateway",
+      "image": "docker.io/williamluckyli/control-storage-gateway:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000013",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "control-web": {
+      "kind": "runtime",
+      "name": "control-web",
+      "image": "docker.io/williamluckyli/control-web:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000014",
+      "source_repository": "william-lbn/control-plane",
+      "source_commit": "dd891caf76701622bc3c0d0bcbf4f7430184e19a",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "dsga-platform-qualifier": {
+      "kind": "runtime",
+      "name": "dsga-platform-qualifier",
+      "image": "docker.io/williamluckyli/dsga-platform-qualifier:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000015",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "endpoint-storage": {
+      "kind": "runtime",
+      "name": "endpoint-storage",
+      "image": "docker.io/williamluckyli/endpoint-storage:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000016",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "fast-import": {
+      "kind": "runtime",
+      "name": "fast-import",
+      "image": "docker.io/williamluckyli/fast-import:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000017",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "local-proxy": {
+      "kind": "runtime",
+      "name": "local-proxy",
+      "image": "docker.io/williamluckyli/local-proxy:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000018",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon": {
+      "kind": "runtime",
+      "name": "neon",
+      "image": "docker.io/williamluckyli/neon:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000019",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon-build-tools": {
+      "kind": "runtime",
+      "name": "neon-build-tools",
+      "image": "docker.io/williamluckyli/neon-build-tools:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000001a",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon-local": {
+      "kind": "runtime",
+      "name": "neon-local",
+      "image": "docker.io/williamluckyli/neon-local:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000001b",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon-test-extensions-v14": {
+      "kind": "runtime",
+      "name": "neon-test-extensions-v14",
+      "image": "docker.io/williamluckyli/neon-test-extensions-v14:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000001c",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon-test-extensions-v15": {
+      "kind": "runtime",
+      "name": "neon-test-extensions-v15",
+      "image": "docker.io/williamluckyli/neon-test-extensions-v15:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000001d",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon-test-extensions-v16": {
+      "kind": "runtime",
+      "name": "neon-test-extensions-v16",
+      "image": "docker.io/williamluckyli/neon-test-extensions-v16:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000001e",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neon-test-extensions-v17": {
+      "kind": "runtime",
+      "name": "neon-test-extensions-v17",
+      "image": "docker.io/williamluckyli/neon-test-extensions-v17:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000001f",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neonvm-controller": {
+      "kind": "runtime",
+      "name": "neonvm-controller",
+      "image": "docker.io/williamluckyli/neonvm-controller:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000020",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neonvm-daemon": {
+      "kind": "runtime",
+      "name": "neonvm-daemon",
+      "image": "docker.io/williamluckyli/neonvm-daemon:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000021",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "runtime_elf_sha256": {
+        "neonvmd": "2222222222222222222222222222222222222222222222222222222222222222",
+        "dsga_resource_guard": "3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    },
+    "neonvm-runner": {
+      "kind": "runtime",
+      "name": "neonvm-runner",
+      "image": "docker.io/williamluckyli/neonvm-runner:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000022",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "neonvm-vxlan-controller": {
+      "kind": "runtime",
+      "name": "neonvm-vxlan-controller",
+      "image": "docker.io/williamluckyli/neonvm-vxlan-controller:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000023",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "normal-guest-base-v17": {
+      "kind": "runtime",
+      "name": "normal-guest-base-v17",
+      "image": "docker.io/williamluckyli/normal-guest-base-v17:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000064",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "normal-guest-base-v18": {
+      "kind": "runtime",
+      "name": "normal-guest-base-v18",
+      "image": "docker.io/williamluckyli/normal-guest-base-v18:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000065",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "pagebench": {
+      "kind": "runtime",
+      "name": "pagebench",
+      "image": "docker.io/williamluckyli/pagebench:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000024",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "pagectl": {
+      "kind": "runtime",
+      "name": "pagectl",
+      "image": "docker.io/williamluckyli/pagectl:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000025",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "pageserver": {
+      "kind": "runtime",
+      "name": "pageserver",
+      "image": "docker.io/williamluckyli/pageserver:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000026",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "pg-sni-router": {
+      "kind": "runtime",
+      "name": "pg-sni-router",
+      "image": "docker.io/williamluckyli/pg-sni-router:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000027",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "pgbouncer": {
+      "kind": "runtime",
+      "name": "pgbouncer",
+      "image": "docker.io/williamluckyli/pgbouncer:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000028",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "pgbouncer-exporter": {
+      "kind": "runtime",
+      "name": "pgbouncer-exporter",
+      "image": "docker.io/williamluckyli/pgbouncer-exporter:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000029",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "postgres-exporter": {
+      "kind": "runtime",
+      "name": "postgres-exporter",
+      "image": "docker.io/williamluckyli/postgres-exporter:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000002a",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "proxy": {
+      "kind": "runtime",
+      "name": "proxy",
+      "image": "docker.io/williamluckyli/proxy:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000002b",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "safekeeper": {
+      "kind": "runtime",
+      "name": "safekeeper",
+      "image": "docker.io/williamluckyli/safekeeper:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000002c",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "sql-exporter": {
+      "kind": "runtime",
+      "name": "sql-exporter",
+      "image": "docker.io/williamluckyli/sql-exporter:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000002d",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "storage-broker": {
+      "kind": "runtime",
+      "name": "storage-broker",
+      "image": "docker.io/williamluckyli/storage-broker:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000002e",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "storage-controller": {
+      "kind": "runtime",
+      "name": "storage-controller",
+      "image": "docker.io/williamluckyli/storage-controller:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000002f",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "storage-scrubber": {
+      "kind": "runtime",
+      "name": "storage-scrubber",
+      "image": "docker.io/williamluckyli/storage-scrubber:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000030",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "storcon-cli": {
+      "kind": "runtime",
+      "name": "storcon-cli",
+      "image": "docker.io/williamluckyli/storcon-cli:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000031",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "vm-builder": {
+      "kind": "runtime",
+      "name": "vm-builder",
+      "image": "docker.io/williamluckyli/vm-builder:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000032",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "builder_sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "vm-compute-node-v14": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v14",
+      "image": "docker.io/williamluckyli/vm-compute-node-v14:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000033",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "guest_disk": {
+        "system_mode": "legacy",
+        "format": "qcow2",
+        "virtual_size": 4294967296,
+        "image": "docker.io/williamluckyli/vm-compute-node-v14:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000033",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "inputs": {
+          "compute": "docker.io/williamluckyli/compute-node-v14:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000007",
+          "builder": "docker.io/williamluckyli/vm-builder:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000032",
+          "daemon": "docker.io/williamluckyli/neonvm-daemon:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000021"
+        }
+      }
+    },
+    "vm-compute-node-v15": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v15",
+      "image": "docker.io/williamluckyli/vm-compute-node-v15:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000034",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "guest_disk": {
+        "system_mode": "legacy",
+        "format": "qcow2",
+        "virtual_size": 4294967296,
+        "image": "docker.io/williamluckyli/vm-compute-node-v15:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000034",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "inputs": {
+          "compute": "docker.io/williamluckyli/compute-node-v15:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000008",
+          "builder": "docker.io/williamluckyli/vm-builder:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000032",
+          "daemon": "docker.io/williamluckyli/neonvm-daemon:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000021"
+        }
+      }
+    },
+    "vm-compute-node-v16": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v16",
+      "image": "docker.io/williamluckyli/vm-compute-node-v16:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000035",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "guest_disk": {
+        "system_mode": "legacy",
+        "format": "qcow2",
+        "virtual_size": 4294967296,
+        "image": "docker.io/williamluckyli/vm-compute-node-v16:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000035",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "inputs": {
+          "compute": "docker.io/williamluckyli/compute-node-v16:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000009",
+          "builder": "docker.io/williamluckyli/vm-builder:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000032",
+          "daemon": "docker.io/williamluckyli/neonvm-daemon:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000021"
+        }
+      }
+    },
+    "vm-compute-node-v17": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v17",
+      "image": "docker.io/williamluckyli/vm-compute-node-v17:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000036",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "guest_disk": {
+        "system_mode": "normal-split-v3",
+        "format": "qcow2",
+        "virtual_size": 4294967296,
+        "image": "docker.io/williamluckyli/vm-compute-node-v17:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000036",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "inputs": {
+          "compute": "docker.io/williamluckyli/compute-node-v17:0.2.0-dsga.123456.2.amd64@sha256:000000000000000000000000000000000000000000000000000000000000000a",
+          "builder": "docker.io/williamluckyli/vm-builder:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000032",
+          "daemon": "docker.io/williamluckyli/neonvm-daemon:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000021"
+        },
+        "normal_guest": {
+          "assembly_json": "{\"kind\": \"normal-guest-assembly\", \"protocol_version\": 1, \"build_mode\": \"normal-split-v3\", \"image\": \"docker.io/williamluckyli/vm-compute-node-v17:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000036\", \"architecture\": \"linux/amd64\", \"execution\": {\"repository\": \"william-lbn/neon\", \"run_id\": \"123456\", \"run_attempt\": \"2\", \"run_url\": \"https://github.com/william-lbn/neon/actions/runs/123456/attempts/2\"}, \"packaging_source\": \"ffffffffffffffffffffffffffffffffffffffff\", \"compute_source\": \"ffffffffffffffffffffffffffffffffffffffff\", \"guest_autoscaling_source\": \"b6c4ff274d6bb2c2097721d409befd0ca99a564e\", \"postgres_source\": \"646159ec9e7a5a53ca19cf77184efd8684431855\", \"postgres_major\": 17, \"disk_sha256\": \"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\", \"kernel_sha256\": \"5555555555555555555555555555555555555555555555555555555555555555\", \"system_manifest_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"native_birth_manifest_sha256\": \"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\", \"runtime_elf_sha256\": {\"compute_ctl\": \"1111111111111111111111111111111111111111111111111111111111111111\", \"neonvmd\": \"2222222222222222222222222222222222222222222222222222222222222222\", \"dsga_resource_guard\": \"3333333333333333333333333333333333333333333333333333333333333333\"}, \"files_sha256\": {\"assembly-inputs.json\": \"6fa9aa8af1e32ed3f348c33963a24f30f60dc5f275cabd7a3d3d70ce18d564fa\", \"base-provenance.json\": \"3d9615137191721acd4447df8e69a6de6a64eec6643103b1caf0d08a55853fe0\", \"ordinary-input-readback.json\": \"12adb917a289d4fc1743a948deaa95b0047a33fe63b85b471c4e4123cd667299\", \"oci-metadata.json\": \"61fad2400948709120c53ca85f3d526ec220904a3d4f8cb07cbd2d8a039a08c4\", \"normal-readback.json\": \"b981b389a6d021a3e7589d435bd132c84e9af8717246c19f595d191ee7f99164\", \"guest.oci.tar\": \"29926d981f345ddbb33239da141736ebf19ca2daadf9e2237514c3be94af1691\"}}",
+          "documents": {
+            "assembly-inputs.json": "{\"base_image\": \"docker.io/williamluckyli/normal-guest-base-v17@sha256:0000000000000000000000000000000000000000000000000000000000000064\", \"disk_tools_image\": \"docker.io/williamluckyli/neonvm-runner@sha256:0000000000000000000000000000000000000000000000000000000000000022\", \"kernel_image\": \"docker.io/williamluckyli/vm-kernel-normal@sha256:0000000000000000000000000000000000000000000000000000000000000066\", \"neon_source\": \"ffffffffffffffffffffffffffffffffffffffff\", \"guest_autoscaling_source\": \"b6c4ff274d6bb2c2097721d409befd0ca99a564e\", \"postgres_major\": 17, \"postgres_elf_sha256\": \"8888888888888888888888888888888888888888888888888888888888888888\", \"builder_sha256\": \"4444444444444444444444444444444444444444444444444444444444444444\", \"kernel_sha256\": \"5555555555555555555555555555555555555555555555555555555555555555\", \"runtime_elf_sha256\": {\"compute_ctl\": \"1111111111111111111111111111111111111111111111111111111111111111\", \"neonvmd\": \"2222222222222222222222222222222222222222222222222222222222222222\", \"dsga_resource_guard\": \"3333333333333333333333333333333333333333333333333333333333333333\"}}",
+            "base-provenance.json": "{\"base_image\": \"docker.io/williamluckyli/normal-guest-base-v17@sha256:0000000000000000000000000000000000000000000000000000000000000064\", \"platform_image\": \"docker.io/williamluckyli/normal-guest-base-v17@sha256:0000000000000000000000000000000000000000000000000000000000000064\", \"config_digest\": \"sha256:9999999999999999999999999999999999999999999999999999999999999999\", \"labels\": {\"org.opencontainers.image.revision\": \"ffffffffffffffffffffffffffffffffffffffff\", \"io.neon.guest.autoscaling.source\": \"b6c4ff274d6bb2c2097721d409befd0ca99a564e\", \"io.neon.pg.major\": \"17\", \"io.neon.pg.source\": \"646159ec9e7a5a53ca19cf77184efd8684431855\", \"io.neon.ordinary.package-lock.sha256\": \"20f70bf0e7f50dfacdd9177425b0d1d056e4c0821116cf2a5dc50aa7288a9c49\"}}",
+            "ordinary-input-readback.json": "{\"kind\": \"normal-ordinary-input-readback\", \"protocol_version\": 1, \"package_lock_sha256\": \"20f70bf0e7f50dfacdd9177425b0d1d056e4c0821116cf2a5dc50aa7288a9c49\", \"derived_file_count\": 1, \"inputs\": [{\"path\": \"apk/input.apk\", \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bytes\": 10}]}",
+            "oci-metadata.json": "{\"containerimage.digest\": \"sha256:0000000000000000000000000000000000000000000000000000000000000036\"}",
+            "normal-readback.json": "{\"kind\": \"normal-guest-oci-readback\", \"protocol_version\": 1, \"builder_sha256\": \"4444444444444444444444444444444444444444444444444444444444444444\", \"oci\": {\"image_digest\": \"sha256:0000000000000000000000000000000000000000000000000000000000000036\", \"architecture\": \"linux/amd64\", \"platform_manifest_digest\": \"sha256:0000000000000000000000000000000000000000000000000000000000000036\", \"config_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"rootfs_diff_ids\": [\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"], \"assets\": {\"disk.qcow2\": [{\"layer_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"material\": {\"sha256\": \"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\", \"size\": 100}}], \"vmlinuz\": [{\"layer_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"material\": {\"sha256\": \"5555555555555555555555555555555555555555555555555555555555555555\", \"size\": 100}}]}}, \"root\": {\"kind\": \"normal-guest-root-readback\", \"protocol_version\": 1, \"architecture\": \"linux/amd64\", \"system_profile\": \"neon-dsga-normal-system-source-v3\", \"build_plan_sha256\": \"562887e138657ce35200d2d7fc2fc362bc9fd328bd9d58a75aad5e3e2e1614cd\", \"base_image_sha256\": \"0000000000000000000000000000000000000000000000000000000000000064\", \"postgres_major\": 17, \"postgres_elf_sha256\": \"8888888888888888888888888888888888888888888888888888888888888888\", \"runtime_elf_sha256\": {\"compute_ctl\": \"1111111111111111111111111111111111111111111111111111111111111111\", \"neonvmd\": \"2222222222222222222222222222222222222222222222222222222222222222\", \"dsga_resource_guard\": \"3333333333333333333333333333333333333333333333333333333333333333\"}, \"system_manifest_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"native_birth_manifest_sha256\": \"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"}}"
+          },
+          "archive_sha256": "29926d981f345ddbb33239da141736ebf19ca2daadf9e2237514c3be94af1691"
+        }
+      }
+    },
+    "vm-compute-node-v18": {
+      "kind": "runtime",
+      "name": "vm-compute-node-v18",
+      "image": "docker.io/williamluckyli/vm-compute-node-v18:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000037",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      },
+      "guest_disk": {
+        "system_mode": "normal-split-v3",
+        "format": "qcow2",
+        "virtual_size": 4294967296,
+        "image": "docker.io/williamluckyli/vm-compute-node-v18:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000037",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "inputs": {
+          "compute": "docker.io/williamluckyli/compute-node-v18:0.2.0-dsga.123456.2.amd64@sha256:000000000000000000000000000000000000000000000000000000000000000b",
+          "builder": "docker.io/williamluckyli/vm-builder:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000032",
+          "daemon": "docker.io/williamluckyli/neonvm-daemon:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000021"
+        },
+        "normal_guest": {
+          "assembly_json": "{\"kind\": \"normal-guest-assembly\", \"protocol_version\": 1, \"build_mode\": \"normal-split-v3\", \"image\": \"docker.io/williamluckyli/vm-compute-node-v18:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000037\", \"architecture\": \"linux/amd64\", \"execution\": {\"repository\": \"william-lbn/neon\", \"run_id\": \"123456\", \"run_attempt\": \"2\", \"run_url\": \"https://github.com/william-lbn/neon/actions/runs/123456/attempts/2\"}, \"packaging_source\": \"ffffffffffffffffffffffffffffffffffffffff\", \"compute_source\": \"ffffffffffffffffffffffffffffffffffffffff\", \"guest_autoscaling_source\": \"b6c4ff274d6bb2c2097721d409befd0ca99a564e\", \"postgres_source\": \"55481bcfb9d2e72c4d4033babba58ac433a2bc88\", \"postgres_major\": 18, \"disk_sha256\": \"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\", \"kernel_sha256\": \"5555555555555555555555555555555555555555555555555555555555555555\", \"system_manifest_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"native_birth_manifest_sha256\": \"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\", \"runtime_elf_sha256\": {\"compute_ctl\": \"1111111111111111111111111111111111111111111111111111111111111111\", \"neonvmd\": \"2222222222222222222222222222222222222222222222222222222222222222\", \"dsga_resource_guard\": \"3333333333333333333333333333333333333333333333333333333333333333\"}, \"files_sha256\": {\"assembly-inputs.json\": \"4b47e60315e2d06a0e258944d0a61fc847964a05c5106380d90379ce2e3b392b\", \"base-provenance.json\": \"096152e69905e74210a6bfd7ee5ca2202bbd7788603fc5e3821b5ecb3723a98f\", \"ordinary-input-readback.json\": \"12adb917a289d4fc1743a948deaa95b0047a33fe63b85b471c4e4123cd667299\", \"oci-metadata.json\": \"12ca37e4719bf4493dbc7f69630525568bb72934ec4faf845729c18c1bc387fb\", \"normal-readback.json\": \"55c21fedc4cb97cc6fd122a182075850bb3c6a90fce30396d19b650ffbd8d3f3\", \"guest.oci.tar\": \"29926d981f345ddbb33239da141736ebf19ca2daadf9e2237514c3be94af1691\"}}",
+          "documents": {
+            "assembly-inputs.json": "{\"base_image\": \"docker.io/williamluckyli/normal-guest-base-v18@sha256:0000000000000000000000000000000000000000000000000000000000000065\", \"disk_tools_image\": \"docker.io/williamluckyli/neonvm-runner@sha256:0000000000000000000000000000000000000000000000000000000000000022\", \"kernel_image\": \"docker.io/williamluckyli/vm-kernel-normal@sha256:0000000000000000000000000000000000000000000000000000000000000066\", \"neon_source\": \"ffffffffffffffffffffffffffffffffffffffff\", \"guest_autoscaling_source\": \"b6c4ff274d6bb2c2097721d409befd0ca99a564e\", \"postgres_major\": 18, \"postgres_elf_sha256\": \"8888888888888888888888888888888888888888888888888888888888888888\", \"builder_sha256\": \"4444444444444444444444444444444444444444444444444444444444444444\", \"kernel_sha256\": \"5555555555555555555555555555555555555555555555555555555555555555\", \"runtime_elf_sha256\": {\"compute_ctl\": \"1111111111111111111111111111111111111111111111111111111111111111\", \"neonvmd\": \"2222222222222222222222222222222222222222222222222222222222222222\", \"dsga_resource_guard\": \"3333333333333333333333333333333333333333333333333333333333333333\"}}",
+            "base-provenance.json": "{\"base_image\": \"docker.io/williamluckyli/normal-guest-base-v18@sha256:0000000000000000000000000000000000000000000000000000000000000065\", \"platform_image\": \"docker.io/williamluckyli/normal-guest-base-v18@sha256:0000000000000000000000000000000000000000000000000000000000000065\", \"config_digest\": \"sha256:9999999999999999999999999999999999999999999999999999999999999999\", \"labels\": {\"org.opencontainers.image.revision\": \"ffffffffffffffffffffffffffffffffffffffff\", \"io.neon.guest.autoscaling.source\": \"b6c4ff274d6bb2c2097721d409befd0ca99a564e\", \"io.neon.pg.major\": \"18\", \"io.neon.pg.source\": \"55481bcfb9d2e72c4d4033babba58ac433a2bc88\", \"io.neon.ordinary.package-lock.sha256\": \"20f70bf0e7f50dfacdd9177425b0d1d056e4c0821116cf2a5dc50aa7288a9c49\"}}",
+            "ordinary-input-readback.json": "{\"kind\": \"normal-ordinary-input-readback\", \"protocol_version\": 1, \"package_lock_sha256\": \"20f70bf0e7f50dfacdd9177425b0d1d056e4c0821116cf2a5dc50aa7288a9c49\", \"derived_file_count\": 1, \"inputs\": [{\"path\": \"apk/input.apk\", \"sha256\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"bytes\": 10}]}",
+            "oci-metadata.json": "{\"containerimage.digest\": \"sha256:0000000000000000000000000000000000000000000000000000000000000037\"}",
+            "normal-readback.json": "{\"kind\": \"normal-guest-oci-readback\", \"protocol_version\": 1, \"builder_sha256\": \"4444444444444444444444444444444444444444444444444444444444444444\", \"oci\": {\"image_digest\": \"sha256:0000000000000000000000000000000000000000000000000000000000000037\", \"architecture\": \"linux/amd64\", \"platform_manifest_digest\": \"sha256:0000000000000000000000000000000000000000000000000000000000000037\", \"config_digest\": \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"rootfs_diff_ids\": [\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"], \"assets\": {\"disk.qcow2\": [{\"layer_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"material\": {\"sha256\": \"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\", \"size\": 100}}], \"vmlinuz\": [{\"layer_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\", \"material\": {\"sha256\": \"5555555555555555555555555555555555555555555555555555555555555555\", \"size\": 100}}]}}, \"root\": {\"kind\": \"normal-guest-root-readback\", \"protocol_version\": 1, \"architecture\": \"linux/amd64\", \"system_profile\": \"neon-dsga-normal-system-source-v3\", \"build_plan_sha256\": \"562887e138657ce35200d2d7fc2fc362bc9fd328bd9d58a75aad5e3e2e1614cd\", \"base_image_sha256\": \"0000000000000000000000000000000000000000000000000000000000000065\", \"postgres_major\": 18, \"postgres_elf_sha256\": \"8888888888888888888888888888888888888888888888888888888888888888\", \"runtime_elf_sha256\": {\"compute_ctl\": \"1111111111111111111111111111111111111111111111111111111111111111\", \"neonvmd\": \"2222222222222222222222222222222222222222222222222222222222222222\", \"dsga_resource_guard\": \"3333333333333333333333333333333333333333333333333333333333333333\"}, \"system_manifest_sha256\": \"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\", \"native_birth_manifest_sha256\": \"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\"}}"
+          },
+          "archive_sha256": "29926d981f345ddbb33239da141736ebf19ca2daadf9e2237514c3be94af1691"
+        }
+      }
+    },
+    "vm-kernel": {
+      "kind": "runtime",
+      "name": "vm-kernel",
+      "image": "docker.io/williamluckyli/vm-kernel:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000038",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "vm-kernel-normal": {
+      "kind": "runtime",
+      "name": "vm-kernel-normal",
+      "image": "docker.io/williamluckyli/vm-kernel-normal:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000066",
+      "source_repository": "william-lbn/autoscaling",
+      "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "vm-monitor": {
+      "kind": "runtime",
+      "name": "vm-monitor",
+      "image": "docker.io/williamluckyli/vm-monitor:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000039",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    },
+    "wal-craft": {
+      "kind": "runtime",
+      "name": "wal-craft",
+      "image": "docker.io/williamluckyli/wal-craft:0.2.0-dsga.123456.2.amd64",
+      "digest": "sha256:000000000000000000000000000000000000000000000000000000000000003a",
+      "source_repository": "william-lbn/neon",
+      "source_commit": "ffffffffffffffffffffffffffffffffffffffff",
+      "architecture": "linux/amd64",
+      "execution": {
+        "repository": "william-lbn/neon",
+        "run_id": "123456",
+        "run_attempt": "2",
+        "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+      }
+    }
+  },
+  "schema_version": 3,
+  "chart_version": "0.2.0-dsga.123456.2.amd64",
+  "channel": "dsga",
+  "release_tier": "candidate",
+  "vm_system_mode": "mixed",
+  "qualification": {
+    "production_ready": false,
+    "physical_memory_release_qualified": false
+  },
+  "autoscaling_capabilities": {
+    "kind": "distribution-capabilities",
+    "schema_version": 1,
+    "source_repository": "william-lbn/autoscaling",
+    "source_commit": "b6c4ff274d6bb2c2097721d409befd0ca99a564e",
+    "version": "0.2.0-dsga.123456.2.amd64",
+    "architecture": "linux/amd64",
+    "release_channel": "candidate",
+    "normal_qualification": false,
+    "production_ready": false,
+    "latest_eligible": false,
+    "vm_builder_default_system_mode": "legacy",
+    "execution": {
+      "repository": "william-lbn/neon",
+      "run_id": "123456",
+      "run_attempt": "2",
+      "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+    },
+    "kernel": {
+      "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "notes_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "image": "docker.io/williamluckyli/vm-kernel:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000038",
+      "normal_qualification": false,
+      "normal_metadata_guard": false
+    },
+    "image_digests": {
+      "autoscaling-go-base": "sha256:0000000000000000000000000000000000000000000000000000000000000003",
+      "vm-kernel": "sha256:0000000000000000000000000000000000000000000000000000000000000038",
+      "vm-builder": "sha256:0000000000000000000000000000000000000000000000000000000000000032",
+      "neonvm-controller": "sha256:0000000000000000000000000000000000000000000000000000000000000020",
+      "neonvm-vxlan-controller": "sha256:0000000000000000000000000000000000000000000000000000000000000023",
+      "neonvm-runner": "sha256:0000000000000000000000000000000000000000000000000000000000000022",
+      "neonvm-daemon": "sha256:0000000000000000000000000000000000000000000000000000000000000021",
+      "autoscale-scheduler": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+      "autoscaler-agent": "sha256:0000000000000000000000000000000000000000000000000000000000000002",
+      "cluster-autoscaler-neonvm": "sha256:0000000000000000000000000000000000000000000000000000000000000004",
+      "dsga-platform-qualifier": "sha256:0000000000000000000000000000000000000000000000000000000000000015",
+      "vm-kernel-normal": "sha256:0000000000000000000000000000000000000000000000000000000000000066"
+    },
+    "normal_kernel": {
+      "image": "docker.io/williamluckyli/vm-kernel-normal:0.2.0-dsga.123456.2.amd64@sha256:0000000000000000000000000000000000000000000000000000000000000066",
+      "artifact_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "config_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+      "notes_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+      "profile": "normal-build-fixture",
+      "release": "fixture-release",
+      "normal_metadata_guard": true,
+      "normal_qualification": false
+    }
+  },
+  "postgres_native_validation": {
+    "v17": {
+      "kind": "postgres-native-validation",
+      "schema_version": 1,
+      "source_repository": "william-lbn/postgres",
+      "source_commit": "646159ec9e7a5a53ca19cf77184efd8684431855",
+      "pg_major": 17,
+      "scope": "native-kernel-not-vm",
+      "normal_qualification": false,
+      "production_ready": false,
+      "postgres_binary_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "run_id": "123456",
+      "run_attempt": "2",
+      "execution_repository": "william-lbn/neon"
+    },
+    "v18": {
+      "kind": "postgres-native-validation",
+      "schema_version": 1,
+      "source_repository": "william-lbn/postgres",
+      "source_commit": "55481bcfb9d2e72c4d4033babba58ac433a2bc88",
+      "pg_major": 18,
+      "scope": "native-kernel-not-vm",
+      "normal_qualification": false,
+      "production_ready": false,
+      "postgres_binary_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "run_id": "123456",
+      "run_attempt": "2",
+      "execution_repository": "william-lbn/neon"
+    }
+  },
+  "execution": {
+    "repository": "william-lbn/neon",
+    "run_id": "123456",
+    "run_attempt": "2",
+    "run_url": "https://github.com/william-lbn/neon/actions/runs/123456/attempts/2"
+  },
+  "vm_system_modes": {
+    "v14": "legacy",
+    "v15": "legacy",
+    "v16": "legacy",
+    "v17": "normal-split-v3",
+    "v18": "normal-split-v3"
+  },
+  "fixture_notice": "SYNTHETIC OFFLINE CONTRACT FIXTURE; not a registry image or runtime qualification"
+}

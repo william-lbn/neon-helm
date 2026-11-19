@@ -26,7 +26,19 @@ spec:
     metadata:
       labels: { app: minio }
     spec:
-      {{- include "neon-core.placement.pod" $ | nindent 6 }}
+      {{- $minioSelector := .Values.minio.nodeSelector | default dict -}}
+      {{- if not (kindIs "map" $minioSelector) -}}{{ fail "minio.nodeSelector must be a hostname map" }}{{- end -}}
+      {{- range $key, $value := $minioSelector -}}
+      {{- if or (ne $key "kubernetes.io/hostname") (not (has $value $.Values.placement.allowedNodeNames)) -}}
+      {{- fail "minio.nodeSelector permits only kubernetes.io/hostname values from placement.allowedNodeNames" -}}
+      {{- end -}}
+      {{- end -}}
+      {{- include "neon-core.placement.selector" $ | nindent 6 }}
+      {{- with index $minioSelector "kubernetes.io/hostname" }}
+        kubernetes.io/hostname: {{ . | quote }}
+      {{- end }}
+      affinity:
+        {{- include "neon-core.placement.nodeAffinity" $ | nindent 8 }}
       {{- with .Values.global.platformPriorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}

@@ -93,11 +93,9 @@
           "properties": {
             "kubernetes.io/hostname": {
               "type": "string",
-              "enum": [
-                "worker-117",
-                "worker-118",
-                "worker-119"
-              ]
+              "minLength": 1,
+              "maxLength": 253,
+              "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
             }
           },
           "description": "只允许三worker中的额外hostname；固定pool/os/arch由模板保留，禁止覆盖。"
@@ -231,18 +229,15 @@
       "properties": {
         "allowedNodeNames": {
           "type": "array",
-          "minItems": 3,
-          "maxItems": 3,
+          "minItems": 1,
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "worker-117",
-              "worker-118",
-              "worker-119"
-            ]
+            "minLength": 1,
+            "maxLength": 253,
+            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
           },
-          "description": "本轮用户明确允许的三个节点；不得按节点角色推断或包含 ubuntu/116。"
+          "description": "Explicit Kubernetes hostnames that may run this chart. Site overlays replace the laboratory defaults."
         }
       }
     },

@@ -29,26 +29,27 @@ records source, image locks, lifecycle evidence and remaining gates; see
 
 1. [Architecture and component coverage](docs/ARCHITECTURE.md)
 2. [Cluster prerequisites: online and air-gapped](docs/CLUSTER-PREREQUISITES.md)
-3. [New Linux cluster deployment](docs/DEPLOYMENT.md)
-4. [Existing cluster migration, backups and rollback](docs/UPGRADE.md)
-5. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
-6. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
-7. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-8. [Historical Compute lifecycle acceptance](docs/ACCEPTANCE-2026-10-10-COMPUTE-LIFECYCLE.md) / [Object Storage baseline](docs/ACCEPTANCE-2026-10-09-OBJECT-STORAGE.md) / [Managed Auth baseline](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md)
-9. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
-10. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
-11. [Independent Compute deletion and replacement](docs/COMPUTE-LIFECYCLE.md)
-12. [Native Functions deployment, operator inputs and execution gates](docs/FUNCTIONS.md)
+3. [Site overlay, image pins and data-plane-only install](docs/SITE-OVERLAY.md)
+4. [New Linux cluster deployment](docs/DEPLOYMENT.md)
+5. [Existing cluster migration, backups and rollback](docs/UPGRADE.md)
+6. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
+7. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
+8. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
+9. [Historical Compute lifecycle acceptance](docs/ACCEPTANCE-2026-10-10-COMPUTE-LIFECYCLE.md) / [Object Storage baseline](docs/ACCEPTANCE-2026-10-09-OBJECT-STORAGE.md) / [Managed Auth baseline](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md)
+10. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
+11. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
+12. [Independent Compute deletion and replacement](docs/COMPUTE-LIFECYCLE.md)
+13. [Native Functions deployment, operator inputs and execution gates](docs/FUNCTIONS.md)
     [Managed database Owner deployment and reproduction](docs/DATABASE-OWNER.md)
     [SQL script deployment and focused reproduction](docs/SQL-SCRIPTS.md)
-13. [Historical 0.1.12 UI acceptance](docs/ACCEPTANCE-2026-10-12.md) / [Native Functions actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS.md) / [Monitoring actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS-MONITORING.md) / [Explicit wake actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS-WAKE.md)
-14. [Current SQL script actual UI acceptance](docs/ACCEPTANCE-2026-10-13-SQL-SCRIPTS.md)
-15. [Current SQL plans/download actual UI acceptance](docs/ACCEPTANCE-2026-10-13-SQL-TOOLS.md)
-16. [Function history restoration deployment and focused reproduction](docs/FUNCTIONS-ROLLBACK.md)
-17. [Function history restoration actual UI acceptance and SDK correction](docs/ACCEPTANCE-2026-10-13-FUNCTIONS-ROLLBACK.md)
+14. [Historical 0.1.12 UI acceptance](docs/ACCEPTANCE-2026-10-12.md) / [Native Functions actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS.md) / [Monitoring actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS-MONITORING.md) / [Explicit wake actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS-WAKE.md)
+15. [Current SQL script actual UI acceptance](docs/ACCEPTANCE-2026-10-13-SQL-SCRIPTS.md)
+16. [Current SQL plans/download actual UI acceptance](docs/ACCEPTANCE-2026-10-13-SQL-TOOLS.md)
+17. [Function history restoration deployment and focused reproduction](docs/FUNCTIONS-ROLLBACK.md)
+18. [Function history restoration actual UI acceptance and SDK correction](docs/ACCEPTANCE-2026-10-13-FUNCTIONS-ROLLBACK.md)
 
 ```bash
-git clone --branch main --single-branch https://github.com/william-lbn/neon-helm.git
+git clone --branch codex/dsga-neon-helm-v3-20261019 --single-branch git@github.com:william-lbn/neon-helm.git
 cd neon-helm
 npm ci --ignore-scripts --no-audit --fund=false
 bash tools/install-helm.sh "$PWD/.local/bin"

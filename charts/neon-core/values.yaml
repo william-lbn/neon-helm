@@ -32,6 +32,8 @@ minio:
     enabled: true
     size: 20Gi
     storageClassName: ""
+  # Optional extra hostname pin. Must be one of placement.allowedNodeNames when set.
+  nodeSelector: {}
 objectStore:
   endpoint: ""               # required only when minio.enabled=false; e.g. https://s3...
   bucket: ""
@@ -143,7 +145,7 @@ proxy:
       type: ClusterIP
       nodePort: 30432
 storageController:
-  # 仅控制Controller角色主机名；必需pool/os/arch与三节点affinity不能被覆盖。
+  # Optional hostname pin for the controller role. Must be one of placement.allowedNodeNames.
   nodeSelector: {}
   resources:
     requests: {cpu: 150m, memory: 256Mi}
@@ -179,7 +181,8 @@ disruptionBudget:
   safekeeperEnabled: true
   minAvailable: 2 # Protect quorum during voluntary node drains, not hardware loss.
 
-# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+# Site overlay replaces this list with the cluster's real hostnames.
+# Chart defaults keep the original laboratory names so existing 117/118/119 overlays stay valid.
 placement:
   allowedNodeNames:
   - worker-117

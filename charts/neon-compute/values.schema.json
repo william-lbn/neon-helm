@@ -186,18 +186,15 @@
       "properties": {
         "allowedNodeNames": {
           "type": "array",
-          "minItems": 3,
-          "maxItems": 3,
+          "minItems": 1,
           "uniqueItems": true,
           "items": {
             "type": "string",
-            "enum": [
-              "worker-117",
-              "worker-118",
-              "worker-119"
-            ]
+            "minLength": 1,
+            "maxLength": 253,
+            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
           },
-          "description": "\u672c\u8f6e\u7528\u6237\u660e\u786e\u5141\u8bb8\u7684\u4e09\u4e2a\u8282\u70b9\uff1b\u4e0d\u5f97\u6309\u8282\u70b9\u89d2\u8272\u63a8\u65ad\u6216\u5305\u542b ubuntu/116\u3002"
+          "description": "Explicit Kubernetes hostnames that may run this chart. Site overlays replace the laboratory defaults."
         }
       }
     },

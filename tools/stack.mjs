@@ -11,11 +11,18 @@ const {values: flags, positionals} = parseArgs({allowPositionals: true, options:
   'overlay-dir': {type: 'string'}, output: {type: 'string'}, 'maintenance-window': {type: 'boolean'},
   'adopt-unowned': {type: 'boolean'}, profile: {type: 'string', default: 'lab'},
   'disk-working-set-bytes': {type: 'string'},
+  until: {type: 'string'},
 }});
 const command = positionals[0] || 'plan';
 const plan = validatePlan(readJSON('stack/stack.json'));
 if (flags.profile !== 'lab') throw new Error('Only the explicitly acknowledged lab profile is runtime-qualified. See docs/PRODUCTION-GATES.md');
-const selected = plan.steps;
+function selectSteps(steps, until) {
+  if (!until) return steps;
+  const index = steps.findIndex(step => step.release === until || step.chart === until);
+  if (index < 0) throw new Error('Unknown --until release/chart: ' + until);
+  return steps.slice(0, index + 1);
+}
+const selected = selectSteps(plan.steps, flags.until);
 const output = path.resolve(flags.output || path.join(root, 'artifacts', command + '-' + Date.now()));
 const receipt = {command, startedAt: new Date().toISOString(), result: 'running', productionQualified: false, steps: []};
 const restore = [];
@@ -49,13 +56,17 @@ function environment() {
     const vms = get('virtualmachines.vm.neon.tech', null, 'neon').items;
     if (vms.some(v => v.metadata.name.startsWith('cp-'))) throw new Error('Suspend owned managed Computes through the control API before this maintenance upgrade');
   }
-  for (const [name, keys] of Object.entries({
+  const requiredSecrets = {
     'neon-product-blob-store':['accessKey','secretKey','config.json'], 'neon-object-store':['accessKey','secretKey'], 'neon-controller-db':['password','url'],
     'neon-proxy-auth':['proxyToken'], 'neon-proxy-tls':['tls.crt','tls.key'],
     'neon-control-hook-auth':['token'], 'neon-control-v2-db':['password'],
-    'neon-control-plane-credentials':['database-url','admin-password','idempotency-key'],
-    'neon-backend-credential-keys-v1':['keyring.json'], 'neon-control-routes':['routes.json'],
-  })) {
+    'neon-control-routes':['routes.json'],
+  };
+  if (selected.some(step => step.chart === 'neon-control-plane')) {
+    requiredSecrets['neon-control-plane-credentials'] = ['database-url','admin-password','idempotency-key'];
+    requiredSecrets['neon-backend-credential-keys-v1'] = ['keyring.json'];
+  }
+  for (const [name, keys] of Object.entries(requiredSecrets)) {
     const secret = get('secret', name, 'neon');
     if (!secret || keys.some(key => !secret.data?.[key])) throw new Error('Missing prerequisite Secret/key for ' + name);
     // Deliberately do not return or persist Secret.data in this receipt.
@@ -152,7 +163,7 @@ function wait(step) {
 
 try {
   if (command === 'plan') {
-    console.log(JSON.stringify({version:plan.version,profile:flags.profile,productionQualified:false,
+    console.log(JSON.stringify({version:plan.version,profile:flags.profile,until:flags.until||null,productionQualified:false,
       prerequisites:plan.prerequisites,steps:selected.map(s => ({release:s.release,namespace:s.namespace,chart:s.chart,dependsOn:s.dependsOn}))},null,2));
     process.exit(0);
   }

@@ -1,13 +1,22 @@
 {{- define "neon-autoscaler.placement.guard" -}}
-{{- $expected := list "worker-117" "worker-118" "worker-119" -}}
 {{- if not (kindIs "map" .Values.placement) -}}
-{{- fail "placement.allowedNodeNames must explicitly name worker-117/118/119; ubuntu/116 is forbidden" -}}
+{{- fail "placement.allowedNodeNames must be an explicit list of Kubernetes hostnames" -}}
 {{- end -}}
 {{- if not (kindIs "slice" .Values.placement.allowedNodeNames) -}}
 {{- fail "placement.allowedNodeNames must be an explicit list" -}}
 {{- end -}}
-{{- if ne (toJson (sortAlpha .Values.placement.allowedNodeNames)) (toJson $expected) -}}
-{{- fail "placement.allowedNodeNames must contain exactly worker-117, worker-118, worker-119; ubuntu/116 and other nodes are forbidden" -}}
+{{- if lt (len .Values.placement.allowedNodeNames) 1 -}}
+{{- fail "placement.allowedNodeNames must contain at least one hostname" -}}
+{{- end -}}
+{{- $seen := dict -}}
+{{- range .Values.placement.allowedNodeNames -}}
+{{- if not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$" .) -}}
+{{- fail (printf "invalid Kubernetes hostname in placement.allowedNodeNames: %s" .) -}}
+{{- end -}}
+{{- if hasKey $seen . -}}
+{{- fail (printf "duplicate hostname in placement.allowedNodeNames: %s" .) -}}
+{{- end -}}
+{{- $_ := set $seen . true -}}
 {{- end -}}
 {{- end -}}
 
@@ -42,7 +51,7 @@ affinity:
   {{- include "neon-autoscaler.placement.nodeAffinity" . | nindent 2 }}
 {{- end -}}
 
-{{/* Scheduler可单独收紧到三worker之一；原pool/os/arch与节点亲和性始终保留，Agent不受影响。 */}}
+{{/* Scheduler可单独收紧到允许节点之一；原pool/os/arch与节点亲和性始终保留，Agent不受影响。 */}}
 {{- define "neon-autoscaler.placement.schedulerPod" -}}
 {{- if not (kindIs "map" .Values.scheduler.nodeSelector) -}}
 {{- fail "scheduler.nodeSelector must be a hostname-only map" -}}
@@ -52,7 +61,7 @@ affinity:
 {{- fail "scheduler.nodeSelector may only add kubernetes.io/hostname; pool/os/arch cannot be overridden" -}}
 {{- end -}}
 {{- if not (has $value $.Values.placement.allowedNodeNames) -}}
-{{- fail "scheduler.nodeSelector hostname must belong to worker-117/118/119" -}}
+{{- fail "scheduler.nodeSelector hostname must belong to placement.allowedNodeNames" -}}
 {{- end -}}
 {{- end -}}
 {{ include "neon-autoscaler.placement.selector" . }}

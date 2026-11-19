@@ -124,6 +124,11 @@ class, S3 endpoint, resource reservations and network CIDRs. Existing clusters
 must use complete compatibility overlays based on their protected release
 values. Do not replace existing tenant/node IDs with sample values.
 
+Site hostnames, Harbor image pins, local StorageClass and installing the
+stack without the control plane are in [SITE-OVERLAY.md](SITE-OVERLAY.md).
+Never copy an upstream registry digest into an air-gapped overlay after
+`docker tag` / `docker push`; pin the **destination registry** manifest digest.
+
 ## 4. Render, preflight and install
 
 ```bash
@@ -132,6 +137,9 @@ node tools/stack.mjs preflight --overlay-dir /secure/neon-overlay --output /secu
 node tools/stack.mjs apply --maintenance-window --overlay-dir /secure/neon-overlay --output /secure/neon-install-001
 node tools/stack.mjs verify --overlay-dir /secure/neon-overlay --output /secure/neon-verify-001
 ```
+
+To stop before `neon-control-plane`, add `--until neon-compute-management-gateway`
+to `plan` / `render` / `preflight` / `apply` / `verify`. See SITE-OVERLAY.md.
 
 Both `preflight` and `apply` read the candidate nodes' Kubelet disk statistics
 and effective eviction configuration. Estimate the peak bytes needed per node

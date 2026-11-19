@@ -1,3 +1,8 @@
+{{/*
+Site-generic node pool. Overlay replaces placement.allowedNodeNames with the
+cluster's real hostnames. Defaults stay worker-117/118/119 so existing lab
+overlays keep rendering. Do not hard-code site names in this template.
+*/}}
 {{- define "neon-core.placement.guard" -}}
 {{- if not (kindIs "map" .Values.placement) -}}
 {{- fail "placement.allowedNodeNames must be an explicit list of Kubernetes hostnames" -}}

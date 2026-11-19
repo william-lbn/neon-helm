@@ -11,6 +11,8 @@ const {values: flags, positionals} = parseArgs({allowPositionals: true, options:
   'overlay-dir': {type: 'string'}, output: {type: 'string'}, 'maintenance-window': {type: 'boolean'},
   'adopt-unowned': {type: 'boolean'}, profile: {type: 'string', default: 'lab'},
   'disk-working-set-bytes': {type: 'string'},
+  // Optional: stop after this release or chart name (inclusive).
+  // Example: --until neon-compute-management-gateway skips neon-control-plane.
   until: {type: 'string'},
 }});
 const command = positionals[0] || 'plan';

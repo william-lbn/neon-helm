@@ -77,7 +77,8 @@ Chart 默认仍是实验室主机名 `worker-117` / `worker-118` / `worker-119`�
   },
   "minio": {
     "nodeSelector": {"kubernetes.io/hostname": "node2"},
-    "persistence": {"storageClassName": "local-path", "size": "20Gi"}
+    "persistence": {"storageClassName": "local-path", "size": "20Gi"},
+    "service": {"type": "NodePort", "apiNodePort": 30900, "consoleNodePort": 30901}
   },
   "storageController": {
     "nodeSelector": {"kubernetes.io/hostname": "node2"},
@@ -203,3 +204,33 @@ kubectl get pods -A | grep -Ev 'Running|Completed'
 
 MinIO / controller-db 的 PVC 应落到 overlay 指定的存储节点。
 不要用 Console 或公开创建项目来验收本轮；那些依赖控制面。
+
+实验室若要把 MinIO 控制台暴露到内网，overlay 设置：
+
+```json
+"minio": {
+  "service": {"type": "NodePort", "apiNodePort": 30900, "consoleNodePort": 30901}
+}
+```
+
+Chart 默认仍是 ClusterIP。生产不要开 NodePort。
+
+## 10. 新集群部署中已踩过的坑（通用化时必须避开）
+
+1. **镜像 Digest 必须是目标仓库的 Manifest Digest。**  
+   `docker tag` / `docker push` 进 Harbor 后 Digest 会变。overlay 里写上游 Quay Digest 会 `ImagePullBackOff`。先 `crictl pull <harbor>:<tag>`，再读 `repoDigests`，把那个 Digest 写进 overlay。
+
+2. **不要把发布清单里别的镜像 Digest 抄错行。**  
+   Proxy 曾误用 vxlan 的 Harbor Digest，Harbor 上不存在该组合。
+
+3. **MinIO 建桶 Helm hook 可能因拉 mc 镜像超时把整个 `neon-lab` 标成 failed。**  
+   数据面工作负载可能已经 Running。用 Harbor **tag** 手工 `mc mb` 建桶后，可用 `helm upgrade --no-hooks` 把 Release 恢复为 deployed。hook 失败不等于存储栈没装上。
+
+4. **`stack.mjs` 需要 Node 24。**  
+   集群 master 没有 Node 时，可按 `stack.json` 顺序直接 `helm upgrade --install`，values 仍用 lab profile 深合并 overlay。这是安装器依赖，不是控制面依赖。
+
+5. **每个 Chart 的 overlay 都要写完整 `placement.allowedNodeNames`。**  
+   数组整段替换。漏写某一个 Chart 会回落到默认的 worker-117/118/119，新集群无法调度。
+
+6. **先打节点池标签再 apply。**  
+   标签值必须等于 overlay 主机名按字母序用 `-` 拼接的结果。

@@ -1,3 +1,7 @@
+{{/*
+Site-generic node pool. Overlay replaces placement.allowedNodeNames.
+Defaults remain worker-117/118/119 for existing laboratory overlays.
+*/}}
 {{- define "neon-compute.placement.guard" -}}
 {{- if not (kindIs "map" .Values.placement) -}}
 {{- fail "placement.allowedNodeNames must be an explicit list of Kubernetes hostnames" -}}

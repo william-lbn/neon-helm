@@ -34,6 +34,12 @@ minio:
     storageClassName: ""
   # Optional extra hostname pin. Must be one of placement.allowedNodeNames when set.
   nodeSelector: {}
+  # ClusterIP is the generic default (in-cluster only).
+  # Overlay may set type=NodePort for a laboratory console; leave ClusterIP in production.
+  service:
+    type: ClusterIP
+    apiNodePort: 30900
+    consoleNodePort: 30901
 objectStore:
   endpoint: ""               # required only when minio.enabled=false; e.g. https://s3...
   bucket: ""

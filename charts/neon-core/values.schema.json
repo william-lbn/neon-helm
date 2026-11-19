@@ -103,6 +103,26 @@
           },
           "description": "Optional extra hostname for MinIO. Must be one of placement.allowedNodeNames."
         },
+        "service": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort"]
+            },
+            "apiNodePort": {
+              "type": "integer",
+              "minimum": 30000,
+              "maximum": 32767
+            },
+            "consoleNodePort": {
+              "type": "integer",
+              "minimum": 30000,
+              "maximum": 32767
+            }
+          }
+        },
         "productStorage": {
           "type": "object",
           "additionalProperties": false,

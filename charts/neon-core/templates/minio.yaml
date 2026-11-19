@@ -65,14 +65,26 @@ spec:
       - name: data
         persistentVolumeClaim: { claimName: minio-data }
 ---
+{{/* Default ClusterIP. Laboratory overlays may set NodePort for the console/API. */}}
 apiVersion: v1
 kind: Service
 metadata: { name: minio }
 spec:
+  type: {{ (.Values.minio.service).type | default "ClusterIP" }}
   selector: { app: minio }
   ports:
-  - { name: api, port: 9000, targetPort: api }
-  - { name: console, port: 9001, targetPort: console }
+  - name: api
+    port: 9000
+    targetPort: api
+    {{- if and (eq ((.Values.minio.service).type | default "ClusterIP") "NodePort") (.Values.minio.service).apiNodePort }}
+    nodePort: {{ .Values.minio.service.apiNodePort }}
+    {{- end }}
+  - name: console
+    port: 9001
+    targetPort: console
+    {{- if and (eq ((.Values.minio.service).type | default "ClusterIP") "NodePort") (.Values.minio.service).consoleNodePort }}
+    nodePort: {{ .Values.minio.service.consoleNodePort }}
+    {{- end }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -96,6 +108,7 @@ spec:
       - name: mc
         resources:
           {{- toYaml .Values.minio.initResources | nindent 10 }}
+        {{/* mcImage must be the destination-registry digest, not the upstream Quay digest. */}}
         image: {{ .Values.minio.mcImage | quote }}
         env:
         - { name: MINIO_ROOT_USER, valueFrom: { secretKeyRef: { name: {{ .Values.minio.existingSecret }}, key: accessKey } } }

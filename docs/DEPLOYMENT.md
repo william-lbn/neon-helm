@@ -41,10 +41,12 @@ pin a discovered CDN address globally or restart healthy storage to fix egress.
 Use Linux amd64, Node 24, Helm 3.17.3 and kubectl matching the cluster. At least
 three Ready nodes are required. `/dev/kvm` must work on each VM candidate; enable
 nested virtualization on the hypervisor. Configure cert-manager, Multus,
-Whereabouts, metrics-server and a working default storage class. This lab uses
-RKE2, Cilium, local-path, cert-manager 1.21.2 and Kubernetes 1.36.4. Upstream
-autoscaling's original Kubernetes target is 1.31; 1.36 is an explicit laboratory
-exception, not a certified compatibility matrix.
+Whereabouts, metrics-server and a working default storage class. Online and
+air-gapped install steps for those cluster prerequisites are in
+[CLUSTER-PREREQUISITES.md](CLUSTER-PREREQUISITES.md); they are not part of the
+Neon charts. This lab uses RKE2, Cilium, local-path, cert-manager 1.21.2 and
+Kubernetes 1.36.4. Upstream autoscaling's original Kubernetes target is 1.31;
+1.36 is an explicit laboratory exception, not a certified compatibility matrix.
 
 Validate nonoverlapping host/Pod/Service and NeonVM network ranges. Defaults
 reserve `10.100.1.0–10.100.127.255` for overlay Pods and VM allocation starts at

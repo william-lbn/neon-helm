@@ -12,6 +12,8 @@
     "helm": "node tools/ci-helm.mjs",
     "helm:dsga": "node tools/ci-dsga-helm.mjs",
     "package:dsga": "node tools/package-dsga-release.mjs",
+    "inspect:dsga-site": "node tools/dsga-site-inspect.mjs",
+    "generate:dsga-site": "node tools/dsga-site-overlay.mjs",
     "plan": "node tools/stack.mjs plan",
     "package": "node tools/stack.mjs package",
     "helm:pg17": "python3 tools/check-pg17-helm.py",

@@ -106,7 +106,8 @@ export function resourceResult(stdout, name) {
 export function privateDirectory(target) {
   // Secret-bearing evidence must not be accidentally placed in tracked source.
   const relative = path.relative(root, path.resolve(target));
-  if (!relative.startsWith('..') && !relative.startsWith('artifacts' + path.sep) && !relative.startsWith('.local' + path.sep)) throw new Error('Evidence must be outside source or in ignored artifacts/.local');
+  const outside = path.isAbsolute(relative) || relative === '..' || relative.startsWith('..' + path.sep);
+  if (!outside && !relative.startsWith('artifacts' + path.sep) && !relative.startsWith('.local' + path.sep)) throw new Error('Evidence must be outside source or in ignored artifacts/.local');
   fs.mkdirSync(target, {recursive: true, mode: 0o700});
   fs.chmodSync(target, 0o700);
 }

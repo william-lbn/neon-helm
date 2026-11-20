@@ -102,6 +102,22 @@ for(const chart of fs.readdirSync(path.join(root,'charts')).sort()) {
 
   }
   if(chart==='neon-core') {
+    const minioService=objs.find(o=>o.kind==='Service'&&o.metadata.name==='minio');
+    assert.equal(minioService.spec.type,'ClusterIP');
+    assert.deepEqual(minioService.spec.selector,{app:'minio'});
+    assert.deepEqual(minioService.spec.ports,[
+      {name:'api',port:9000,targetPort:'api'},
+      {name:'console',port:9001,targetPort:'console'},
+    ]);
+    const minioNodePortFile=path.join(output,'neon-core-minio-nodeport.json');
+    fs.writeFileSync(minioNodePortFile,JSON.stringify(merge(profile,{minio:{service:{type:'NodePort',apiNodePort:30900,consoleNodePort:30901}}})));
+    const minioNodePortDocs=documents(helm(['template','neon-core','charts/'+chart,'-f',minioNodePortFile,'-n','neon','--kube-version',ciKubeVersion(chart)]).stdout);
+    const minioNodePortService=minioNodePortDocs.find(o=>o.kind==='Service'&&o.metadata.name==='minio');
+    assert.equal(minioNodePortService.spec.type,'NodePort');
+    assert.deepEqual(minioNodePortService.spec.ports,[
+      {name:'api',port:9000,targetPort:'api',nodePort:30900},
+      {name:'console',port:9001,targetPort:'console',nodePort:30901},
+    ]);
     const hooks=objs.filter(o=>o.kind==='Job'&&o.metadata.annotations?.['helm.sh/hook']);
     for(const hook of hooks) {
       assert.equal(hook.metadata.annotations['meta.helm.sh/release-name'],'neon-core');

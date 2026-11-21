@@ -64,7 +64,8 @@ const autoscaler={experimentalAcknowledged:true,compatibility:{expectedKubernete
 const runtimeAccess={workloadNamespace:site.workloadNamespace,agentNamespace:site.agentNamespace,agentDaemonSet:'autoscaler-agent',apiServiceAccount:input.controlPlane?.apiServiceAccount||'neon-control-api',workerServiceAccount:input.controlPlane?.workerServiceAccount||'neon-control-worker',qualifierServiceAccount:input.qualifier?.serviceAccount||'qualification-issuer',nodeReadClusterRole:input.controlPlane?.nodeReadClusterRole||'neon-control-runtime-worker-nodes',allowedNodes:allowedNodeNames,hostLeaseNamespace:input.hosts[0].leaseNamespace,hostLeaseNames};
 require(input.hosts.every(h=>h.leaseNamespace===runtimeAccess.hostLeaseNamespace),'All Host Leases must share one explicit namespace');
 const gatewayOverlay={placement:{allowedNodeNames},image:{reference:images.gateway,pullPolicy:'IfNotPresent'},dsga:{enabled:true,agentNamespace:site.agentNamespace,agentServiceAccount:'autoscaler-agent',tlsSecret:gateway.tlsSecret}};
-const qualifier={enabled:false,hostIdentities,compatibility:{expectedKubernetesMinor:site.kubernetesMinor,allowUntestedKubernetes:site.allowUntestedKubernetes===true}};
+// Qualification stays disabled; the chart's own fail-closed defaults provide every required value.
+const qualifier={enabled:false};
 const outputs={'neon-autoscaler.json':autoscaler,'neon-control-runtime-access.json':runtimeAccess,'compute-management-gateway.json':gatewayOverlay,'dsga-platform-qualifier.json':qualifier};
 privateDirectory(output);
 const hashes={};for(const [name,value] of Object.entries(outputs)){const text=JSON.stringify(value,null,2)+'\n';writePrivate(path.join(output,name),text);hashes[name]=crypto.createHash('sha256').update(text).digest('hex');}

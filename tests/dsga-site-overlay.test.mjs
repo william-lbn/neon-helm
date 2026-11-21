@@ -7,7 +7,8 @@ import {test} from 'node:test';
 
 const root=path.resolve(import.meta.dirname,'..');
 const image=name=>'registry.invalid/neon/'+name+'@sha256:'+name.charCodeAt(0).toString(16).padStart(2,'0').repeat(32);
-const uid=i=>`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`;
+const nodeUIDs=['4769d724-9dc0-45a1-8725-6ebf36089d61','73ce00b4-bef4-4a47-9876-dafb7ea3f68a','2c29fa11-3cf6-4a1c-acb8-7f5a7629268f'];
+const uid=i=>nodeUIDs[i-1]||`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`;
 function fixture() {
   const names=['worker-117','worker-118','worker-119'];
   const nodes={apiVersion:'v1',kind:'NodeList',items:names.map((name,i)=>({apiVersion:'v1',kind:'Node',metadata:{name,uid:uid(i+1),resourceVersion:String(100+i)}}))};

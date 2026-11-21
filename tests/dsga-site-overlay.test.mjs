@@ -27,7 +27,7 @@ function run(mutator) {
 test('verified snapshots produce only fail-closed site overlays and a provenance receipt',()=>{
   const {output,result}=run();assert.equal(result.status,0,result.stderr);
   const autoscaler=JSON.parse(fs.readFileSync(path.join(output,'neon-autoscaler.json')));
-  assert.equal(autoscaler.dsga.enabled,true);assert.deepEqual(Object.keys(autoscaler.dsga.hostIdentities),['render-a','render-b','render-c']);
+  assert.equal(autoscaler.dsga.enabled,true);assert.deepEqual(Object.keys(autoscaler.dsga.hostIdentities),['worker-117','worker-118','worker-119']);
   assert.deepEqual(autoscaler.dsga.agent.automaticMemory,{});assert.deepEqual(autoscaler.dsga.agent.prepareQualifications,{});
   const qualifier=JSON.parse(fs.readFileSync(path.join(output,'dsga-platform-qualifier.json')));assert.equal(qualifier.enabled,false);
   const manifest=JSON.parse(fs.readFileSync(path.join(output,'manifest.json')));

@@ -40,6 +40,29 @@ flowchart TB
 
 ## 2. Chart and deployment ownership
 
+The machine-readable [catalog](../catalog/charts.json) is checked against every
+source Chart and the stack's default/optional sets by `npm run check`.
+
+| Layer | Owner and responsibility | Components |
+|---|---|---|
+| L0 | Platform operator; not replaced by the application stack | Kubernetes, CNI, Multus, Whereabouts, KVM, storage provisioner, cert-manager, metrics-server, registry |
+| L1 | VM and resource scheduling Releases | neonvm, neon-autoscaler |
+| L2 | Persistent storage and metadata Releases | neon-core, neon-managed-pageserver, neon-metadata |
+| L3 | Control and service access Releases | neon-adapter, compute-management-gateway, neon-control-plane |
+| L4 | Optional runtimes and independently bound qualification/access | neon-compute, data-api-gateway, dsga-platform-qualifier, dsga-qualification-issuer, dsga-qualifier-access, dsga-runner-access, neon-control-runtime-access |
+
+Layers describe ownership, not a replacement for the explicit dependency order.
+The fifteen source Charts comprise eight default, two optional and five
+qualification/access Charts. Qualification components do not certify a platform
+by being installed. Node, Lease, VM, CA and storage identities belong to the site;
+never copy an old site's qualification objects into a new cluster.
+
+`npm run helm:stack` renders all eight default Releases together with CRDs and
+rejects duplicate resource identities, wrong Helm ownership annotations and
+explicit NodePort conflicts. Unknown custom resource scope must come from a CRD
+or an explicit scope contract. This gate is offline: it does not install, upgrade,
+validate live cluster ownership or grant Kubernetes/runtime compatibility.
+
 | Chart / release | Namespace | Runtime responsibility |
 |---|---|---|
 | neonvm / neonvm | default (release), neonvm-system (pods) | CRDs, controller, KVM device plugin, VXLAN, runner loader, certificates, platform priority |
@@ -58,9 +81,9 @@ provisioner are distribution prerequisites. The stack does not replace a
 distribution's networking or etcd. Cert-manager certificates used by the stack
 are namespaced; node plugins require documented host privileges.
 
-The 46-image build distribution also includes build/test utilities, alternate
-PostgreSQL majors and optional tools. They are recorded in the full image lock;
-deploying all 46 as resident workloads would be incorrect. The default stack
+The selected release manifest also includes build/test utilities, alternate
+PostgreSQL majors and optional tools. Its image count is independent of the
+source Chart count; deploying every image as a resident workload would be incorrect. The default stack
 deploys only the runtime roles above; Compute/runner, branch Auth and branch gateway images
 are consumed dynamically when the user creates an Endpoint.
 

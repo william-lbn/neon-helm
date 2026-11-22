@@ -8,13 +8,17 @@ The repository applies production-oriented deployment discipline, but the
 underlying product still has independent [production gates](docs/PRODUCTION-GATES.md).
 Installing a chart does not implement Neon's proprietary Backend services.
 
-Current source candidate `0.1.31` aligns all ten chart versions and pins the eight
-public control images from source `5449a11` (OpenAPI 0.23.0). It includes branch
-[email OTP acceptance](docs/DELIVERY-2026-10-14-AUTH-OTP.md) and the explicit
-[NeonVM runner cgroup switch](docs/NEONVM-RUNNER-CGROUP.md).
-[Publication boundaries](docs/PUBLICATION-2026-10-16.md) distinguish these public
-image locks from the newer, locally accepted control-plane source and runner.
-This candidate has no `v0.1.31` release tag yet.
+Current source candidate `0.1.32` contains fifteen independent Charts: eight
+default stack components, two optional components and five qualification/access
+components. The machine-checked [Chart catalog](catalog/charts.json) records their
+layers, ownership and operator-supplied inputs; see [resource layering](docs/ARCHITECTURE.md#2-chart-and-deployment-ownership).
+
+Source Chart versions are not the complete product release identity. A unified
+release can replace the control-plane Chart with its source-bound product Chart
+and add product-owned packages. Use its exact manifest, Chart SHA256 receipts,
+image digests and runtime capability statement, not a count or branch name.
+Existing [public image locks](docs/PUBLICATION-2026-10-16.md) remain separate from
+accepted research runtimes; neither a package build nor CI grants platform qualification.
 
 The preceding `0.1.29` adds scoped S3 credentials, authenticated signed chunk uploads,
 real SDK list/range/presigned reads and application account security.
@@ -67,7 +71,8 @@ the control-plane Drivers, not permanently installed by Helm.
 
 | Path | Purpose |
 |---|---|
-| `charts/` | Ten independently packaged charts, schemas and commented defaults |
+| `catalog/charts.json` | Validated L0–L4 boundaries, Chart roles and resource ownership |
+| `charts/` | Fifteen independently packaged charts, schemas and commented defaults |
 | `profiles/lab/` | Public, digest-pinned component settings; no credentials |
 | `locks/` | Source revisions, full image distribution, control images and tool checksums |
 | `stack/stack.json` | Release identity, dependency order and rollout checks |

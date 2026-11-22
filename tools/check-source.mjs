@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {root,readJSON,validatePlan,validateControlImagesLock,pinned,digest,documents} from './lib.mjs';
+import {checkChartCatalog} from './chart-catalog.mjs';
 const failures=[];
 // Checked-in offline validators are source, not deployment credentials. Keep an
 // explicit inventory so adding arbitrary Python still requires a review.
@@ -45,6 +46,7 @@ for(const file of files) {
   if(/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{24,}|sk-[A-Za-z0-9]{32,}/.test(value))failures.push('Credential pattern '+name);
 }
 const plan=validatePlan(readJSON('stack/stack.json'));
+const catalog=checkChartCatalog();
 if(!/^locks\/control-plane-[a-f0-9]{7}\.json$/.test(plan.controlImagesLock||''))failures.push('Missing current control image lock');
 else {
   const control=readJSON('profiles/lab/neon-control-plane.json');
@@ -70,4 +72,4 @@ for(const name of fs.readdirSync(path.join(root,'profiles/lab'))) {
 const adapter=readJSON('locks/adapter.json');
 if(adapter.language!=='go'||adapter.source!=='https://github.com/william-lbn/control-plane'||!/^([a-f0-9]{40})$/.test(adapter.source_commit)||!pinned.test(adapter.image)||adapter.image!==readJSON('profiles/lab/neon-adapter.json').image)failures.push('Go adapter source/image drift');
 if(failures.length)throw new Error(failures.join('\n'));
-console.log(JSON.stringify({result:'pass',files:files.length,charts:charts.length,productionQualified:false}));
+console.log(JSON.stringify({result:'pass',files:files.length,charts:charts.length,catalog,productionQualified:false}));

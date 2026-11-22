@@ -33,6 +33,8 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run helm
+      - name: Check combined stack ownership and NodePort allocation
+        run: npm run helm:stack
       - run: npm run helm:dsga
       - run: npm run package -- --output artifacts/packages
       - run: sha256sum artifacts/packages/*.tgz artifacts/packages/index.yaml > artifacts/packages/SHA256SUMS

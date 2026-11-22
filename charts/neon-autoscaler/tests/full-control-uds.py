@@ -6,7 +6,12 @@ BASELINE="0820655a100ed648a6bf7fd151813b242f003c6f"
 def require(ok,message):
  if not ok:raise AssertionError(message)
 def objects(path):
- docs=[x for x in yaml.safe_load_all(path.read_text()) if x];data={(x["kind"],x["metadata"].get("namespace",""),x["metadata"]["name"]):x for x in docs};require(len(data)==len(docs),"duplicate resource");return data
+ docs=[x for x in yaml.safe_load_all(path.read_text()) if x]
+ for obj in docs:
+  if obj["kind"]=="ClusterRoleBinding" and obj["metadata"]["name"] in ("autoscale-scheduler-virtualmachine-editor","autoscale-scheduler-virtualmachinemigration-editor"):
+   require(obj["metadata"].get("namespace") in (None,"kube-system"),"unexpected legacy binding namespace")
+   obj["metadata"].pop("namespace",None)
+ data={(x["kind"],x["metadata"].get("namespace",""),x["metadata"]["name"]):x for x in docs};require(len(data)==len(docs),"duplicate resource");return data
 def main():
  ap=argparse.ArgumentParser(description=__doc__);ap.add_argument("--output",type=pathlib.Path,required=True);ap.add_argument("--baseline-commit",default=BASELINE,help="explicit reviewed AST regression baseline");a=ap.parse_args();baseline_commit=a.baseline_commit;require(len(baseline_commit)==40 and all(c in "0123456789abcdef" for c in baseline_commit),"full immutable baseline SHA required");out=a.output.resolve();out.mkdir(parents=True,exist_ok=False);chart=pathlib.Path(__file__).resolve().parents[1];repo=chart.parents[1];start=time.monotonic()
  archive=subprocess.check_output(["git","-C",str(repo),"archive",baseline_commit,"charts/neon-autoscaler"]);baseline=out/"baseline";baseline.mkdir()

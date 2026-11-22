@@ -12,7 +12,7 @@ def main():
  for i,(name,uid) in enumerate(nodes.items()):
   system=str((8 if name=='worker-118' else 4)<<30)
   rows.append({'binding':{'node_name':name,'node_uid':uid,'namespace':'neon','lease_name':'render-only-host-'+name,'lease_uid':'00000000-0000-0000-0000-'+str(i+1).zfill(12)},'profile':profile,'system_bytes':system,'kubernetes_budget':{'protocol_version':1,'scope':'kubernetes-node-memory-budget-v1','node_name':name,'node_uid':uid,'capacity_bytes':str(24<<30),'allocatable_bytes':str(24<<30),'system_reservation_bytes':system,'profile_sha256':digest}})
- wanted=['kube-system','neon-cert-manager','neonvm-system'];on['dsga']={'enabled':True,'agent':{'gatewayURL':'https://render.invalid:8444','managementCASecret':'render-only-public-ca'},'scheduler':{'nodes':rows,'podProtectionNamespaces':wanted}}
+ wanted=['kube-system','neon-cert-manager','neonvm-system'];on['dsga']={'enabled':True,'hostIdentities':nodes,'agent':{'gatewayURL':'https://render.invalid:8444','managementCASecret':'render-only-public-ca'},'scheduler':{'nodes':rows,'podProtectionNamespaces':wanted}}
  cases=[('default-off',off,None),('explicit-three',on,None)]
  for name,values,reason in [('forbidden-namespace',['kube-system','neon-cert-manager','default'],'must be one of'),('duplicate',['kube-system','kube-system','neonvm-system'],'unique'),('incomplete',['kube-system'],'podProtectionNamespaces.0 does not match: "neonvm-system"'),('wrong-type','kube-system','Expected: array')]:
   fixture=copy.deepcopy(on);fixture['dsga']['scheduler']['podProtectionNamespaces']=values;cases.append((name,fixture,reason))

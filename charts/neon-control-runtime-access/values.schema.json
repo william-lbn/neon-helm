@@ -57,28 +57,24 @@
     },
     "allowedNodes": {
       "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
+      "minItems": 1,
+      "maxItems": 16,
       "uniqueItems": true,
       "items": {
-        "enum": [
-          "worker-117",
-          "worker-118",
-          "worker-119"
-        ]
+        "type": "string",
+        "maxLength": 238,
+        "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
       }
     },
     "hostLeaseNames": {
       "type": "array",
-      "minItems": 3,
-      "maxItems": 3,
+      "minItems": 1,
+      "maxItems": 16,
       "uniqueItems": true,
       "items": {
-        "enum": [
-          "neon-dsga-host-worker-117",
-          "neon-dsga-host-worker-118",
-          "neon-dsga-host-worker-119"
-        ]
+        "type": "string",
+        "maxLength": 253,
+        "pattern": "^neon-dsga-host-[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
       }
     }
   }

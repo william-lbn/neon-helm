@@ -24,6 +24,8 @@ spec:
         image: {{ .Values.initImage | quote }}
         command: ["sh", "-ec"]
         args: ["mkdir -p /data/.neon; cp /config/* /data/.neon/; chown -R 1000:1000 /data/.neon || true"]
+        resources:
+{{ toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - {name: data, mountPath: /data}
         - {name: config, mountPath: /config, readOnly: true}

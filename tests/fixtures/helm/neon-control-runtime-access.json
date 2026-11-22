@@ -1,1 +1,4 @@
-{}
+{
+  "allowedNodes": ["worker-117", "worker-118", "worker-119"],
+  "hostLeaseNames": ["neon-dsga-host-worker-117", "neon-dsga-host-worker-118", "neon-dsga-host-worker-119"]
+}

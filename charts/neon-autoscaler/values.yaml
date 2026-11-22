@@ -36,6 +36,8 @@ placement:
 # 只有真实原节点/Lease/预算/CA 输入齐全才启用；无推测的资格或系统预算。
 dsga:
   enabled: false
+  # 用户授权的站点配置规范化：显式 hostname -> 观察到的 Node UID；不回退历史快照。
+  hostIdentities: {}
   pgVersion: 17
   vmNamespace: neon
   agent:

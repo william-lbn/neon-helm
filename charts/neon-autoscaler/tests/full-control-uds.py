@@ -23,8 +23,10 @@ def main():
  nodes=json.loads((chart/"files/pg17-node-identities.json").read_text())["allowedNodeUIDs"];profile={"id":"render-only-budget","scheduler_name":"autoscale-scheduler","vm_overhead_bytes":str(3<<30),"pod_overhead_bytes":str(16<<20)};sha=hashlib.sha256(json.dumps(profile,separators=(",",":")).encode()).hexdigest();rows=[]
  for i,(name,uid)in enumerate(nodes.items()):
   system=str((8 if name=="worker-118" else 4)<<30);rows.append({"binding":{"node_name":name,"node_uid":uid,"namespace":"neon","lease_name":"render-only-host-"+name,"lease_uid":"00000000-0000-0000-0000-"+str(i+1).zfill(12)},"profile":profile,"system_bytes":system,"kubernetes_budget":{"protocol_version":1,"scope":"kubernetes-node-memory-budget-v1","node_name":name,"node_uid":uid,"capacity_bytes":str(24<<30),"allocatable_bytes":str(24<<30),"system_reservation_bytes":system,"profile_sha256":sha}})
+ # 旧模板仍核历史 UID；仅为归档 schema 加入同一显式输入合同，不改其模板/渲染行为。
+ schema_path=old/"values.schema.json";schema=json.loads(schema_path.read_text());schema["properties"]["dsga"]["properties"]["hostIdentities"]=json.loads((chart/"values.schema.json").read_text())["properties"]["dsga"]["properties"]["hostIdentities"];schema_path.write_text(json.dumps(schema)+"\n");off["dsga"]={"hostIdentities":nodes}
  read={"enabled":True,"hostDirectory":"/run/neon-dsga-pg17-resource","mountDirectory":"/run/neon-dsga-pg17-resource","name":"resource.sock"};full={"enabled":True,"hostDirectory":"/run/neon-dsga-pg17-control","mountDirectory":"/run/neon-dsga-pg17-control","name":"control.sock"}
- on["dsga"]={"enabled":True,"agent":{"gatewayURL":"https://render.invalid:8444","managementCASecret":"render-only-public-ca","resourceReadSocket":read},"scheduler":{"nodes":rows,"podProtectionNamespaces":["kube-system","neon-cert-manager","neonvm-system"]}}
+ on["dsga"]={"enabled":True,"hostIdentities":nodes,"agent":{"gatewayURL":"https://render.invalid:8444","managementCASecret":"render-only-public-ca","resourceReadSocket":read},"scheduler":{"nodes":rows,"podProtectionNamespaces":["kube-system","neon-cert-manager","neonvm-system"]}}
  enabled=copy.deepcopy(on);enabled["dsga"]["agent"]["controlSocket"]=full
  cases=[("default-before",old,off,None),("default-after",chart,off,None),("reader-before",old,on,None),("reader-after",chart,on,None),("full-control",chart,enabled,None)]
  def bad(name,path,value,reason):

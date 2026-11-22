@@ -6,6 +6,7 @@ apiServiceAccount: neon-control-api
 workerServiceAccount: neon-control-worker
 qualifierServiceAccount: qualification-issuer
 nodeReadClusterRole: neon-control-runtime-worker-nodes
-allowedNodes: [worker-117, worker-118, worker-119]
+# 用户授权的站点配置规范化：观察到的节点与派生 Host Lease 集合必须显式提供。
+allowedNodes: []
 hostLeaseNamespace: neon
-hostLeaseNames: [neon-dsga-host-worker-117, neon-dsga-host-worker-118, neon-dsga-host-worker-119]
+hostLeaseNames: []

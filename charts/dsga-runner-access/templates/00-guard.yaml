@@ -1,12 +1,21 @@
 {{- if .Values.enabled -}}
 {{- if eq .Values.serviceAccountName "default" -}}{{- fail "Runner requires a dedicated non-default service account" -}}{{- end -}}
 {{- if ne .Values.configSecretName (printf "%s-config" .Values.vmName) -}}{{- fail "Runner Config Secret must be the exact VM-name-config" -}}{{- end -}}
-{{- if ne (toJson (sortAlpha .Values.allowedNodeNames)) (toJson (list "worker-117" "worker-118" "worker-119")) -}}{{- fail "Runner Node reads must be exactly worker-117/118/119, excluding116" -}}{{- end -}}
+{{- $nodes := .Values.allowedNodeNames -}}
+{{- if not (kindIs "slice" $nodes) -}}{{- fail "Runner allowedNodeNames must be an explicit list" -}}{{- end -}}
+{{- if or (lt (len $nodes) 1) (gt (len $nodes) 16) -}}{{- fail "Runner allowedNodeNames requires 1..16 explicit Nodes" -}}{{- end -}}
+{{- $expected := dict -}}
+{{- range $name := $nodes -}}
+{{- if not (kindIs "string" $name) -}}{{- fail "Runner allowedNodeNames requires unique DNS names" -}}{{- end -}}
+{{- $lease := printf "neon-dsga-host-%s" $name -}}
+{{- if or (gt (len $lease) 253) (not (regexMatch "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$" $name)) (hasKey $expected $lease) -}}{{- fail "Runner allowedNodeNames requires unique DNS names with bounded derived Host Leases" -}}{{- end -}}
+{{- $_ := set $expected $lease true -}}
+{{- end -}}
 {{- $seen := dict -}}
 {{- range .Values.hostLeases -}}
-{{- if hasKey $seen .name -}}{{- fail "duplicate Host Lease name" -}}{{- end -}}
+{{- if or (not (hasKey $expected .name)) (hasKey $seen .name) -}}{{- fail "Runner hostLeases must match the complete derived Node Lease set exactly once" -}}{{- end -}}
 {{- $_ := set $seen .name true -}}
 {{- end -}}
-{{- if ne (len $seen) 3 -}}{{- fail "exact three original Host Lease references required" -}}{{- end -}}
+{{- if ne (len $seen) (len $expected) -}}{{- fail "Runner hostLeases must match the complete derived Node Lease set exactly once" -}}{{- end -}}
 {{- if and .Values.stateClaimName (not .Values.ownerLease.name) -}}{{- fail "post-hold state update requires the actual original owner Lease reference" -}}{{- end -}}
 {{- end -}}

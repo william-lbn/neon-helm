@@ -16,3 +16,5 @@ runnerClaims:
 # 本轮report中HostLease与VM同在neon，不误授kube-system。
 hostLeaseName: null
 nodeName: null
+# 用户授权的站点配置规范化：必须显式选择站点节点允许集合，默认不授予权限。
+allowedNodeNames: []

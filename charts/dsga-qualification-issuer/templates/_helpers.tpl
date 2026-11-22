@@ -17,7 +17,16 @@
 {{- $host := required "hostLeaseName is required" .Values.hostLeaseName -}}
 {{- $node := required "nodeName is required" .Values.nodeName -}}
 {{- if or (not (regexMatch "^cp-[a-f0-9]{16}$" $vm)) (ne $secret (printf "%s-config" $vm)) (not (hasPrefix (printf "%s-" $vm) $pod)) -}}{{ fail "Issuer VM, config Secret and original Runner Pod must name the same Compute" }}{{- end -}}
-{{- if or (not (has $node (list "worker-117" "worker-118" "worker-119"))) (ne $host (printf "neon-dsga-host-%s" $node)) -}}{{ fail "Issuer HostLease must exactly match one permitted worker" }}{{- end -}}
+{{- $allowed := .Values.allowedNodeNames | default list -}}
+{{- if not (kindIs "slice" $allowed) -}}{{- fail "Issuer allowedNodeNames must be an explicit list" -}}{{- end -}}
+{{- if or (lt (len $allowed) 1) (gt (len $allowed) 16) -}}{{- fail "Issuer allowedNodeNames requires 1..16 explicit Nodes" -}}{{- end -}}
+{{- $seen := dict -}}
+{{- range $name := $allowed -}}
+{{- if not (kindIs "string" $name) -}}{{- fail "Issuer allowedNodeNames requires unique DNS names" -}}{{- end -}}
+{{- if or (gt (len $name) 238) (not (regexMatch "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$" $name)) (hasKey $seen $name) -}}{{- fail "Issuer allowedNodeNames requires unique DNS names" -}}{{- end -}}
+{{- $_ := set $seen $name true -}}
+{{- end -}}
+{{- if or (not (has $node $allowed)) (ne $host (printf "neon-dsga-host-%s" $node)) -}}{{ fail "Issuer HostLease must exactly match one explicitly allowed Node" }}{{- end -}}
 {{- if not (regexMatch "^dsga-[a-f0-9]{56}$" $owner) -}}{{ fail "Issuer requires one exact OwnerLease" }}{{- end -}}
 {{- if not (regexMatch "^dsga-q-[a-f0-9]{56}$" $qualification) -}}{{ fail "Issuer requires its exact report-derived qualification ConfigMap" }}{{- end -}}
 {{- $claims := .Values.runnerClaims | default dict -}}

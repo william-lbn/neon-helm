@@ -1,5 +1,7 @@
 # 缺任一真实输入均保持关闭。这里不提供镜像假 digest、预算或认证报告样例。
 enabled: false
+# 用户授权的站点配置规范化：显式 hostname -> 观察到的 Node UID；不回退历史快照。
+hostIdentities: {}
 image:
   repository: ''
   digest: ''

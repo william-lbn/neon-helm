@@ -13,6 +13,7 @@
     "helm:stack": "node tools/ci-stack.mjs",
     "helm:dsga": "node tools/ci-dsga-helm.mjs",
     "package:dsga": "node tools/package-dsga-release.mjs",
+    "snapshot:dsga-site": "node tools/dsga-site-snapshot.mjs",
     "inspect:dsga-site": "node tools/dsga-site-inspect.mjs",
     "generate:dsga-site": "node tools/dsga-site-overlay.mjs",
     "plan": "node tools/stack.mjs plan",

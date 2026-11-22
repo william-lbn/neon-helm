@@ -17,5 +17,14 @@
 {{- end -}}
 {{- if not (kindIs "string" $secret) -}}{{- fail "configSecretName must be an original Compute config reference" -}}{{- end -}}
 {{- if not (regexMatch "^cp-[a-f0-9]{16}-config$" $secret) -}}{{- fail "configSecretName must be an original Compute config reference" -}}{{- end -}}
-{{- if not (has $node (list "worker-117" "worker-118" "worker-119")) -}}{{- fail "nodeName must be worker-117, worker-118 or worker-119" -}}{{- end -}}
+{{- $allowed := .Values.allowedNodeNames | default list -}}
+{{- if not (kindIs "slice" $allowed) -}}{{- fail "Collector allowedNodeNames must be an explicit list" -}}{{- end -}}
+{{- if or (lt (len $allowed) 1) (gt (len $allowed) 16) -}}{{- fail "Collector allowedNodeNames requires 1..16 explicit Nodes" -}}{{- end -}}
+{{- $seen := dict -}}
+{{- range $name := $allowed -}}
+{{- if not (kindIs "string" $name) -}}{{- fail "Collector allowedNodeNames requires unique DNS names" -}}{{- end -}}
+{{- if or (gt (len $name) 253) (not (regexMatch "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$" $name)) (hasKey $seen $name) -}}{{- fail "Collector allowedNodeNames requires unique DNS names" -}}{{- end -}}
+{{- $_ := set $seen $name true -}}
+{{- end -}}
+{{- if not (has $node $allowed) -}}{{- fail "nodeName must be in explicit allowedNodeNames" -}}{{- end -}}
 {{- end -}}

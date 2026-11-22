@@ -21,7 +21,7 @@ def render(values, wanted=True):
         return [v for v in yaml.safe_load_all(r.stdout) if v]
 
 assert render({}) == [], "default off must create no objects"
-pre = {"enabled": True, "serviceAccountName": "fixture-runner", "vmName": "cp-0123456789abcdef", "configSecretName": "cp-0123456789abcdef-config", "hostLeases": [{"namespace": "neon", "name": "neon-dsga-host-worker-" + str(n)} for n in [117, 118, 119]]}
+pre = {"enabled": True, "serviceAccountName": "fixture-runner", "vmName": "cp-0123456789abcdef", "configSecretName": "cp-0123456789abcdef-config", "allowedNodeNames": ["worker-117", "worker-118", "worker-119"], "hostLeases": [{"namespace": "neon", "name": "neon-dsga-host-worker-" + str(n)} for n in [117, 118, 119]]}
 post = {**pre, "ownerLease": {"namespace": "neon", "name": "dsga-" + "c" * 56}, "stateClaimName": "dsga-s-" + "a" * 56}
 
 def check(values, state):

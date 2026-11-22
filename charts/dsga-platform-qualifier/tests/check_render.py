@@ -94,6 +94,7 @@ def verify_private(v, namespace, agent_manifest):
 def offline_values():
     v = yaml.safe_load((CHART / 'values.yaml').read_text())
     v['enabled'] = True
+    v['hostIdentities'] = dict(PINS)  # explicit historical offline fixture, never a template fallback
     v['image'] = {'repository': 'offline.invalid/qualificationissuer', 'digest': 'sha256:' + '1' * 64, 'pullSecrets': []}
     v['binding'] = {'vmName': 'offline-vm', 'vmUID': '00000000-0000-0000-0000-000000000017', 'incarnation': 'a' * 32, 'nodeName': 'worker-118', 'nodeUID': PINS['worker-118'], 'runnerPodName': 'offline-runner', 'runnerConfigMapNames': ['offline-birth', 'offline-state', 'offline-exit', 'offline-stopped']}
     v['hostLease'] = {'namespace': 'offline-host', 'name': 'offline-host-lease'}

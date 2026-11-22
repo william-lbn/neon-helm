@@ -250,6 +250,7 @@ def fixture():
     value["compatibility"] = {"expectedKubernetesMinor": "31", "allowUntestedKubernetes": False}
     value["images"] = {key: base.image("dsga-" + key) for key in defaults["images"]}
     value["dsga"]["enabled"] = True
+    value["dsga"]["hostIdentities"] = dict(FACTS["allowedNodeUIDs"])  # explicit historical offline fixture
     a = value["dsga"]["agent"]
     a["gatewayURL"] = "https://offline-gateway.invalid:8444"
     a["managementCASecret"] = "offline-public-management-ca"

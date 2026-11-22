@@ -96,6 +96,7 @@
         "enabled",
         "pgVersion",
         "vmNamespace",
+        "hostIdentities",
         "agent",
         "scheduler"
       ],
@@ -427,7 +428,7 @@
           "properties": {
             "nodes": {
               "type": "array",
-              "maxItems": 3,
+              "maxItems": 16,
               "items": {
                 "type": "object",
                 "additionalProperties": false,
@@ -452,7 +453,7 @@
                         "type": "string",
                         "minLength": 1,
                         "maxLength": 253,
-                        "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+                        "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
                       },
                       "node_uid": {
                         "type": "string",
@@ -538,7 +539,7 @@
                         "type": "string",
                         "minLength": 1,
                         "maxLength": 253,
-                        "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+                        "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
                       },
                       "node_uid": {
                         "type": "string",
@@ -604,13 +605,13 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 253,
-            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+            "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
           },
           "additionalProperties": {
             "type": "string",
             "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
           },
-          "description": "Verified Kubernetes Node name to immutable Node UID bindings emitted by the site overlay generator."
+          "description": "Explicit site hostname to observed immutable Node UID map; no historical fallback. Host domains must cover this map exactly."
         }
       }
     }
@@ -638,6 +639,9 @@
         "properties": {
           "dsga": {
             "properties": {
+              "hostIdentities": {
+                "minProperties": 1
+              },
               "agent": {
                 "properties": {
                   "gatewayURL": {
@@ -654,8 +658,8 @@
               "scheduler": {
                 "properties": {
                   "nodes": {
-                    "minItems": 3,
-                    "maxItems": 3
+                    "minItems": 1,
+                    "maxItems": 16
                   },
                   "podProtectionNamespaces": {
                     "allOf": [

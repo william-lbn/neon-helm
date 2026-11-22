@@ -4,6 +4,7 @@
   "additionalProperties": false,
   "required": [
     "enabled",
+    "hostIdentities",
     "image",
     "binding",
     "hostLease",
@@ -16,6 +17,19 @@
   "properties": {
     "enabled": {
       "type": "boolean"
+    },
+    "hostIdentities": {
+      "description": "Explicit site hostname to observed immutable Node UID map; no historical fallback.",
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": {
+        "maxLength": 253,
+        "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+      }
     },
     "image": {
       "type": "object",
@@ -239,6 +253,9 @@
       },
       "then": {
         "properties": {
+          "hostIdentities": {
+            "minProperties": 1
+          },
           "image": {
             "properties": {
               "repository": {
@@ -266,15 +283,13 @@
                 "minLength": 1
               },
               "nodeName": {
-                "enum": [
-                  "worker-117",
-                  "worker-118",
-                  "worker-119"
-                ]
+                "type": "string",
+                "maxLength": 253,
+                "pattern": "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$"
               },
               "nodeUID": {
                 "type": "string",
-                "pattern": "^[a-f0-9-]{36}$"
+                "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
               },
               "incarnation": {
                 "type": "string",

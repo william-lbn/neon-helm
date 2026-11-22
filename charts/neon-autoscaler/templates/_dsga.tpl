@@ -85,13 +85,19 @@
 {{- if ne $a.tokenAudience "neon-dsga-credential-broker" -}}{{- fail "DSGA projected token must use the dedicated credential-broker audience" -}}{{- end -}}
 {{- if or (lt (int $a.requestTimeoutSeconds) 1) (gt (int $a.requestTimeoutSeconds) 30) (lt (int $a.computeTimeoutSeconds) 90) (gt (int $a.computeTimeoutSeconds) 120) (lt (int $a.pollIntervalSeconds) 1) (gt (int $a.pollIntervalSeconds) 60) (lt (int $a.tokenExpirationSeconds) 600) (gt (int $a.tokenExpirationSeconds) 3600) -}}
 {{- fail "DSGA timeouts/token lifetime exceed bounded runtime contracts" -}}{{- end -}}
-{{- $expected := (.Files.Get "files/pg17-node-identities.json" | fromJson).allowedNodeUIDs -}}
+{{- $expected := $d.hostIdentities | default dict -}}
+{{- if not (kindIs "map" $expected) -}}{{- fail "DSGA hostIdentities must be an explicit observed Node UID map" -}}{{- end -}}
+{{- if or (lt (len $expected) 1) (gt (len $expected) 16) -}}{{- fail "DSGA hostIdentities requires 1..16 explicit observed Nodes" -}}{{- end -}}
+{{- range $name, $uid := $expected -}}
+{{- if or (gt (len $name) 253) (not (regexMatch "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$" $name)) (not (kindIs "string" $uid)) (not (regexMatch "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" (toString $uid))) -}}
+{{- fail "DSGA hostIdentities requires DNS Node names and observed UUIDs" -}}{{- end -}}
+{{- end -}}
 {{- $seen := dict -}}{{- $domains := dict -}}{{- $leaseUIDs := dict -}}
-{{- if ne (len $d.scheduler.nodes) 3 -}}{{- fail "DSGA Host domains require the three explicit original Node/Lease/profile/system-budget inputs" -}}{{- end -}}
+{{- if ne (len $d.scheduler.nodes) (len $expected) -}}{{- fail "DSGA Host domains must exactly cover hostIdentities with explicit Node/Lease/profile/system-budget inputs" -}}{{- end -}}
 {{- range $n := $d.scheduler.nodes -}}
 {{- $name := $n.binding.node_name -}}
 {{- if or (not (hasKey $expected $name)) (hasKey $seen $name) (ne $n.binding.node_uid (index $expected $name)) -}}
-{{- fail "DSGA Host Node identity differs from the actual observed original worker-117/118/119 UID" -}}{{- end -}}
+{{- fail "DSGA Host Node identity must match the explicit observed hostIdentities map exactly once" -}}{{- end -}}
 {{- $_ := set $seen $name true -}}
 {{- if or (not $n.binding.namespace) (not $n.binding.lease_name) (not $n.binding.lease_uid) -}}{{- fail "DSGA Host domains require actual original Lease identity; Helm never invents or creates it" -}}{{- end -}}
 {{- $domain := printf "%s/%s" $n.binding.namespace $n.binding.lease_name -}}

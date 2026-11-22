@@ -43,7 +43,27 @@ git push git@github.com:william-lbn/neon-helm.git HEAD:codex/dsga-neon-helm-v3-2
 
 不要提交 Chart `.tgz`、Harbor 地址、节点名、kubeconfig 或 Secret。
 
-## 3. 节点列表（通用 Chart，站点 overlay）
+## 3. 自动发现与 Host 前置检查
+
+在操作工作区内运行只读采集器；`KUBECONFIG` 必须指向目标集群，输出目录必须是新目录：
+
+```bash
+npm run snapshot:dsga-site -- --output "$SITE_EVIDENCE_DIR/snapshot"
+npm run inspect:dsga-site -- \
+  --nodes "$SITE_EVIDENCE_DIR/snapshot/nodes.json" \
+  --leases "$SITE_EVIDENCE_DIR/snapshot/leases.json" \
+  --pods "$SITE_EVIDENCE_DIR/snapshot/pods.json" \
+  --discover-hosts --output "$SITE_EVIDENCE_DIR/preflight.json"
+```
+
+异构集群先向采集器传 `--node-selector <经过批准的计算节点选择器>`；自动发现只检查观测范围内的 worker，不包含带控制面角色标签或污点的节点。选择依据是目标 Node，不是“已有 Lease 的节点”，所以缺少原 Host Lease 不会被静默漏掉。也可用 `--allowed-nodes` 传入经过批准的完整名单，不能与自动发现同时使用。
+
+采集器不读取 Secret API，不持久化 Pod 环境变量、命令、卷内容或任意 Node/Pod 注解；只保留身份、节点状态和资源检查所需字段。普通容器和 init 容器必须分别有精确、正整数、int64 范围内的内存硬限；requests 不能代替 limits。临时容器、终止中的 Pod 和不完整快照不会被当作可用输入。VM Pod 留给原有运行时协议核验，不从普通 Pod 检查推导 VM 或 Host 资格。
+
+不传 `--pods` 时，回执明确为 `identity-only`；传入后为 `identity-and-ordinary-pod-hard-limits`。两者的 `ready` 都不是 Host 容量认证、首次 CAS 建账或 VM 资格。跨资源 GET 也不是原子快照：正式引导仍须重新核验完整预算和原 Node RV，冲突时重新采集完整计划，不能只刷新一个 RV、重建 Lease 或移除 finalizer。
+
+### 节点列表与 placement
+
 
 Chart 默认仍是实验室主机名 `worker-117` / `worker-118` / `worker-119`，避免旧 overlay 静默失效。
 新集群必须在每个相关 Chart 的 overlay 里替换为**真实 hostname**：

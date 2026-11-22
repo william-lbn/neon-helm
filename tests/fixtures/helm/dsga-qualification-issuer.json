@@ -12,5 +12,6 @@
     "stoppedPod": "dsga-t-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
   },
   "hostLeaseName": "neon-dsga-host-worker-117",
-  "nodeName": "worker-117"
+  "nodeName": "worker-117",
+  "allowedNodeNames": ["worker-117", "worker-118", "worker-119"]
 }

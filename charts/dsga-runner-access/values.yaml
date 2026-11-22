@@ -3,7 +3,8 @@ enabled: false
 serviceAccountName: ''
 vmName: ''
 configSecretName: ''
-allowedNodeNames: [worker-117, worker-118, worker-119]
+# 用户授权的站点配置规范化：显式节点集合须与 hostLeases 派生集合一一匹配。
+allowedNodeNames: []
 # pre-hold 明确空名即无此 Lease 读取许可；真实引用由部署 values 显式提供。
 ownerLease: {namespace: '', name: ''}
 hostLeases: []

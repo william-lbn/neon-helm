@@ -1,3 +1,12 @@
 {
-  "enabled": false
+  "enabled": true,
+  "serviceAccountName": "offline-runner",
+  "vmName": "cp-0123456789abcdef",
+  "configSecretName": "cp-0123456789abcdef-config",
+  "allowedNodeNames": ["worker-117", "worker-118", "worker-119"],
+  "hostLeases": [
+    {"namespace": "neon", "name": "neon-dsga-host-worker-117"},
+    {"namespace": "neon", "name": "neon-dsga-host-worker-118"},
+    {"namespace": "neon", "name": "neon-dsga-host-worker-119"}
+  ]
 }

@@ -17,8 +17,14 @@
 {{- if ne (toString .Capabilities.KubeVersion.Minor) "31" -}}{{- fail "qualifier targets the observed Kubernetes 1.31 contract" -}}{{- end -}}
 {{- if or (not (regexMatch "^[a-z0-9.-]+(:[0-9]+)?(/[a-z0-9]+([._-][a-z0-9]+)*)+$" $v.image.repository)) (not (regexMatch "^sha256:[a-f0-9]{64}$" $v.image.digest)) -}}{{- fail "qualifier requires explicit repository and immutable sha256 image digest" -}}{{- end -}}
 {{- $b := $v.binding -}}
-{{- $pins := (.Files.Get "files/pg17-node-identities.json" | fromJson).allowedNodeUIDs -}}
-{{- if or (not (hasKey $pins $b.nodeName)) (ne (index $pins $b.nodeName) $b.nodeUID) -}}{{- fail "qualifier Node must be original worker-117/118/119 UID; ubuntu is excluded" -}}{{- end -}}
+{{- $pins := $v.hostIdentities | default dict -}}
+{{- if not (kindIs "map" $pins) -}}{{- fail "qualifier hostIdentities must be an explicit observed Node UID map" -}}{{- end -}}
+{{- if or (lt (len $pins) 1) (gt (len $pins) 16) -}}{{- fail "qualifier hostIdentities requires 1..16 explicit observed Nodes" -}}{{- end -}}
+{{- range $name, $uid := $pins -}}
+{{- if or (gt (len $name) 253) (not (regexMatch "^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?)*$" $name)) (not (kindIs "string" $uid)) (not (regexMatch "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" (toString $uid))) -}}
+{{- fail "qualifier hostIdentities requires DNS Node names and observed UUIDs" -}}{{- end -}}
+{{- end -}}
+{{- if or (not (hasKey $pins $b.nodeName)) (ne (index $pins $b.nodeName) $b.nodeUID) -}}{{- fail "qualifier Node identity must match the explicit observed hostIdentities map" -}}{{- end -}}
 {{- if or (not $b.vmName) (not $b.vmUID) (not $b.runnerPodName) (not (regexMatch "^[a-f0-9]{32}$" $b.incarnation)) (lt (len $b.runnerConfigMapNames) 4) -}}{{- fail "qualifier requires original VM/incarnation/Runner and exact source ConfigMap names" -}}{{- end -}}
 {{- if or (not $v.hostLease.namespace) (not $v.hostLease.name) -}}{{- fail "qualifier requires the original Host Lease read binding" -}}{{- end -}}
 {{- range $d := list $v.inputs.hostDirectory $v.inputs.mountDirectory $v.agentResourceReadSocket.hostDirectory $v.agentResourceReadSocket.mountDirectory -}}

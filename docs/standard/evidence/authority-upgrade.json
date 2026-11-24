@@ -1,0 +1,99 @@
+{
+  "status": "upgraded-and-authority-verified",
+  "selectedHosts": [
+    "node1",
+    "node2",
+    "node3",
+    "node4",
+    "node5"
+  ],
+  "harborPinsAvailable": 2,
+  "noNativeBudgetChangesRequested": true,
+  "helmExit": 0,
+  "matrix": [
+    {
+      "actor": "autoscale-scheduler",
+      "node": "master",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    },
+    {
+      "actor": "autoscaler-agent",
+      "node": "master",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    },
+    {
+      "actor": "autoscale-scheduler",
+      "node": "node1",
+      "verb": "patch",
+      "allowed": true,
+      "expected": true
+    },
+    {
+      "actor": "autoscaler-agent",
+      "node": "node1",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    },
+    {
+      "actor": "autoscale-scheduler",
+      "node": "node2",
+      "verb": "patch",
+      "allowed": true,
+      "expected": true
+    },
+    {
+      "actor": "autoscaler-agent",
+      "node": "node2",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    },
+    {
+      "actor": "autoscale-scheduler",
+      "node": "node3",
+      "verb": "patch",
+      "allowed": true,
+      "expected": true
+    },
+    {
+      "actor": "autoscaler-agent",
+      "node": "node3",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    },
+    {
+      "actor": "autoscale-scheduler",
+      "node": "node4",
+      "verb": "patch",
+      "allowed": true,
+      "expected": true
+    },
+    {
+      "actor": "autoscaler-agent",
+      "node": "node4",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    },
+    {
+      "actor": "autoscale-scheduler",
+      "node": "node5",
+      "verb": "patch",
+      "allowed": true,
+      "expected": true
+    },
+    {
+      "actor": "autoscaler-agent",
+      "node": "node5",
+      "verb": "patch",
+      "allowed": false,
+      "expected": false
+    }
+  ]
+}

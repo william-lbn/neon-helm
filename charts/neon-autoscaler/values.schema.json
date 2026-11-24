@@ -77,7 +77,7 @@
       "properties": {
         "allowedNodeNames": {
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "uniqueItems": true,
           "items": {
             "type": "string",
@@ -86,6 +86,46 @@
             "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
           },
           "description": "Explicit Kubernetes hostnames that may run this chart. Site overlays replace the laboratory defaults."
+        },
+        "nodeSelector": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "matchExpressions": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "operator"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "operator": {
+                "enum": [
+                  "In",
+                  "NotIn",
+                  "Exists",
+                  "DoesNotExist",
+                  "Gt",
+                  "Lt"
+                ]
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -412,6 +452,9 @@
               },
               "description": "独立完整Owner管理UDS，默认关闭。仅/run/neon-dsga-*私有目录，与resourceReadSocket目录不可相同或嵌套；不新增网络服务。"
             },
+            "runtimeSelectionCreateNamespace": {
+              "type": "boolean"
+            },
             "runtimeSelectionNamespace": {
               "type": "string",
               "pattern": "^$|^neon-control-[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
@@ -571,18 +614,15 @@
             },
             "podProtectionNamespaces": {
               "type": "array",
-              "maxItems": 4,
+              "maxItems": 128,
               "uniqueItems": true,
               "items": {
                 "type": "string",
-                "enum": [
-                  "kube-system",
-                  "neon-cert-manager",
-                  "neonvm-system",
-                  "neon-control-runtime"
-                ]
+                "minLength": 1,
+                "maxLength": 63,
+                "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
               },
-              "description": "仅显式白名单namespace的Pod get/patch；neon旧Role不变，不创建全局Pod写权限。"
+              "description": "按站点显式namespace逐一授予Pod get/patch；不创建全局Pod写权限，不接受通配namespace。"
             },
             "ordinaryStopSourceNames": {
               "type": "array",
@@ -595,6 +635,9 @@
                 "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
               },
               "description": "仅kube-system内运维者本轮实际发布并读回的普通Pod停止来源CM精确名称；仅get，不授list/watch/write。名称和Node ownerRef不能单独认证内容。"
+            },
+            "enabled": {
+              "type": "boolean"
             }
           }
         },
@@ -660,25 +703,6 @@
                   "nodes": {
                     "minItems": 1,
                     "maxItems": 16
-                  },
-                  "podProtectionNamespaces": {
-                    "allOf": [
-                      {
-                        "contains": {
-                          "const": "kube-system"
-                        }
-                      },
-                      {
-                        "contains": {
-                          "const": "neon-cert-manager"
-                        }
-                      },
-                      {
-                        "contains": {
-                          "const": "neonvm-system"
-                        }
-                      }
-                    ]
                   }
                 }
               }

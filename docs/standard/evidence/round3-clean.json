@@ -1,0 +1,93 @@
+{
+  "status": "clean-and-verified",
+  "site": "neon-standard-lab",
+  "volumeCount": 7,
+  "dataErased": true,
+  "erasedVolumes": [
+    {
+      "pv": "pvc-3900c166-4e36-4cd0-a868-286b899a0d08",
+      "pvUID": "4819478a-1a53-4816-9ae8-1d26ff025e3c",
+      "nodeUID": "0cdd2f7d-aeb4-4ed8-897c-6383eb5dcfab",
+      "path": "/data/neon-local/pvc-3900c166-4e36-4cd0-a868-286b899a0d08_neon_safekeeper1-data",
+      "jobUID": "2b019b38-c85e-481b-880b-895b01220bac"
+    },
+    {
+      "pv": "pvc-468a827c-05da-4a66-99d4-f1762e04c72a",
+      "pvUID": "0c2e61fe-41ee-449a-be7e-ac7ce5084b19",
+      "nodeUID": "70c92eec-070e-49e3-a6d4-8366c5908147",
+      "path": "/data/neon-local/pvc-468a827c-05da-4a66-99d4-f1762e04c72a_neon_safekeeper3-data",
+      "jobUID": "ce826861-9185-4d53-a5fa-631da7f92d59"
+    },
+    {
+      "pv": "pvc-98703eff-7b4d-4e5d-8e8d-a2cec53aa62f",
+      "pvUID": "c5430665-8b8f-4d4d-8824-01e0bd7ab254",
+      "nodeUID": "0fe248b6-bab6-45ab-8813-d42fbe7fb375",
+      "path": "/data/neon-local/pvc-98703eff-7b4d-4e5d-8e8d-a2cec53aa62f_neon_safekeeper2-data",
+      "jobUID": "d82e56da-8ae2-4f28-9127-e7a87aa60d15"
+    },
+    {
+      "pv": "pvc-ae596afb-35aa-4f20-b4c1-78793e32716e",
+      "pvUID": "6e8e596c-dde9-4230-95a9-f0151de5eb7d",
+      "nodeUID": "335051f1-0eb0-463d-bca2-4c4045ba1e68",
+      "path": "/data/neon-local/pvc-ae596afb-35aa-4f20-b4c1-78793e32716e_neon_neon-control-v2-db",
+      "jobUID": "253e02c7-26d4-46d0-8f6e-05b537cd8b1e"
+    },
+    {
+      "pv": "pvc-d278715c-96df-480b-ad17-ffb0165321ed",
+      "pvUID": "0937ac36-2a49-429d-a286-1d47bd4a6768",
+      "nodeUID": "70c92eec-070e-49e3-a6d4-8366c5908147",
+      "path": "/data/neon-local/pvc-d278715c-96df-480b-ad17-ffb0165321ed_neon_pageserver-managed-cache",
+      "jobUID": "eb85ecd0-8702-42b6-a8d5-eab61d2ea02f"
+    },
+    {
+      "pv": "pvc-dae8885a-e28f-439d-8f95-419c8741ec43",
+      "pvUID": "9726f0e7-20db-4750-90d8-e98a2452c730",
+      "nodeUID": "335051f1-0eb0-463d-bca2-4c4045ba1e68",
+      "path": "/data/neon-local/pvc-dae8885a-e28f-439d-8f95-419c8741ec43_neon_controller-db-data",
+      "jobUID": "2e36e31d-a372-4e78-b58b-0f15e7da2784"
+    },
+    {
+      "pv": "pvc-f752215e-c0a2-4d8f-9441-e37dcf13be48",
+      "pvUID": "2af66b2a-98af-4d61-be39-9b66dc4e95dc",
+      "nodeUID": "335051f1-0eb0-463d-bca2-4c4045ba1e68",
+      "path": "/data/neon-local/pvc-f752215e-c0a2-4d8f-9441-e37dcf13be48_neon_minio-data",
+      "jobUID": "cca21c54-fa5c-4bd4-b702-66033164d5cc"
+    }
+  ],
+  "sharedPlatformPreserved": true,
+  "harborAvailable": true,
+  "steps": {
+    "inventory-and-original-scope": {
+      "status": "completed",
+      "unix": 1795525989.4090507
+    },
+    "stop-capacity-writers": {
+      "status": "completed",
+      "unix": 1795525994.501113
+    },
+    "end-native-host-domains": {
+      "status": "completed",
+      "unix": 1795526002.690513
+    },
+    "return-ordinary-pods-to-kubernetes": {
+      "status": "completed",
+      "unix": 1795526018.7821999
+    },
+    "clean-original-host-artifacts": {
+      "status": "completed",
+      "unix": 1795526020.2668457
+    },
+    "uninstall-original-releases": {
+      "status": "completed",
+      "unix": 1795526046.7231996
+    },
+    "erase-original-volume-data": {
+      "status": "completed",
+      "unix": 1795526049.156428
+    },
+    "verify-clean-empty-state": {
+      "status": "completed",
+      "unix": 1795526089.2240381
+    }
+  }
+}

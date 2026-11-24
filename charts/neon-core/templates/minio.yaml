@@ -29,7 +29,7 @@ spec:
       {{- $minioSelector := .Values.minio.nodeSelector | default dict -}}
       {{- if not (kindIs "map" $minioSelector) -}}{{ fail "minio.nodeSelector must be a hostname map" }}{{- end -}}
       {{- range $key, $value := $minioSelector -}}
-      {{- if or (ne $key "kubernetes.io/hostname") (not (has $value $.Values.placement.allowedNodeNames)) -}}
+      {{- if or (ne $key "kubernetes.io/hostname") (and $.Values.placement.allowedNodeNames (not (has $value $.Values.placement.allowedNodeNames))) -}}
       {{- fail "minio.nodeSelector permits only kubernetes.io/hostname values from placement.allowedNodeNames" -}}
       {{- end -}}
       {{- end -}}

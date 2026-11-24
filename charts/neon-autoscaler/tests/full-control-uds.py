@@ -12,6 +12,26 @@ def objects(path):
    require(obj["metadata"].get("namespace") in (None,"kube-system"),"unexpected legacy binding namespace")
    obj["metadata"].pop("namespace",None)
  data={(x["kind"],x["metadata"].get("namespace",""),x["metadata"]["name"]):x for x in docs};require(len(data)==len(docs),"duplicate resource");return data
+def reviewed_placement(data,nodes):
+ result=copy.deepcopy(data);names=sorted(nodes);expected={"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/hostname","operator":"In","values":names}]}]}}}
+ for obj in result.values():
+  if obj["kind"] not in ("DaemonSet","Deployment") or obj["metadata"]["name"] not in ("autoscaler-agent","autoscale-scheduler"):continue
+  pod=obj["spec"]["template"]["spec"];selector=pod.get("nodeSelector",{});legacy="neon.tech/pg17-memory-pool"
+  if legacy in selector:
+   require(selector[legacy]=="-".join(names) and pod.get("affinity")==expected,"unexpected historical placement delta")
+   del selector[legacy];del pod["affinity"]
+  # Kubernetes treats an explicitly null optional affinity as absent; preserve all non-null constraints.
+  if "affinity" in pod and pod["affinity"] is None:del pod["affinity"]
+ return result
+
+def without_reviewed_node_reader(data,nodes):
+ result=copy.deepcopy(data);name="neon-dsga-agent-node-reader";key=("ClusterRole","",name);binding=("ClusterRoleBinding","",name)
+ expected={"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRole","metadata":{"name":name},"rules":[{"apiGroups":[""],"resources":["nodes"],"resourceNames":sorted(nodes),"verbs":["get"]}]}
+ require(result.pop(key)==expected,"Agent Node reader authority widened")
+ expected={"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"name":name},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":name},"subjects":[{"kind":"ServiceAccount","name":"autoscaler-agent","namespace":"kube-system"}]}
+ require(result.pop(binding)==expected,"Agent Node reader binding changed")
+ return result
+
 def main():
  ap=argparse.ArgumentParser(description=__doc__);ap.add_argument("--output",type=pathlib.Path,required=True);ap.add_argument("--baseline-commit",default=BASELINE,help="explicit reviewed AST regression baseline");a=ap.parse_args();baseline_commit=a.baseline_commit;require(len(baseline_commit)==40 and all(c in "0123456789abcdef" for c in baseline_commit),"full immutable baseline SHA required");out=a.output.resolve();out.mkdir(parents=True,exist_ok=False);chart=pathlib.Path(__file__).resolve().parents[1];repo=chart.parents[1];start=time.monotonic()
  archive=subprocess.check_output(["git","-C",str(repo),"archive",baseline_commit,"charts/neon-autoscaler"]);baseline=out/"baseline";baseline.mkdir()
@@ -46,10 +66,10 @@ def main():
   vf=out/(name+".json");vf.write_text(json.dumps(values,indent=2)+"\n");cmd=["helm","template","control-uds-contract",str(root),"-n","default","--kube-version","1.31.2","-f",str(vf)];r=subprocess.run(cmd,capture_output=True,text=True);(out/(name+".yaml")).write_text(r.stdout);(out/(name+".stderr")).write_text(r.stderr);require((r.returncode==0)==(reason is None),name+": "+r.stderr)
   if reason:require(reason in r.stderr,name+": unrelated failure")
   results.append({"case":name,"argv":cmd,"exit":r.returncode,"expected_error":reason})
- require(objects(out/"default-before.yaml")==objects(out/"default-after.yaml"),"default off AST changed");before=objects(out/"reader-before.yaml");after=objects(out/"reader-after.yaml");require(before==after,"enabled reader/full-off AST changed")
+ require(reviewed_placement(objects(out/"default-before.yaml"),nodes)==reviewed_placement(objects(out/"default-after.yaml"),nodes),"unreviewed default AST delta");before=objects(out/"reader-before.yaml");after=objects(out/"reader-after.yaml");require(reviewed_placement(before,nodes)==reviewed_placement(without_reviewed_node_reader(after,nodes),nodes),"unreviewed reader/full-off AST delta")
  actual=objects(out/"full-control.yaml");cmkey=("ConfigMap","kube-system","autoscaler-agent-config");conf=json.loads(actual[cmkey]["data"]["config.json"]);oldconf=json.loads(after[cmkey]["data"]["config.json"]);require(conf["dsga"]["controlSocketPath"]=="/run/neon-dsga-pg17-control/control.sock","full socket config mismatch");require(conf["dsga"]["resourceReadSocketPath"]==oldconf["dsga"]["resourceReadSocketPath"],"reader changed");del conf["dsga"]["controlSocketPath"];require(conf==oldconf,"other config changed");actual[cmkey]["data"]=copy.deepcopy(after[cmkey]["data"])
  dskey=("DaemonSet","kube-system","autoscaler-agent");pod=actual[dskey]["spec"]["template"]["spec"];oldpod=after[dskey]["spec"]["template"]["spec"];vol=next(x for x in pod["volumes"]if x["name"]=="dsga-owner-control");require(vol=={"name":"dsga-owner-control","hostPath":{"path":full["hostDirectory"],"type":"Directory"}},"unexpected hostPath");pod["volumes"].remove(vol);mount=next(x for x in pod["containers"][0]["volumeMounts"]if x["name"]=="dsga-owner-control");require(mount=={"name":"dsga-owner-control","mountPath":full["mountDirectory"]},"unexpected mount");pod["containers"][0]["volumeMounts"].remove(mount)
  a=actual[dskey]["spec"]["template"]["metadata"].get("annotations",{});b=after[dskey]["spec"]["template"]["metadata"].get("annotations",{});require(set(a)==set(b),"annotation keys changed");require(all(k=="checksum/runtime-config" for k in a if a[k]!=b[k]),"unrelated annotation changed");actual[dskey]["spec"]["template"]["metadata"]["annotations"]=copy.deepcopy(b);require(actual==after,"unrelated resource/selector/RBAC changed")
  cmd=["helm","lint",str(chart),"--strict","-f",str(out/"full-control.json")];r=subprocess.run(cmd,capture_output=True,text=True);(out/"lint.stdout").write_text(r.stdout);(out/"lint.stderr").write_text(r.stderr);require(r.returncode==0,"lint failed: "+r.stdout+r.stderr)
- result={"status":"PASS_FULL_CONTROL_UDS_FOCUSED_RENDER","baseline_commit":baseline_commit,"cases":results,"render_commands":len(cases),"lint_exit":r.returncode,"default_off_AST_equal":True,"DSGA_reader_enabled_full_off_AST_equal":True,"enabled_only_adds_control_path_volume_mount_and_checksum":True,"reader_api_and_path_unchanged":True,"no_new_RBAC_network_or_Node_changes":True,"render_fixture_only_not_real_Lease_or_qualification":True,"cluster_write_performed":False,"script_sha256":hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),"seconds":time.monotonic()-start};(out/"result.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n");print(json.dumps({"status":result["status"],"commands":len(cases),"result":str(out/"result.json"),"seconds":result["seconds"]}))
+ result={"status":"PASS_FULL_CONTROL_UDS_FOCUSED_RENDER","baseline_commit":baseline_commit,"cases":results,"render_commands":len(cases),"lint_exit":r.returncode,"default_off_AST_equal_except_reviewed_placement":True,"reader_AST_equal_except_reviewed_placement_and_exact_Node_GET":True,"enabled_only_adds_control_path_volume_mount_and_checksum":True,"reader_api_and_path_unchanged":True,"control_switch_adds_no_RBAC_network_or_Node_changes":True,"render_fixture_only_not_real_Lease_or_qualification":True,"cluster_write_performed":False,"script_sha256":hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),"seconds":time.monotonic()-start};(out/"result.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n");print(json.dumps({"status":result["status"],"commands":len(cases),"result":str(out/"result.json"),"seconds":result["seconds"]}))
 if __name__=="__main__":main()

@@ -4,7 +4,7 @@
 {{- end }}
 # 原finalizer先GET退役绑定节点，再分页LIST全部节点核无遗留持有。
 # LIST不带name字段选择器，Kubernetes不能用resourceNames限制这次LIST。
-# 这里仅开放读取；不授予Node写入，精确GET仍排除116。
+# 仅开放读取，不授予Node写入；开放节点池由运行时原UID校验隔离身份。
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -12,8 +12,10 @@ metadata:
 rules:
 - apiGroups: [""]
   resources: [nodes]
+  {{- if .Values.placement.allowedNodeNames }}
   resourceNames:
     {{- toYaml .Values.placement.allowedNodeNames | nindent 4 }}
+  {{- end }}
   verbs: [get]
 - apiGroups: [""]
   resources: [nodes]

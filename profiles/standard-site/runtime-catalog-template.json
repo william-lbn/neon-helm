@@ -1,0 +1,419 @@
+{
+  "protocol_version": 3,
+  "releases": [
+    {
+      "protocol_version": 1,
+      "region": "rke2-lab",
+      "default_flavor": true,
+      "bounds": {
+        "max_cpu_milli": 2000,
+        "max_memory_mib": 8192,
+        "min_cpu_milli": 2000,
+        "min_memory_mib": 7168
+      },
+      "creation": {
+        "postgres_version": 17,
+        "native_bootstrap_version": 3,
+        "namespace": "neon",
+        "image": "10.11.9.236:5000/neon/neon-candidate-pg17-guest@sha256:369f8d000d78bae192d7be0b2d69d8599d610d1f307d66740d15c4a419ea8fec",
+        "memory_slot_bytes": 1073741824,
+        "budget": {
+          "bootstrap_buffer_bytes": 2097152,
+          "maximum_buffer_bytes": 67108864,
+          "minimum_guest_memory_bytes": 7516192768,
+          "non_buffer_reserve_bytes": 6442450944
+        },
+        "vm": {
+          "protocol_version": 5,
+          "architecture": "amd64",
+          "runner_image": "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
+          "kernel_image": "10.11.9.236:5000/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
+          "root_disk_bytes": 8589934592,
+          "scheduler_name": "autoscale-scheduler",
+          "service_account": "neon-dsga-runner-base",
+          "tls_cluster_issuer": "",
+          "resource_limits": {
+            "address_space_max_bytes": "4294967296",
+            "huge_pools": [
+              {
+                "page_size_kb": "2048",
+                "pages": "0"
+              },
+              {
+                "page_size_kb": "1048576",
+                "pages": "0"
+              }
+            ],
+            "memory_max_bytes": "1077411840",
+            "outside_upper_bytes": "6278873088",
+            "pids_max_tasks": "128",
+            "system_memory_max_bytes": "536870912"
+          },
+          "runner_pod_resources": {
+            "cpu_limit_milli": 4000,
+            "cpu_request_milli": 2000,
+            "memory_limit_bytes": 11811160064,
+            "memory_request_bytes": 11811160064
+          },
+          "placement": {
+            "node_selector": {
+              "kubernetes.io/os": "linux",
+              "kubernetes.io/arch": "amd64"
+            },
+            "allowed_node_names": []
+          },
+          "generic_guest": {
+            "protocol_version": 2,
+            "policy_templates": {
+              "protocol_version": 1,
+              "scope": "neon-dsga-policy-templates-v1",
+              "templates": [
+                {
+                  "asset": "dsga-physical-kernel.json",
+                  "policy": {
+                    "kernel_artifact_sha256": "18c9fd3a38bbe5a087b98998c856898e97ee3f0bc68681b13f0287912849e1ad",
+                    "kernel_config_sha256": "966e615127358d6d0dcf4f6ca884a07702e957ad07a95909cf95feca4aae5441",
+                    "kernel_notes_sha256": "a496a3c44fc0b374f100ba0331a2e21f02d6e79ac999769a8d3ad4d71b76024e",
+                    "kernel_release": "6.12.26-william-normal-split-metadata-v1-c67181104ec1",
+                    "profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "protocol_version": 1
+                  }
+                },
+                {
+                  "asset": "dsga-kernel-bootstrap.json",
+                  "policy": {
+                    "controls": {
+                      "compaction_proactiveness": 0,
+                      "min_free_kbytes": "4096",
+                      "percpu_pagelist_high_fraction": 1024,
+                      "pid_max": 512,
+                      "watermark_boost_factor": 0,
+                      "watermark_scale_factor": 10
+                    },
+                    "demotion_enabled": false,
+                    "max_user_namespaces": "0",
+                    "modules_disabled": 1,
+                    "numa_balancing": 0,
+                    "profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "protocol_version": 2
+                  }
+                },
+                {
+                  "asset": "dsga-prebootstrap-system.json",
+                  "policy": {
+                    "boot_memory_upper_bytes": "536870912",
+                    "filesystem_profile_sha256": "e135e41aac44902bd6d07a93d338a3f1d3de1252369159c6d794fe6f4d58f5b6",
+                    "physical_profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "protocol_version": 3,
+                    "scope": "pre-bootstrap-system-placement-only"
+                  }
+                },
+                {
+                  "asset": "dsga-normal-split.json",
+                  "policy": {
+                    "initial_arrays_memory_max_bytes": "268435456",
+                    "memory_origin_protocol_version": 2,
+                    "physical_profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "private_memory_max_bytes": "268435456",
+                    "private_pids_max_tasks": "64",
+                    "protocol_version": 4,
+                    "scope": "normal-split-topology-preparation-only"
+                  }
+                },
+                {
+                  "asset": "dsga-native-birth.json",
+                  "policy": {
+                    "array_helper_address_space_max_bytes": "67108864",
+                    "array_helper_elf_sha256": "a186e9e072f052d33fb6598d6a8fc81235eef093ce9ef7697684dc3a5b5af157",
+                    "array_helper_memlock_upper_bytes": "1048576",
+                    "array_helper_path": "/neonvm/bin/neon-dsga-array-populate",
+                    "array_helper_protocol_version": 1,
+                    "array_helper_reserve_bytes": "68157440",
+                    "build_manifest_sha256": "50ee65c3c198bd58644f44ffd79023e78eb1ff0e51f2647930ee5e0c10a62a4e",
+                    "element_bytes": [
+                      64,
+                      8192,
+                      16,
+                      20
+                    ],
+                    "max_buffers": 8192,
+                    "page_bytes": 4096,
+                    "pg_major": 17,
+                    "protocol_version": 1,
+                    "scope": "neon-native-birth-policy-v1",
+                    "startup_buffers": 256
+                  }
+                }
+              ]
+            },
+            "supply": {
+              "protocol_version": 1,
+              "agent_namespace": "kube-system",
+              "agent_service_account": "autoscaler-agent",
+              "agent_daemon_set": "autoscaler-agent",
+              "agent_dump_port": 10300,
+              "platform_namespace": "neon-control-runtime",
+              "qualifier_image": "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
+              "qualifier_service_account": "qualification-issuer",
+              "adapter_service_account": "neon-control-adapter",
+              "node_read_cluster_role": "neon-control-runtime-worker-nodes",
+              "resource_read_host_directory": "/run/neon-dsga-pg17-resource",
+              "resource_read_socket_name": "resource.sock",
+              "host_leases": [],
+              "targets": [
+                {
+                  "normal_memory_max_bytes": "1077411840",
+                  "vm_memory_bytes": "7516192768"
+                },
+                {
+                  "normal_memory_max_bytes": "1127743488",
+                  "vm_memory_bytes": "8589934592"
+                }
+              ],
+              "automatic": {
+                "cooldownSeconds": 20,
+                "emergencyThresholdPermille": 800,
+                "growThresholdPermille": 150,
+                "growWindowSeconds": 15,
+                "maximumSampleGapSeconds": 90,
+                "requestDeadlineSeconds": 600,
+                "sampleIntervalSeconds": 5,
+                "shrinkThresholdPermille": 120,
+                "shrinkWindowSeconds": 45,
+                "targets": [
+                  {
+                    "buffers": 256,
+                    "vmMemoryBytes": "7516192768"
+                  },
+                  {
+                    "buffers": 2048,
+                    "vmMemoryBytes": "8589934592"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "storage": {
+          "protocol_version": 1,
+          "service_name": "storage-controller-management",
+          "service_uid": "",
+          "port": 1235,
+          "credential_namespace": "neon",
+          "credential_secret_name": "neon-storage-management-client",
+          "credential_secret_uid": ""
+        },
+        "flavor_id": "standard",
+        "retained_catalog": true,
+        "logical_buffer_demand": false
+      }
+    },
+    {
+      "protocol_version": 1,
+      "region": "rke2-lab",
+      "default_flavor": true,
+      "bounds": {
+        "max_cpu_milli": 2000,
+        "max_memory_mib": 8192,
+        "min_cpu_milli": 2000,
+        "min_memory_mib": 7168
+      },
+      "creation": {
+        "postgres_version": 18,
+        "native_bootstrap_version": 3,
+        "namespace": "neon",
+        "image": "10.11.9.236:5000/neon/neon-candidate-pg18-guest@sha256:1ca04bcef85ea7917c092e266c5c7b0f56350deb7b188712e4ba61d6b87513c5",
+        "memory_slot_bytes": 1073741824,
+        "budget": {
+          "bootstrap_buffer_bytes": 2097152,
+          "maximum_buffer_bytes": 67108864,
+          "minimum_guest_memory_bytes": 7516192768,
+          "non_buffer_reserve_bytes": 6442450944
+        },
+        "vm": {
+          "protocol_version": 5,
+          "architecture": "amd64",
+          "runner_image": "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
+          "kernel_image": "10.11.9.236:5000/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
+          "root_disk_bytes": 8589934592,
+          "scheduler_name": "autoscale-scheduler",
+          "service_account": "neon-dsga-runner-base",
+          "tls_cluster_issuer": "",
+          "resource_limits": {
+            "address_space_max_bytes": "4294967296",
+            "huge_pools": [
+              {
+                "page_size_kb": "2048",
+                "pages": "0"
+              },
+              {
+                "page_size_kb": "1048576",
+                "pages": "0"
+              }
+            ],
+            "memory_max_bytes": "1077411840",
+            "outside_upper_bytes": "6278873088",
+            "pids_max_tasks": "128",
+            "system_memory_max_bytes": "536870912"
+          },
+          "runner_pod_resources": {
+            "cpu_limit_milli": 4000,
+            "cpu_request_milli": 2000,
+            "memory_limit_bytes": 11811160064,
+            "memory_request_bytes": 11811160064
+          },
+          "placement": {
+            "node_selector": {
+              "kubernetes.io/os": "linux",
+              "kubernetes.io/arch": "amd64"
+            },
+            "allowed_node_names": []
+          },
+          "generic_guest": {
+            "protocol_version": 2,
+            "policy_templates": {
+              "protocol_version": 1,
+              "scope": "neon-dsga-policy-templates-v1",
+              "templates": [
+                {
+                  "asset": "dsga-physical-kernel.json",
+                  "policy": {
+                    "kernel_artifact_sha256": "18c9fd3a38bbe5a087b98998c856898e97ee3f0bc68681b13f0287912849e1ad",
+                    "kernel_config_sha256": "966e615127358d6d0dcf4f6ca884a07702e957ad07a95909cf95feca4aae5441",
+                    "kernel_notes_sha256": "a496a3c44fc0b374f100ba0331a2e21f02d6e79ac999769a8d3ad4d71b76024e",
+                    "kernel_release": "6.12.26-william-normal-split-metadata-v1-c67181104ec1",
+                    "profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "protocol_version": 1
+                  }
+                },
+                {
+                  "asset": "dsga-kernel-bootstrap.json",
+                  "policy": {
+                    "controls": {
+                      "compaction_proactiveness": 0,
+                      "min_free_kbytes": "4096",
+                      "percpu_pagelist_high_fraction": 1024,
+                      "pid_max": 512,
+                      "watermark_boost_factor": 0,
+                      "watermark_scale_factor": 10
+                    },
+                    "demotion_enabled": false,
+                    "max_user_namespaces": "0",
+                    "modules_disabled": 1,
+                    "numa_balancing": 0,
+                    "profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "protocol_version": 2
+                  }
+                },
+                {
+                  "asset": "dsga-prebootstrap-system.json",
+                  "policy": {
+                    "boot_memory_upper_bytes": "536870912",
+                    "filesystem_profile_sha256": "e135e41aac44902bd6d07a93d338a3f1d3de1252369159c6d794fe6f4d58f5b6",
+                    "physical_profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "protocol_version": 3,
+                    "scope": "pre-bootstrap-system-placement-only"
+                  }
+                },
+                {
+                  "asset": "dsga-normal-split.json",
+                  "policy": {
+                    "initial_arrays_memory_max_bytes": "268435456",
+                    "memory_origin_protocol_version": 2,
+                    "physical_profile_id": "neon-linux-6.12.26-dsga-normal-split-metadata-v1",
+                    "private_memory_max_bytes": "268435456",
+                    "private_pids_max_tasks": "64",
+                    "protocol_version": 4,
+                    "scope": "normal-split-topology-preparation-only"
+                  }
+                },
+                {
+                  "asset": "dsga-native-birth.json",
+                  "policy": {
+                    "array_helper_address_space_max_bytes": "67108864",
+                    "array_helper_elf_sha256": "a186e9e072f052d33fb6598d6a8fc81235eef093ce9ef7697684dc3a5b5af157",
+                    "array_helper_memlock_upper_bytes": "1048576",
+                    "array_helper_path": "/neonvm/bin/neon-dsga-array-populate",
+                    "array_helper_protocol_version": 1,
+                    "array_helper_reserve_bytes": "68157440",
+                    "build_manifest_sha256": "8a95b0ded8a199426591d82088e3699a3851c5ab33cda5c1dfcab8993bc824fb",
+                    "element_bytes": [
+                      64,
+                      8192,
+                      16,
+                      20
+                    ],
+                    "max_buffers": 8192,
+                    "page_bytes": 4096,
+                    "pg_major": 18,
+                    "protocol_version": 1,
+                    "scope": "neon-native-birth-policy-v1",
+                    "startup_buffers": 256
+                  }
+                }
+              ]
+            },
+            "supply": {
+              "protocol_version": 1,
+              "agent_namespace": "kube-system",
+              "agent_service_account": "autoscaler-agent",
+              "agent_daemon_set": "autoscaler-agent",
+              "agent_dump_port": 10300,
+              "platform_namespace": "neon-control-runtime",
+              "qualifier_image": "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
+              "qualifier_service_account": "qualification-issuer",
+              "adapter_service_account": "neon-control-adapter",
+              "node_read_cluster_role": "neon-control-runtime-worker-nodes",
+              "resource_read_host_directory": "/run/neon-dsga-pg17-resource",
+              "resource_read_socket_name": "resource.sock",
+              "host_leases": [],
+              "targets": [
+                {
+                  "normal_memory_max_bytes": "1077411840",
+                  "vm_memory_bytes": "7516192768"
+                },
+                {
+                  "normal_memory_max_bytes": "1127743488",
+                  "vm_memory_bytes": "8589934592"
+                }
+              ],
+              "automatic": {
+                "cooldownSeconds": 20,
+                "emergencyThresholdPermille": 800,
+                "growThresholdPermille": 150,
+                "growWindowSeconds": 15,
+                "maximumSampleGapSeconds": 90,
+                "requestDeadlineSeconds": 600,
+                "sampleIntervalSeconds": 5,
+                "shrinkThresholdPermille": 120,
+                "shrinkWindowSeconds": 45,
+                "targets": [
+                  {
+                    "buffers": 256,
+                    "vmMemoryBytes": "7516192768"
+                  },
+                  {
+                    "buffers": 2048,
+                    "vmMemoryBytes": "8589934592"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "storage": {
+          "protocol_version": 1,
+          "service_name": "storage-controller-management",
+          "service_uid": "",
+          "port": 1235,
+          "credential_namespace": "neon",
+          "credential_secret_name": "neon-storage-management-client",
+          "credential_secret_uid": ""
+        },
+        "flavor_id": "standard",
+        "retained_catalog": true,
+        "logical_buffer_demand": false
+      }
+    }
+  ]
+}

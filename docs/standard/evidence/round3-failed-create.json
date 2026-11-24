@@ -1,0 +1,12 @@
+{
+  "status": "operation-failed",
+  "postgresVersion": 17,
+  "harborImagesAvailable": 6,
+  "organization": "org_722655a24e7590823feac2c5",
+  "businessE2E": "NOT_COMPLETE",
+  "creationEnabled": true,
+  "projectID": "prj_743bcf09d3eedeb8",
+  "operationID": "op_3f8a26164fab49ea75ff14b7",
+  "operationPath": "/api/v1/projects/prj_743bcf09d3eedeb8/operations/op_3f8a26164fab49ea75ff14b7",
+  "operationStatus": "failed"
+}

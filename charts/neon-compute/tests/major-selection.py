@@ -1,10 +1,25 @@
 #!/usr/bin/env python3
-"""仅离线Helm版本选择：17逐字兼容，18明确选择；不访问K8s或冒真实PG18验收。"""
+"""仅离线Helm版本选择：17版本契约保持，18明确选择；放置标准化差异单独核对；不访问K8s或冒真实PG18验收。"""
 import argparse,copy,hashlib,json,pathlib,subprocess
 import yaml
 
 def must(ok,message):
  if not ok:raise AssertionError(message)
+
+def reviewed_placement(output):
+ docs=[x for x in yaml.safe_load_all(output) if x]
+ for obj in docs:
+  if obj["kind"]!="VirtualMachine":continue
+  spec=obj["spec"];selector=spec.get("nodeSelector",{});legacy="neon.tech/pg17-memory-pool"
+  if legacy not in selector:
+   if "affinity" in spec and spec["affinity"] is None:del spec["affinity"]
+   continue
+  affinity=spec.get("affinity",{});terms=affinity.get("nodeAffinity",{}).get("requiredDuringSchedulingIgnoredDuringExecution",{}).get("nodeSelectorTerms",[])
+  must(len(terms)==1 and list(terms[0])==["matchExpressions"] and len(terms[0]["matchExpressions"])==1,"unreviewed legacy affinity")
+  expression=terms[0]["matchExpressions"][0];names=expression.get("values",[])
+  must(expression=={"key":"kubernetes.io/hostname","operator":"In","values":names} and names and len(names)==len(set(names)) and selector[legacy]=="-".join(sorted(names)),"legacy pool/affinity authority changed")
+  del selector[legacy];del spec["affinity"]
+ return docs
 
 def main():
  ap=argparse.ArgumentParser(description=__doc__)
@@ -32,9 +47,10 @@ def main():
  for name,values in [('legacy-default17',legacy),('trusted-default17',managed)]:
   before=render(name+'-before',a.baseline_chart,values)
   after=render(name+'-after',chart,values)
-  must(before.encode()==after.encode(),name+': default17 output bytes changed')
+  must(reviewed_placement(before)==reviewed_placement(after),name+': unreviewed default17 change')
  explicit17=copy.deepcopy(managed);explicit17['compute']['pgVersion']=17
- must(render('trusted-explicit17-before',a.baseline_chart,explicit17).encode()==render('trusted-explicit17-after',chart,explicit17).encode(),'explicit17 bytes changed')
+ must(reviewed_placement(render('trusted-explicit17-before',a.baseline_chart,explicit17))==reviewed_placement(render('trusted-explicit17-after',chart,explicit17)),'unreviewed explicit17 change')
+ must((out/'trusted-default17-after.yaml').read_bytes()==(out/'trusted-explicit17-after.yaml').read_bytes(),'current default and explicit17 differ')
  v18=copy.deepcopy(managed);v18['compute'].update(pgVersion=18,image=guest18)
  output=render('trusted-explicit18',chart,v18)
  vm=next(x for x in yaml.safe_load_all(output)if x and x['kind']=='VirtualMachine')
@@ -51,6 +67,6 @@ def main():
  bad=copy.deepcopy(v18);bad['compute']['runtime']['runnerImage']='';render('18-no-runner-refused',chart,bad,False)
  lint=[a.helm,'lint',str(chart),'-f',str(out/'trusted-explicit18.json')]
  q=subprocess.run(lint,capture_output=True,text=True);(out/'lint.log').write_text(q.stdout+q.stderr);must(q.returncode==0,'18 lint failed')
- r={'status':'PASS_PG17_BYTE_IDENTICAL_AND_EXPLICIT_PG18_CHART_ONLY','cases':receipts,'default17_output_byte_identical':True,'explicit17_output_byte_identical':True,'PG18_shared_Runner_Kernel_allowed':True,'all_UID_Source_normal_E_K8s_proof':False,'cluster_API_writes':False,'script_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()}
+ r={'status':'PASS_PG17_VERSION_CONTRACT_AND_EXPLICIT_PG18_CHART_ONLY','cases':receipts,'historical17_equal_except_reviewed_placement':True,'current_default_and_explicit17_byte_identical':True,'PG18_shared_Runner_Kernel_allowed':True,'all_UID_Source_normal_E_K8s_proof':False,'cluster_API_writes':False,'script_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()}
  (out/'result.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'status':r['status'],'cases':len(receipts)}))
 if __name__=='__main__':main()

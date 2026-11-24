@@ -3,9 +3,17 @@ import path from 'node:path';
 import {root,readJSON,validatePlan,validateControlImagesLock,pinned,digest,documents} from './lib.mjs';
 import {checkChartCatalog} from './chart-catalog.mjs';
 const failures=[];
-// Checked-in offline validators are source, not deployment credentials. Keep an
-// explicit inventory so adding arbitrary Python still requires a review.
+// Reviewed operator entry points and offline validators are source.
+// Runtime Proxy/Storage remain compiled Go; new Python requires explicit review.
 const allowedPython = new Set([
+  'tools/standard-site.py',
+  'tools/standard-uninstall.py',
+  'tools/standard-site_test.py',
+  'tools/package-standard-site.py',
+  'tools/host-decommission/context.py',
+  'tools/acceptance/prepare-standard-acceptance.py',
+  'tools/acceptance/verify-lifecycle.py',
+  'tools/acceptance/read-root-resource.py',
   'charts/neon-core/files/compute_resizer.py',
   'charts/neon-core/files/proxy_api.py',
   'tools/check-pg17-helm.py',

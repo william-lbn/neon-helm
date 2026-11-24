@@ -22,7 +22,7 @@
 
 {{- define "neon-autoscaler.dsga.schedulerConfig" -}}
 {{- $config := .Files.Get "files/scheduler-plugin-config.json" | fromJson -}}
-{{- if .Values.dsga.enabled -}}
+{{- if and .Values.dsga.enabled .Values.dsga.scheduler.enabled -}}
 {{- $_ := set $config "dsgaHost" (dict "nodes" .Values.dsga.scheduler.nodes) -}}
 {{- end -}}
 {{- $config | toPrettyJson -}}
@@ -76,8 +76,11 @@
 {{- fail "Agent resource-read socket requires a short original socket filename" -}}{{- end -}}
 {{- end -}}
 {{- if $d.enabled -}}
-{{- if or (ne (toString .Capabilities.KubeVersion.Minor) "31") (ne (toString .Values.compatibility.expectedKubernetesMinor) "31") .Values.compatibility.allowUntestedKubernetes -}}
-{{- fail "PG17 DSGA requires the actually observed Kubernetes 1.31 target; untested-minor bypass is forbidden" -}}{{- end -}}
+{{- if .Values.compatibility.allowUntestedKubernetes -}}
+{{- fail "DSGA forbids compatibility.allowUntestedKubernetes" -}}{{- end -}}
+{{- $minor := trimSuffix "+" (toString .Capabilities.KubeVersion.Minor) -}}
+{{- if ne $minor (toString .Values.compatibility.expectedKubernetesMinor) -}}
+{{- fail "DSGA Kubernetes minor must match the explicitly configured actual target" -}}{{- end -}}
 {{- $a := $d.agent -}}
 {{- if or (not (regexMatch "^https://[A-Za-z0-9.-]+(:[1-9][0-9]{0,4})?/?$" $a.gatewayURL)) (not $a.managementCASecret) -}}
 {{- fail "DSGA requires a trusted HTTPS gateway root URL and existing public management CA Secret" -}}

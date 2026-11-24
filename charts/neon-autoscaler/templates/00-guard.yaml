@@ -2,4 +2,5 @@
 {{- range $name, $image := .Values.images -}}
 {{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" $image) -}}{{- fail (printf "images.%s must be pinned by digest" $name) -}}{{- end -}}
 {{- end -}}
-{{- if and (not .Values.compatibility.allowUntestedKubernetes) (ne (toString .Capabilities.KubeVersion.Minor) (toString .Values.compatibility.expectedKubernetesMinor)) -}}{{- fail "Autoscaling scheduler was built for Kubernetes 1.31; recompile and validate for this cluster before install" -}}{{- end -}}
+{{- $minor := trimSuffix "+" (toString .Capabilities.KubeVersion.Minor) -}}
+{{- if and (not .Values.compatibility.allowUntestedKubernetes) (ne $minor (toString .Values.compatibility.expectedKubernetesMinor)) -}}{{- fail "Autoscaling Kubernetes minor differs from the configured target; validate the actual runtime before enabling business" -}}{{- end -}}

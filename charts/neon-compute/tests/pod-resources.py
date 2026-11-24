@@ -5,6 +5,21 @@ import yaml
 BASELINE="552f6b8e33997f424e87573391b3f1892d68771a"
 def must(ok,message):
  if not ok:raise AssertionError(message)
+def reviewed_placement(output):
+ docs=[x for x in yaml.safe_load_all(output) if x]
+ for obj in docs:
+  if obj["kind"]!="VirtualMachine":continue
+  spec=obj["spec"];selector=spec.get("nodeSelector",{});legacy="neon.tech/pg17-memory-pool"
+  if legacy not in selector:
+   if "affinity" in spec and spec["affinity"] is None:del spec["affinity"]
+   continue
+  affinity=spec.get("affinity",{});terms=affinity.get("nodeAffinity",{}).get("requiredDuringSchedulingIgnoredDuringExecution",{}).get("nodeSelectorTerms",[])
+  must(len(terms)==1 and list(terms[0])==["matchExpressions"] and len(terms[0]["matchExpressions"])==1,"unreviewed legacy affinity")
+  expression=terms[0]["matchExpressions"][0];names=expression.get("values",[])
+  must(expression=={"key":"kubernetes.io/hostname","operator":"In","values":names} and names and len(names)==len(set(names)) and selector[legacy]=="-".join(sorted(names)),"legacy pool/affinity authority changed")
+  del selector[legacy];del spec["affinity"]
+ return docs
+
 def main():
  ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--output',type=pathlib.Path,required=True);args=ap.parse_args()
  repo=pathlib.Path(__file__).resolve().parents[3];out=args.output.resolve();out.mkdir(parents=True,exist_ok=False);started=time.monotonic()
@@ -29,7 +44,7 @@ def main():
   if error:must(error in p.stderr,name+': unrelated refusal '+p.stderr)
   receipts.append({'case':name,'argv':cmd,'exit':p.returncode,'expected_schema_error':error})
  def objects(name):return [d for d in yaml.safe_load_all((out/(name+'.yaml')).read_text()) if d]
- must(objects('legacy-before')==objects('legacy-after'),'legacy resources changed')
+ must(reviewed_placement((out/'legacy-before.yaml').read_text())==reviewed_placement((out/'legacy-after.yaml').read_text()),'legacy resources changed beyond reviewed placement')
  vm=next(d for d in objects('trusted-cap') if d['kind']=='VirtualMachine');spec=vm['spec']
  must(spec['podResources']==managed['compute']['runtime']['podResources'],'resource values were lost or changed')
  must(spec['dsgaBootstrap']['ready'] is False,'must remain held')
@@ -38,7 +53,7 @@ def main():
  must('extraNetwork' not in spec,'primary-only changed')
  lint=['helm','lint',str(repo/'charts/neon-compute'),'-f',str(out/'trusted-cap.json')]
  p=subprocess.run(lint,capture_output=True,text=True);(out/'lint.log').write_text(p.stdout+p.stderr);must(p.returncode==0,'lint failed')
- result={'status':'PASS_PG17_RUNNER_HARD_LIMIT_RENDER_CONTRACT','cases':receipts,'lint_argv':lint,'lint_exit':p.returncode,'legacy_AST_unchanged':True,'trusted_explicit_cap_CPU4_memory10Gi':True,'held_and_primary_and_guest_geometry_preserved':True,'cluster_write_performed':False,'script_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),'seconds':time.monotonic()-started}
+ result={'status':'PASS_PG17_RUNNER_HARD_LIMIT_RENDER_CONTRACT','cases':receipts,'lint_argv':lint,'lint_exit':p.returncode,'legacy_AST_unchanged_except_reviewed_placement':True,'trusted_explicit_cap_CPU4_memory10Gi':True,'held_and_primary_and_guest_geometry_preserved':True,'cluster_write_performed':False,'script_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(),'seconds':time.monotonic()-started}
  (out/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
  print(json.dumps({'status':result['status'],'cases':len(cases),'seconds':result['seconds'],'result':str(out/'result.json')}))
 if __name__=='__main__':main()

@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "image": "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
+  "oldImages": [
+    "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:b369670ea324516941e69899a3d4eff5d1565259e548106748fea670b1d6f3fb"
+  ],
+  "releaseCount": 2,
+  "catalogSHA256": "37ed65be9fbd33095b7f20b283aef8717728196fe7b2423a073d99481853b4c1",
+  "harborPreflight": true,
+  "existingFrozenPlansChanged": false,
+  "readyDeployments": [
+    "neon-control-api",
+    "neon-control-worker"
+  ]
+}

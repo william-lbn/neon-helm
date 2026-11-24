@@ -1,0 +1,70 @@
+{
+  "compatibility": {
+    "allowUntestedKubernetes": false,
+    "expectedKubernetesMinor": "36"
+  },
+  "dsga": {
+    "agent": {
+      "automaticMemory": {},
+      "cacheShadow": {},
+      "computeTimeoutSeconds": 100,
+      "controlSocket": {
+        "enabled": true,
+        "hostDirectory": "/run/neon-dsga-owner-control",
+        "mountDirectory": "/run/neon-dsga-owner-control",
+        "name": "control.sock"
+      },
+      "gatewayURL": "https://neon-compute-management-gateway.neon.svc:8444",
+      "managementCAKey": "ca.crt",
+      "managementCASecret": "neon-dsga-management-ca",
+      "pollIntervalSeconds": 5,
+      "prepareQualifications": {},
+      "requestTimeoutSeconds": 10,
+      "resourceReadSocket": {
+        "enabled": true,
+        "hostDirectory": "/run/neon-dsga-pg17-resource",
+        "mountDirectory": "/run/neon-dsga-pg17-resource",
+        "name": "resource.sock"
+      },
+      "runtimeSelectionNamespace": "neon-control-runtime",
+      "tokenAudience": "neon-dsga-credential-broker",
+      "tokenExpirationSeconds": 600
+    },
+    "enabled": true,
+    "hostIdentities": {},
+    "pgVersion": 17,
+    "scheduler": {
+      "enabled": false,
+      "nodes": [],
+      "ordinaryStopSourceNames": [],
+      "podProtectionNamespaces": [
+        "kube-system",
+        "neon-control-runtime",
+        "neonvm-system"
+      ]
+    },
+    "vmNamespace": "neon"
+  },
+  "experimentalAcknowledged": true,
+  "images": {
+    "agent": "10.11.9.236:5000/neon/neon-autoscaler-agent@sha256:1dbf01ba892b3348668616957cce05a11c6d43b5bc03a6e85168e13e28db9141",
+    "scheduler": "10.11.9.236:5000/neon/dsga403-scheduler@sha256:d112dd1453912548078ab076bc45a32e67949e728738f59741366ff494d1bbc2"
+  },
+  "placement": {
+    "allowedNodeNames": [],
+    "matchExpressions": [
+      {
+        "key": "node-role.kubernetes.io/control-plane",
+        "operator": "DoesNotExist"
+      },
+      {
+        "key": "node-role.kubernetes.io/master",
+        "operator": "DoesNotExist"
+      }
+    ],
+    "nodeSelector": {
+      "kubernetes.io/arch": "amd64",
+      "kubernetes.io/os": "linux"
+    }
+  }
+}

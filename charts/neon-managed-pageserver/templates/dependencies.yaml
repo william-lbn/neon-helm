@@ -16,11 +16,14 @@ data:
     listen_http_addr='0.0.0.0:9898'
     availability_zone='{{ .Values.config.availabilityZone }}'
     control_plane_api='{{ .Values.config.controllerEndpoint }}'
+    {{- if .Values.config.upcallSecret }}
+    ssl_ca_file='/run/neon/storage-upcall/ca.crt'
+    {{- end }}
     control_plane_emergency_mode=false
     virtual_file_io_mode='buffered'
     remote_storage={ endpoint='{{ .Values.config.objectStoreEndpoint }}', bucket_name='{{ .Values.config.objectStoreBucket }}', bucket_region='{{ .Values.config.objectStoreRegion }}', prefix_in_bucket='{{ .Values.config.objectStorePrefix }}' }
   metadata.json: |
-    {"host":"pageserver-managed.{{ .Release.Namespace }}.svc.cluster.local","http_host":"pageserver-managed.{{ .Release.Namespace }}.svc.cluster.local","http_port":9898,"port":6400}
+    {"host":"pageserver-managed.{{ .Release.Namespace }}.svc.{{ .Values.config.clusterDomain }}","http_host":"pageserver-managed.{{ .Release.Namespace }}.svc.{{ .Values.config.clusterDomain }}","http_port":9898,"port":6400}
 ---
 {{- end }}
 {{- if .Values.persistence.create }}

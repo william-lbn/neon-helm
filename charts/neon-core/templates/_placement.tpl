@@ -1,8 +1,4 @@
-{{/*
-Site-generic node pool. Overlay replaces placement.allowedNodeNames with the
-cluster's real hostnames. Defaults stay worker-117/118/119 so existing lab
-overlays keep rendering. Do not hard-code site names in this template.
-*/}}
+{{/* Site selectors are configuration. Empty hostname list permits node discovery. */}}
 {{- define "neon-core.placement.guard" -}}
 {{- if not (kindIs "map" .Values.placement) -}}
 {{- fail "placement.allowedNodeNames must be an explicit list of Kubernetes hostnames" -}}
@@ -10,8 +6,13 @@ overlays keep rendering. Do not hard-code site names in this template.
 {{- if not (kindIs "slice" .Values.placement.allowedNodeNames) -}}
 {{- fail "placement.allowedNodeNames must be an explicit list" -}}
 {{- end -}}
-{{- if lt (len .Values.placement.allowedNodeNames) 1 -}}
-{{- fail "placement.allowedNodeNames must contain at least one hostname" -}}
+
+{{- $selector := .Values.placement.nodeSelector | default dict -}}
+{{- if not (kindIs "map" $selector) -}}{{ fail "placement.nodeSelector must be a label map" }}{{- end -}}
+{{- range $key, $value := $selector -}}
+{{- if not (kindIs "string" $value) -}}{{ fail "placement.nodeSelector values must be strings" }}{{- end -}}
+{{- if or (and (eq $key "kubernetes.io/os") (ne $value "linux")) (and (eq $key "kubernetes.io/arch") (ne $value "amd64")) -}}
+{{- fail "selected runtime requires linux/amd64" -}}{{- end -}}
 {{- end -}}
 {{- $seen := dict -}}
 {{- range .Values.placement.allowedNodeNames -}}
@@ -30,10 +31,9 @@ overlays keep rendering. Do not hard-code site names in this template.
 {{- end -}}
 
 {{- define "neon-core.placement.selector" -}}
+{{- $selector := merge (dict "kubernetes.io/os" "linux" "kubernetes.io/arch" "amd64") (.Values.placement.nodeSelector | default dict) -}}
 nodeSelector:
-  kubernetes.io/os: linux
-  kubernetes.io/arch: amd64
-  neon.tech/pg17-memory-pool: {{ include "neon-core.placement.pool" . | quote }}
+  {{- toYaml $selector | nindent 2 }}
 {{- end -}}
 
 {{- define "neon-core.placement.hostMatch" -}}
@@ -43,11 +43,18 @@ nodeSelector:
 {{- end -}}
 
 {{- define "neon-core.placement.nodeAffinity" -}}
+{{- if or .Values.placement.allowedNodeNames .Values.placement.matchExpressions -}}
 nodeAffinity:
   requiredDuringSchedulingIgnoredDuringExecution:
     nodeSelectorTerms:
     - matchExpressions:
+      {{- if .Values.placement.allowedNodeNames }}
       {{- include "neon-core.placement.hostMatch" . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.placement.matchExpressions }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+{{- end -}}
 {{- end -}}
 
 {{- define "neon-core.placement.pod" -}}

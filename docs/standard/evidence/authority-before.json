@@ -1,0 +1,152 @@
+{
+  "roles": {
+    "neon-dsga-scheduler-node-ledger": {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRole",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "neon-autoscaler",
+          "meta.helm.sh/release-namespace": "default"
+        },
+        "creationTimestamp": "2026-11-24T11:03:30Z",
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "neon-dsga-scheduler-node-ledger",
+        "resourceVersion": "2700324",
+        "uid": "d5eb4519-5697-47d4-80a2-2c3330f61a49"
+      },
+      "rules": [
+        {
+          "apiGroups": [
+            ""
+          ],
+          "resources": [
+            "nodes"
+          ],
+          "verbs": [
+            "get",
+            "patch"
+          ]
+        }
+      ]
+    },
+    "neon-dsga-agent-node-reader": {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRole",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "neon-autoscaler",
+          "meta.helm.sh/release-namespace": "default"
+        },
+        "creationTimestamp": "2026-11-24T11:03:30Z",
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "neon-dsga-agent-node-reader",
+        "resourceVersion": "2700325",
+        "uid": "2e4c063d-be19-470a-82ac-bb2604f56ba1"
+      },
+      "rules": [
+        {
+          "apiGroups": [
+            ""
+          ],
+          "resources": [
+            "nodes"
+          ],
+          "verbs": [
+            "get"
+          ]
+        }
+      ]
+    }
+  },
+  "matrix": [
+    {
+      "node": "master",
+      "actor": "autoscale-scheduler",
+      "verb": "patch",
+      "allowed": true,
+      "nativeExit": 0
+    },
+    {
+      "node": "master",
+      "actor": "autoscaler-agent",
+      "verb": "patch",
+      "allowed": false,
+      "nativeExit": 1
+    },
+    {
+      "node": "node1",
+      "actor": "autoscale-scheduler",
+      "verb": "patch",
+      "allowed": true,
+      "nativeExit": 0
+    },
+    {
+      "node": "node1",
+      "actor": "autoscaler-agent",
+      "verb": "patch",
+      "allowed": false,
+      "nativeExit": 1
+    },
+    {
+      "node": "node2",
+      "actor": "autoscale-scheduler",
+      "verb": "patch",
+      "allowed": true,
+      "nativeExit": 0
+    },
+    {
+      "node": "node2",
+      "actor": "autoscaler-agent",
+      "verb": "patch",
+      "allowed": false,
+      "nativeExit": 1
+    },
+    {
+      "node": "node3",
+      "actor": "autoscale-scheduler",
+      "verb": "patch",
+      "allowed": true,
+      "nativeExit": 0
+    },
+    {
+      "node": "node3",
+      "actor": "autoscaler-agent",
+      "verb": "patch",
+      "allowed": false,
+      "nativeExit": 1
+    },
+    {
+      "node": "node4",
+      "actor": "autoscale-scheduler",
+      "verb": "patch",
+      "allowed": true,
+      "nativeExit": 0
+    },
+    {
+      "node": "node4",
+      "actor": "autoscaler-agent",
+      "verb": "patch",
+      "allowed": false,
+      "nativeExit": 1
+    },
+    {
+      "node": "node5",
+      "actor": "autoscale-scheduler",
+      "verb": "patch",
+      "allowed": true,
+      "nativeExit": 0
+    },
+    {
+      "node": "node5",
+      "actor": "autoscaler-agent",
+      "verb": "patch",
+      "allowed": false,
+      "nativeExit": 1
+    }
+  ],
+  "clusterMutationPerformed": false
+}

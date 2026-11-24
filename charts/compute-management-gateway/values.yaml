@@ -15,12 +15,13 @@ resources:
   requests: {cpu: 100m, memory: 64Mi}
   limits: {cpu: 500m, memory: 192Mi}
 
-# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+# 站点调度条件；不要求实验节点名或由节点名单拼接的专用标签。
 placement:
-  allowedNodeNames:
-  - worker-117
-  - worker-118
-  - worker-119
+  # Empty: Kubernetes may use any eligible node matching nodeSelector.
+  # Explicit names remain available for deliberate site constraints.
+  nodeSelector: {}
+  matchExpressions: []
+  allowedNodeNames: []
 
 # 默认不开放DSGA凭据监听器。正式TLS私钥仅此Gateway挂载，Agent只取得原可信CA。
 dsga:
@@ -28,3 +29,14 @@ dsga:
   agentNamespace: kube-system
   agentServiceAccount: autoscaler-agent
   tlsSecret: ''
+  # 可选的专用cert-manager信任链。外部PKI可继续使用现有tlsSecret。
+  pki:
+    enabled: false
+    selfSignedIssuerName: ''
+    rootCertificateName: ''
+    rootSecretName: ''
+    caIssuerName: ''
+    certificateName: ''
+    agentCASecret: ''
+    # 由安装入口在根证书Ready后读取公钥证书填入，绝不投影根私钥。
+    agentCABundle: ''

@@ -1,0 +1,359 @@
+{
+  "site": "neon-standard-lab",
+  "inputSHA256": "45af92098e5b345cecd183e1454b3a46a397ec6635303750e105698f88323c7d",
+  "status": "installed",
+  "steps": {
+    "fresh-preflight": {
+      "status": "completed",
+      "submittedUnix": 1795518110.6883564,
+      "finishedUnix": 1795518112.3036022
+    },
+    "new-credentials-and-pki": {
+      "status": "completed",
+      "submittedUnix": 1795518112.3045995,
+      "finishedUnix": 1795518116.1068025
+    },
+    "helm-metadata": {
+      "status": "completed",
+      "submittedUnix": 1795518116.227326,
+      "finishedUnix": 1795518128.5122721
+    },
+    "helm-neonvm": {
+      "status": "completed",
+      "submittedUnix": 1795518128.7370436,
+      "finishedUnix": 1795518143.9597373
+    },
+    "helm-gateway": {
+      "status": "completed",
+      "submittedUnix": 1795518144.0897968,
+      "finishedUnix": 1795518154.5664103
+    },
+    "gateway-public-trust": {
+      "status": "completed",
+      "submittedUnix": 1795518154.5669634,
+      "finishedUnix": 1795518154.6753378
+    },
+    "helm-gateway-trust": {
+      "status": "completed",
+      "submittedUnix": 1795518154.8128521,
+      "finishedUnix": 1795518155.7221298
+    },
+    "helm-pageserver-pending-dependencies": {
+      "status": "completed",
+      "submittedUnix": 1795518155.8660364,
+      "finishedUnix": 1795518156.1875923
+    },
+    "helm-core-pending-adapter": {
+      "status": "completed",
+      "submittedUnix": 1795518156.5990355,
+      "finishedUnix": 1795518197.0096793
+    },
+    "bind-new-storage-identities": {
+      "status": "completed",
+      "submittedUnix": 1795518197.0106013,
+      "finishedUnix": 1795518197.1519322
+    },
+    "helm-adapter": {
+      "status": "completed",
+      "submittedUnix": 1795518197.2859814,
+      "finishedUnix": 1795518203.6087897
+    },
+    "rollout-core": {
+      "status": "completed",
+      "submittedUnix": 1795518203.6094615,
+      "finishedUnix": 1795518204.4427187
+    },
+    "rollout-pageserver": {
+      "status": "completed",
+      "submittedUnix": 1795518204.4433758,
+      "finishedUnix": 1795518204.5979931
+    },
+    "rollout-gateway": {
+      "status": "completed",
+      "submittedUnix": 1795518204.5986755,
+      "finishedUnix": 1795518204.780604
+    },
+    "rollout-metadata": {
+      "status": "completed",
+      "submittedUnix": 1795518204.781274,
+      "finishedUnix": 1795518204.929584
+    },
+    "rollout-neonvm": {
+      "status": "completed",
+      "submittedUnix": 1795518204.9302936,
+      "finishedUnix": 1795518205.2983856
+    },
+    "discover-and-bind-new-hosts": {
+      "status": "completed",
+      "submittedUnix": 1795518205.2990592,
+      "finishedUnix": 1795518206.4385068
+    },
+    "private-owner-socket-directories": {
+      "status": "completed",
+      "submittedUnix": 1795518206.4405346,
+      "finishedUnix": 1795518208.6298492
+    },
+    "helm-runtime-access": {
+      "status": "completed",
+      "submittedUnix": 1795518208.7421405,
+      "finishedUnix": 1795518209.2462564
+    },
+    "helm-autoscaler-agent-warmup": {
+      "status": "completed",
+      "submittedUnix": 1795518209.4586403,
+      "finishedUnix": 1795518212.494931
+    },
+    "agent-warmup-ready": {
+      "status": "completed",
+      "submittedUnix": 1795518212.495724,
+      "finishedUnix": 1795518215.9981484
+    },
+    "freeze-first-host-cas": {
+      "status": "completed",
+      "submittedUnix": 1795518216.0004258,
+      "finishedUnix": 1795518243.4895012
+    },
+    "helm-autoscaler-host-activation": {
+      "status": "completed",
+      "submittedUnix": 1795518243.713183,
+      "finishedUnix": 1795518247.8334436
+    },
+    "confirm-original-host-cas": {
+      "status": "completed",
+      "submittedUnix": 1795518247.8342605,
+      "finishedUnix": 1795518266.4623938
+    },
+    "bind-new-runtime-catalog": {
+      "status": "completed",
+      "submittedUnix": 1795518266.4631245,
+      "finishedUnix": 1795518267.0442858
+    },
+    "helm-control": {
+      "status": "completed",
+      "submittedUnix": 1795518267.2531998,
+      "finishedUnix": 1795518284.081647
+    },
+    "control-runtime-ready": {
+      "status": "completed",
+      "submittedUnix": 1795518284.0825012,
+      "finishedUnix": 1795518284.4599686
+    }
+  },
+  "createdResources": [
+    {
+      "kind": "Namespace",
+      "namespace": null,
+      "name": "neon-control-runtime",
+      "uid": "11395e07-e91b-4aba-8656-d2c0af69a4f6"
+    },
+    {
+      "kind": "Namespace",
+      "namespace": null,
+      "name": "neonvm-system",
+      "uid": "8f994a83-734b-4499-b6d1-6960cc9ff0cd"
+    },
+    {
+      "kind": "Namespace",
+      "namespace": null,
+      "name": "neon",
+      "uid": "7cd8f0a0-63c3-42e0-b4c3-5e722027b98e"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-control-v2-db",
+      "uid": "8ddfe8e6-63ed-4acf-9d49-47a2252ffc15"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-control-plane-credentials",
+      "uid": "83801ec4-87fc-41b8-a809-610527ad37cb"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-controller-db",
+      "uid": "bbf7a20f-bc1b-47b1-a534-f4a5a58a5bfb"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-object-store",
+      "uid": "0afdef76-11aa-453b-a056-41a3ab30b940"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-proxy-auth",
+      "uid": "0657644d-87f4-42f2-ab5e-ac536f82790b"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-control-hook-auth",
+      "uid": "1a639ff7-02b0-44c1-b729-4e52f35bbd45"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-product-blob-store",
+      "uid": "b5561bf0-918c-4c98-966a-ca074b3be0c9"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-control-routes",
+      "uid": "ec4d2711-f8af-4a10-a78e-97e64416328e"
+    },
+    {
+      "kind": "ConfigMap",
+      "namespace": "neon",
+      "name": "neon-control-notifications",
+      "uid": "5c9540c8-0b44-4957-b5c0-a31c45702d77"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-storage-management-ca-v1",
+      "uid": "a35d8b67-9829-4142-bb70-126087790695"
+    },
+    {
+      "kind": "Issuer",
+      "namespace": "neon",
+      "name": "neon-storage-management-ca-v1",
+      "uid": "cda491ef-a194-4c07-b873-cf72017b7b65"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-storage-management-server",
+      "uid": "8857edd4-6963-466b-bd06-6b08cf8f8bba"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-storage-management-observer",
+      "uid": "c0b60756-822e-41af-9aec-13061f773efa"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-storage-upcall",
+      "uid": "5d1cb250-85f5-4a62-9c26-84d3c493a99a"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-storage-management-client",
+      "uid": "20dbf02d-d026-4646-8651-ba40bce138f2"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-proxy-tls",
+      "uid": "580a3cbe-5368-4735-9846-33f50e14d607"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-control-proxy-public-ca",
+      "uid": "e0c1610b-a0ad-45f3-a6e2-3d6a487cfad2"
+    },
+    {
+      "kind": "Lease",
+      "namespace": "neon",
+      "name": "neon-dsga-host-node1",
+      "uid": "2fbbdd8e-a580-4444-b2ed-274f0621dfe9"
+    },
+    {
+      "kind": "Lease",
+      "namespace": "neon",
+      "name": "neon-dsga-host-node2",
+      "uid": "bebc2775-3c51-4dc0-bbcf-b16d91d7ccc6"
+    },
+    {
+      "kind": "Lease",
+      "namespace": "neon",
+      "name": "neon-dsga-host-node3",
+      "uid": "520b20c6-2665-4c9e-abc6-25656ea24c00"
+    },
+    {
+      "kind": "Lease",
+      "namespace": "neon",
+      "name": "neon-dsga-host-node4",
+      "uid": "df5226be-4c06-430e-b7d4-72dc5178ea6e"
+    },
+    {
+      "kind": "Lease",
+      "namespace": "neon",
+      "name": "neon-dsga-host-node5",
+      "uid": "bed5d6bd-1ffd-4d16-a230-677f5f9ec3c9"
+    },
+    {
+      "kind": "DaemonSet",
+      "namespace": "neon-control-runtime",
+      "name": "neon-site-socket-bootstrap",
+      "uid": "1a31cac4-a0c0-49f0-bf46-33e6adc795ea"
+    },
+    {
+      "kind": "Secret",
+      "namespace": "neon",
+      "name": "neon-dsga-runtime-catalog-v1",
+      "uid": "d8ca4b97-3ddb-400b-b023-78874a348427"
+    }
+  ],
+  "selectedHosts": [
+    {
+      "name": "node1",
+      "uid": "0cdd2f7d-aeb4-4ed8-897c-6383eb5dcfab"
+    },
+    {
+      "name": "node2",
+      "uid": "335051f1-0eb0-463d-bca2-4c4045ba1e68"
+    },
+    {
+      "name": "node3",
+      "uid": "70c92eec-070e-49e3-a6d4-8366c5908147"
+    },
+    {
+      "name": "node4",
+      "uid": "0fe248b6-bab6-45ab-8813-d42fbe7fb375"
+    },
+    {
+      "name": "node5",
+      "uid": "ff8fbaee-e7e0-4a29-b0f9-1398d1b955cb"
+    }
+  ],
+  "gatewayPublicCASHA256": "9c3ea3c99915af5dd9d6d6cb1ef80d7aefcfab5f6ac205c20eb0780f73967a02",
+  "harborVerified": [
+    "10.11.9.236:5000/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
+    "10.11.9.236:5000/neon/dsga403-controller@sha256:6e91cf02af8f0bc3e44120373bccde43390ffb247837a9af0a5a931bed6ba6cb",
+    "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:c3d74b419d50f04e7f9c575534bd621acbe7ef972a6e32653f74ea5427a9e1b5",
+    "10.11.9.236:5000/neon/squat-generic-device-plugin@sha256:ace7be8864a048cc767183962a1468e39157037147228c4dfbe90b9a2cef82b5",
+    "10.11.9.236:5000/neon/neon-compute-management-gateway@sha256:4a144b091c90d058df7bb5facaf0d5128cdc1dd12e61ca8fd3a8bba2bdc3b5f6",
+    "10.11.9.236:5000/neon/neon-compute-management-gateway@sha256:4a144b091c90d058df7bb5facaf0d5128cdc1dd12e61ca8fd3a8bba2bdc3b5f6",
+    "10.11.9.236:5000/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
+    "10.11.9.236:5000/neon/neon-candidate-pageserver@sha256:1bb14fb264e46211e054942b31d782562d4252099db3941274976a588a9b7799",
+    "10.11.9.236:5000/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
+    "10.11.9.236:5000/neon/neon-candidate-safekeeper@sha256:79b3e3a7fa607fa7ac11491e8a2e986775632a3218edecd21fcbc8191bfc4d40",
+    "10.11.9.236:5000/neon/neon-candidate-storage-broker@sha256:703020d483370fe76467a1ac1f8cf6a5c3aed49becef566b959165b507de1941",
+    "10.11.9.236:5000/neon/neon-candidate-storage-controller@sha256:87fd193f6f4dd9c2658d166832d14f21bcf47ea4de2fc4a277476af13f1b3876",
+    "10.11.9.236:5000/neon/neon-proxy@sha256:c57a3b59cf55a2ae92a5596f2c8f00cf1bc5c539bf075af8d08266fdc3aeaf4d",
+    "10.11.9.236:5000/neon/neon-storage-bootstrap@sha256:fad09f74f9d18da09b71bbda6a7743c2659a8171c22eca0d4f95b24af55b044a",
+    "10.11.9.236:5000/neon/neon-test-only-minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8",
+    "10.11.9.236:5000/neon/neon-candidate-control-adapter@sha256:ea422b46624b351b617914e93e4bfe998a7beeedc00fd628e5ffc7cdb552455b",
+    "10.11.9.236:5000/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
+    "10.11.9.236:5000/neon/dsga403-scheduler@sha256:d112dd1453912548078ab076bc45a32e67949e728738f59741366ff494d1bbc2",
+    "10.11.9.236:5000/neon/neon-autoscaler-agent@sha256:1dbf01ba892b3348668616957cce05a11c6d43b5bc03a6e85168e13e28db9141",
+    "10.11.9.236:5000/neon/dsga403-scheduler@sha256:d112dd1453912548078ab076bc45a32e67949e728738f59741366ff494d1bbc2",
+    "10.11.9.236:5000/neon/neon-autoscaler-agent@sha256:1dbf01ba892b3348668616957cce05a11c6d43b5bc03a6e85168e13e28db9141",
+    "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
+    "10.11.9.236:5000/neon/neon-candidate-pg17-guest@sha256:369f8d000d78bae192d7be0b2d69d8599d610d1f307d66740d15c4a419ea8fec",
+    "10.11.9.236:5000/neon/neon-candidate-pg18-guest@sha256:1ca04bcef85ea7917c092e266c5c7b0f56350deb7b188712e4ba61d6b87513c5",
+    "10.11.9.236:5000/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
+    "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:b369670ea324516941e69899a3d4eff5d1565259e548106748fea670b1d6f3fb",
+    "10.11.9.236:5000/neon/neon-control-api-site@sha256:2210b82aa592242d89dffc0f9796b3a914161c0fc69bb4f715f537262a535dba",
+    "10.11.9.236:5000/neon/williamluckyli-control-web@sha256:80b21028ce1518f60d25f95ecfe28cd833a23ea8f0de9400bc93880054fd5ad1"
+  ]
+}

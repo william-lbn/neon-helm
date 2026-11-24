@@ -1,0 +1,241 @@
+{
+  "aiGateway": {
+    "enabled": false,
+    "existingConfigSecret": "",
+    "existingDatabaseSecret": "",
+    "image": "",
+    "labHTTP": false,
+    "resources": {
+      "limits": {
+        "cpu": "500m",
+        "memory": "256Mi"
+      },
+      "requests": {
+        "cpu": "50m",
+        "memory": "64Mi"
+      }
+    }
+  },
+  "aiProviderManagement": {
+    "enabled": false,
+    "existingPrivateSecret": "",
+    "existingPublicSecret": ""
+  },
+  "api": {
+    "computeControlHost": "neon-compute-management-gateway.neon.svc",
+    "computeGatewayURL": "https://neon-compute-management-gateway.neon.svc:8443",
+    "computeImage": "docker.io/williamluckyli/vm-compute-node-v16@sha256:4716bf4c0d5437b05977787398b764b5638ab42bbc657dcc6909fd39c095744d",
+    "cookieSecure": false,
+    "creationEnabled": false,
+    "existingSecret": "neon-control-plane-credentials",
+    "image": {
+      "pullPolicy": "IfNotPresent",
+      "reference": "10.11.9.236:5000/neon/neon-control-api-site@sha256:2210b82aa592242d89dffc0f9796b3a914161c0fc69bb4f715f537262a535dba"
+    },
+    "nodeSelector": {},
+    "pgCASecret": "neon-control-proxy-public-ca",
+    "pgTLSMode": "verify-full",
+    "pitrEnabled": false,
+    "proxyHost": "proxy.neon.svc.cluster.local",
+    "proxyPort": 4432,
+    "publicProxyHost": "",
+    "publicProxyPort": 5432,
+    "replicaCount": 1,
+    "resources": {
+      "limits": {
+        "cpu": "1",
+        "memory": "512Mi"
+      },
+      "requests": {
+        "cpu": "150m",
+        "memory": "128Mi"
+      }
+    },
+    "scaleToZeroEnabled": false
+  },
+  "backendCredentials": {
+    "enabled": false,
+    "existingSecret": "",
+    "labHTTP": false
+  },
+  "billing": {
+    "enabled": false,
+    "existingSecret": ""
+  },
+  "consoleSSO": {
+    "enabled": false,
+    "existingSecret": ""
+  },
+  "dataAPI": {
+    "enabled": false,
+    "gatewayImage": "",
+    "labHTTP": false,
+    "postgrestImage": "",
+    "runtimeHostnames": []
+  },
+  "dsga": {
+    "autoSuspensionEnabled": false,
+    "createEnabled": false,
+    "runtimeCatalogSecret": "neon-dsga-runtime-catalog-v1",
+    "suspensionEnabled": false,
+    "runtimeSelectionNamespace": "neon-control-runtime",
+    "agentNamespace": "kube-system",
+    "runtimeAccessRolePrefix": "neon-control-runtime-neon-runtime-access",
+    "nodeReadClusterRole": "neon-control-runtime-worker-nodes"
+  },
+  "fullnameOverride": "neon-control",
+  "functions": {
+    "branchCopies": {
+      "enabled": false
+    },
+    "edge": {
+      "enabled": false,
+      "existingBrokerSecret": "",
+      "existingClientSecret": "",
+      "nodeSelector": {},
+      "replicaCount": 1,
+      "resources": {
+        "limits": {
+          "cpu": "500m",
+          "memory": "256Mi"
+        },
+        "requests": {
+          "cpu": "100m",
+          "memory": "64Mi"
+        }
+      }
+    },
+    "enabled": false,
+    "existingConfigSecret": "",
+    "existingIssuerSecret": "",
+    "managerCertificateRenewal": {
+      "enabled": false,
+      "renewBeforeSeconds": 2700
+    },
+    "objectEvents": {
+      "enabled": false
+    },
+    "outputLogs": {
+      "enabled": false
+    },
+    "proxyCAKey": "ca.crt",
+    "proxyCASecret": "",
+    "publicHTTP": {
+      "enabled": false,
+      "labHTTP": false,
+      "nodePort": 30892,
+      "origin": "",
+      "serviceType": "ClusterIP"
+    },
+    "schedules": {
+      "enabled": false
+    }
+  },
+  "imagePullSecrets": [],
+  "ingress": {
+    "annotations": {},
+    "className": "traefik",
+    "enabled": false,
+    "host": "",
+    "tls": []
+  },
+  "managedAuth": {
+    "enabled": false,
+    "integrationsSecret": "",
+    "labHTTP": false,
+    "labMailbox": {
+      "acknowledged": false,
+      "enabled": false,
+      "existingAuthSecret": "",
+      "existingClaim": "",
+      "image": "docker.io/axllent/mailpit@sha256:eee7db19e7518ffe47d9b38e46fab655a4edf7e6cb5e664d1b5fde6c9dc49010",
+      "nodeSelector": {},
+      "storageClass": "",
+      "storageSize": "512Mi"
+    },
+    "mail": {
+      "enabled": false,
+      "existingSecret": ""
+    },
+    "pgCAKey": "ca.crt",
+    "pgCASecret": "",
+    "pgServerName": "",
+    "publicOrigin": "",
+    "runtimeHostnames": [],
+    "runtimeImage": ""
+  },
+  "nodeSelector": {},
+  "objectStorage": {
+    "capacity": {
+      "branchBytes": 268435456,
+      "bufferMiB": 256,
+      "objectBytes": 67108864,
+      "transferSeconds": 150
+    },
+    "enabled": false,
+    "existingSecret": "",
+    "s3": {
+      "apiListenerEnabled": true,
+      "enabled": false,
+      "gatewayService": "",
+      "labHTTP": false,
+      "nodePort": 30893,
+      "origin": "",
+      "region": "us-east-2",
+      "serviceType": "ClusterIP"
+    }
+  },
+  "platformManagement": {
+    "allowedOrganizations": [],
+    "enabled": false,
+    "operatorIds": []
+  },
+  "priorityClassName": "",
+  "realtime": {
+    "enabled": false,
+    "sourceLimit": 0,
+    "subscriptionLimit": 0
+  },
+  "service": {
+    "nodePort": 30788,
+    "port": 8080,
+    "type": "NodePort"
+  },
+  "sqlHistory": {
+    "enabled": false
+  },
+  "tolerations": [],
+  "web": {
+    "enabled": true,
+    "image": {
+      "pullPolicy": "IfNotPresent",
+      "reference": "10.11.9.236:5000/neon/williamluckyli-control-web@sha256:80b21028ce1518f60d25f95ecfe28cd833a23ea8f0de9400bc93880054fd5ad1"
+    },
+    "replicaCount": 1,
+    "resources": {
+      "limits": {
+        "cpu": "250m",
+        "memory": "128Mi"
+      },
+      "requests": {
+        "cpu": "50m",
+        "memory": "32Mi"
+      }
+    }
+  },
+  "worker": {
+    "enabled": true,
+    "nodeSelector": {},
+    "replicaCount": 1,
+    "resources": {
+      "limits": {
+        "cpu": "1",
+        "memory": "512Mi"
+      },
+      "requests": {
+        "cpu": "100m",
+        "memory": "128Mi"
+      }
+    }
+  }
+}

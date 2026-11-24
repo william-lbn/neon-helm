@@ -1,0 +1,42 @@
+{
+  "status": "retired-and-settled",
+  "projectID": "prj_d4f1aae2034a3f0c",
+  "endpointID": "ep_d4f1aae2034a3f0c",
+  "oldVMUID": "e8f5f171-06dd-43fa-a8d5-5fdd07681993",
+  "businessE2E": "NOT_COMPLETE",
+  "suspendHarborImagesAvailable": 9,
+  "suspendOperation": "op_0d8dcff5a0ae26e548839c5a",
+  "suspendStatus": "succeeded",
+  "suspensionSettlement": {
+    "vmGone": true,
+    "runnerGone": true,
+    "remainingHolds": 0,
+    "remainingPlacements": 0,
+    "vmUID": "e8f5f171-06dd-43fa-a8d5-5fdd07681993",
+    "node": "node3",
+    "hostSettled": true
+  },
+  "resumeHarborImagesAvailable": 9,
+  "resumeOperation": "op_88bf165087019c13d264c5e3",
+  "resumeStatus": "succeeded",
+  "suspendResume": "PASS",
+  "resumedVMUID": "8e8b2026-92e6-4ae7-add0-af183778b3e7",
+  "resumedVMName": "cp-d4f1aae2034a3f0c",
+  "resumedNode": "node4",
+  "rowCount": 10000,
+  "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+  "walLSN": "0/24D9E10",
+  "retireHarborImagesAvailable": 9,
+  "retireOperation": "op_3e59f9190262f7671d8e78f4",
+  "retireStatus": "succeeded",
+  "retirementSettlement": {
+    "vmGone": true,
+    "runnerGone": true,
+    "remainingHolds": 0,
+    "remainingPlacements": 0,
+    "vmUID": "8e8b2026-92e6-4ae7-add0-af183778b3e7",
+    "node": "node4",
+    "hostSettled": true
+  },
+  "retirement": "PASS"
+}

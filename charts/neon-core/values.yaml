@@ -162,6 +162,7 @@ storageController:
   enabled: false              # fresh clusters only; never flip on existing emergency-mode data
   managePageserver: false      # explicit opt-in only after a tenant migration rehearsal
   devMode: true               # only for staged/legacy lab; final management requires false
+  externalManagedPageserver: {}
   management:
     enabled: false
     authenticationEnabled: true
@@ -190,7 +191,8 @@ disruptionBudget:
 # Site overlay replaces this list with the cluster's real hostnames.
 # Chart defaults keep the original laboratory names so existing 117/118/119 overlays stay valid.
 placement:
-  allowedNodeNames:
-  - worker-117
-  - worker-118
-  - worker-119
+  # Empty: Kubernetes may use any eligible node matching nodeSelector.
+  # Explicit names remain available for deliberate site constraints.
+  nodeSelector: {}
+  matchExpressions: []
+  allowedNodeNames: []

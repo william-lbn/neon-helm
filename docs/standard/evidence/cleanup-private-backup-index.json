@@ -1,0 +1,13 @@
+{
+  "originalMetadata": {
+    "path": "/tmp/neon-standard-run-20261124/cleanup-private/archive/metadata-before.private.dump",
+    "sha256": "20a9ecc17fb54c4da42662ef9f109fd9e3365ff697a59fa514d7395cb7481fb4",
+    "bytes": 904391
+  },
+  "pilotMetadata": {
+    "path": "/tmp/neon-standard-run-20261124/final-cleanup-private/archive/metadata-before.private.dump",
+    "sha256": "646d9550f6e234ca2619163d6248dd33878db1330d86e0c0116fa41316312fc8",
+    "bytes": 731835
+  },
+  "note": "原私有备份保留在管理节点0700目录；此文件只有路径/大小/摘要，不含凭据或数据库内容。"
+}

@@ -26,12 +26,13 @@ agent:
       cpu: 1000m
       memory: 600Mi
 
-# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+# 站点调度条件；不要求实验节点名或由节点名单拼接的专用标签。
 placement:
-  allowedNodeNames:
-  - worker-117
-  - worker-118
-  - worker-119
+  # Empty: Kubernetes may use any eligible node matching nodeSelector.
+  # Explicit names remain available for deliberate site constraints.
+  nodeSelector: {}
+  matchExpressions: []
+  allowedNodeNames: []
 
 # 只有真实原节点/Lease/预算/CA 输入齐全才启用；无推测的资格或系统预算。
 dsga:
@@ -51,6 +52,8 @@ dsga:
     pollIntervalSeconds: 5
     # 专用平台配置命名空间；Agent 仅 get，租户/Agent 不拥有写入权限。
     runtimeSelectionNamespace: ''
+    # 平台命名空间通常由站点入口预先创建；仅独占管理时设为true。
+    runtimeSelectionCreateNamespace: false
     prepareQualifications: {}
     automaticMemory: {}
     cacheShadow: {}
@@ -69,6 +72,8 @@ dsga:
       mountDirectory: ''
       name: ''
   scheduler:
+    # 首装可先启动Agent只读socket，再以新鲜完整快照初始化Host；业务阶段必须true。
+    enabled: true
     # 显式补齐现有系统命名空间；自动资格 Job 使用 neon-control-runtime 时也列入。
     podProtectionNamespaces: []
     # 运维者发布并读回的来源CM精确名单；仅在kube-system授予get，默认不增加权限。

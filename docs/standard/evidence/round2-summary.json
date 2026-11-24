@@ -1,0 +1,109 @@
+{
+  "status": "BUSINESS_ACCEPTANCE_PASSED",
+  "site": "neon-standard-lab",
+  "finalInstallInputSHA256": "45af92098e5b345cecd183e1454b3a46a397ec6635303750e105698f88323c7d",
+  "finalInstallWithoutIntervention": true,
+  "cleanupVolumeCounts": [
+    8,
+    7
+  ],
+  "postgres": [
+    {
+      "major": 17,
+      "projectID": "prj_47d6aa96e67ac7a4",
+      "creationOperation": "op_99f1a2884fb1c549de634d7b",
+      "vmUID": "71ba182e-5a72-446e-9fba-882b56e40d8a",
+      "memoryNode": "node4",
+      "memoryBytes": [
+        7516192768,
+        8589934592,
+        7516192768
+      ],
+      "guestPhysicalBytes": [
+        7413817344,
+        8487559168,
+        7413817344
+      ],
+      "suspendOperation": "op_4d96b762dd02a352a7d73190",
+      "resumeOperation": "op_d3590955fe22ec1d0a401c66",
+      "resumedNode": "node5",
+      "resumedVMUID": "c85ca2e1-02a0-49d1-9bee-2f826ec34525",
+      "retireOperation": "op_557934f169318d9297122d16",
+      "rowCount": 10000,
+      "checksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+      "walHistory": 2,
+      "hostSettled": true
+    },
+    {
+      "major": 18,
+      "projectID": "prj_d1d871768a369026",
+      "creationOperation": "op_1ab3341f7d8b7cd3ebbbe5d7",
+      "vmUID": "8b81e280-c92e-4eda-8c5e-be8043ac4497",
+      "memoryNode": "node2",
+      "memoryBytes": [
+        7516192768,
+        8589934592,
+        7516192768
+      ],
+      "guestPhysicalBytes": [
+        7413817344,
+        8487559168,
+        7413817344
+      ],
+      "suspendOperation": "op_62778cc8e16836c0b49852c2",
+      "resumeOperation": "op_f5a149bdc5da9878d505b766",
+      "resumedNode": "node1",
+      "resumedVMUID": "0f5af160-da7a-40c3-8b24-56697e68bc2e",
+      "retireOperation": "op_2c57bf340c88fb2eccee5f90",
+      "rowCount": 10000,
+      "checksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+      "walHistory": 2,
+      "hostSettled": true
+    }
+  ],
+  "currentVMCount": 0,
+  "githubDelivery": "SEPARATE_SOURCE_GATE",
+  "hosts": [
+    {
+      "name": "node1",
+      "uid": "0cdd2f7d-aeb4-4ed8-897c-6383eb5dcfab",
+      "protocol": 10,
+      "holds": 0,
+      "managedPlacements": 0,
+      "ordinaryPlacements": 12
+    },
+    {
+      "name": "node2",
+      "uid": "335051f1-0eb0-463d-bca2-4c4045ba1e68",
+      "protocol": 10,
+      "holds": 0,
+      "managedPlacements": 0,
+      "ordinaryPlacements": 13
+    },
+    {
+      "name": "node3",
+      "uid": "70c92eec-070e-49e3-a6d4-8366c5908147",
+      "protocol": 3,
+      "holds": 0,
+      "managedPlacements": 0,
+      "ordinaryPlacements": 10
+    },
+    {
+      "name": "node4",
+      "uid": "0fe248b6-bab6-45ab-8813-d42fbe7fb375",
+      "protocol": 10,
+      "holds": 0,
+      "managedPlacements": 0,
+      "ordinaryPlacements": 10
+    },
+    {
+      "name": "node5",
+      "uid": "ff8fbaee-e7e0-4a29-b0f9-1398d1b955cb",
+      "protocol": 10,
+      "holds": 0,
+      "managedPlacements": 0,
+      "ordinaryPlacements": 11
+    }
+  ],
+  "allSelectedHelmReleasesDeployed": true
+}

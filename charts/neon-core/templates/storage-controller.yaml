@@ -8,7 +8,7 @@
 {{- $roleSelector := .Values.storageController.nodeSelector | default dict -}}
 {{- if not (kindIs "map" $roleSelector) -}}{{ fail "storageController.nodeSelector must be a hostname map" }}{{- end -}}
 {{- range $key, $value := $roleSelector -}}
-{{- if or (ne $key "kubernetes.io/hostname") (not (has $value $.Values.placement.allowedNodeNames)) -}}
+{{- if or (ne $key "kubernetes.io/hostname") (and $.Values.placement.allowedNodeNames (not (has $value $.Values.placement.allowedNodeNames))) -}}
 {{- fail "storageController.nodeSelector permits only kubernetes.io/hostname values from placement.allowedNodeNames; pool/os/arch cannot be overridden" -}}
 {{- end -}}
 {{- end -}}

@@ -32,6 +32,8 @@ jobs:
       - run: '"$RUNNER_TEMP/neon-actionlint/actionlint" -color'
       - run: npm run check
       - run: npm test
+      - name: Check standard operator quantity parsing
+        run: npm run test:standard
       - run: npm run helm
       - name: Check combined stack ownership and NodePort allocation
         run: npm run helm:stack

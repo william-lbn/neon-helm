@@ -279,22 +279,7 @@ spec:
                 control-plane: controller
             topologyKey: kubernetes.io/hostname
         {{- end }}
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              {{- include "neonvm.placement.hostMatch" $ | nindent 14 }}
-              - key: kubernetes.io/arch
-                operator: In
-                values:
-                - amd64
-                - arm64
-                - ppc64le
-                - s390x
-              - key: kubernetes.io/os
-                operator: In
-                values:
-                - linux
+        {{- include "neonvm.placement.nodeAffinity" $ | nindent 8 }}
       containers:
       - args:
         - --health-probe-bind-address=:8081

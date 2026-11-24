@@ -1,4 +1,6 @@
 {{- if .Values.dsga.enabled }}
+{{- $hostNames := keys .Values.dsga.hostIdentities | sortAlpha -}}
+{{- if eq (len $hostNames) 0 -}}{{ fail "DSGA node authority requires nonempty validated hostIdentities" }}{{- end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -28,11 +30,31 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  name: neon-dsga-agent-node-reader
+rules:
+# 首次预算及后续审计必须核验原Node UID/Host账本；只授予GET，不授予Node写。
+# 节点权限绑定可信Host身份，不能把开放的放置筛选解释成全局写权限。
+- apiGroups: [""]
+  resources: [nodes]
+  resourceNames: {{ toJson $hostNames }}
+  verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: neon-dsga-agent-node-reader
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: neon-dsga-agent-node-reader}
+subjects:
+- {kind: ServiceAccount, name: autoscaler-agent, namespace: kube-system}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
   name: neon-dsga-scheduler-node-ledger
 rules:
 - apiGroups: [""]
   resources: [nodes]
-  resourceNames: {{ toJson .Values.placement.allowedNodeNames }}
+  resourceNames: {{ toJson $hostNames }}
   verbs: [get, patch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

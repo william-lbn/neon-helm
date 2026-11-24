@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "projectID": "prj_d1d871768a369026",
+  "endpointID": "ep_d1d871768a369026",
+  "postgresVersion": 18,
+  "pgTLSMode": "verify-full",
+  "sql": "PASS",
+  "automaticMemory": "NOT_COMPLETE",
+  "actualVersionNum": 180002,
+  "proxyClientTLSMode": "verify-full",
+  "rowCount": 10000,
+  "sumID": 50005000,
+  "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3"
+}

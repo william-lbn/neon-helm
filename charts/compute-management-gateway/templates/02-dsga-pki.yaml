@@ -1,0 +1,66 @@
+{{- $p := .Values.dsga.pki -}}
+{{- if $p.enabled -}}
+{{- if not .Values.dsga.enabled -}}{{ fail "Dedicated PKI requires DSGA enabled" }}{{- end -}}
+{{- $names := include "compute-management-gateway.dsga.pkiNames" . | fromJson -}}
+{{- range $name := values $names -}}
+{{- if or (gt (len $name) 63) (not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" $name)) -}}{{ fail "Dedicated PKI requires exact DNS resource names" }}{{- end -}}
+{{- end -}}
+{{- if or (eq $names.rootSecret .Values.dsga.tlsSecret) (eq $names.rootCertificate $names.certificate) (eq $names.caIssuer $names.selfSignedIssuer) -}}{{ fail "Root CA and Gateway identities must be separate" }}{{- end -}}
+{{- if and $p.agentCABundle (or (not $p.agentCASecret) (eq $p.agentCASecret $names.rootSecret) (eq $p.agentCASecret .Values.dsga.tlsSecret)) -}}{{ fail "Agent requires a separate public CA projection Secret" }}{{- end -}}
+{{- if $p.agentCABundle -}}
+{{- if or (gt (len $p.agentCASecret) 63) (not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" $p.agentCASecret)) (contains "PRIVATE KEY" $p.agentCABundle) (not (hasPrefix "-----BEGIN CERTIFICATE-----" (trim $p.agentCABundle))) -}}{{ fail "Agent projection accepts public CA PEM only; no private key" }}{{- end -}}
+{{- end -}}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ $names.selfSignedIssuer | quote }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $names.rootCertificate | quote }}
+spec:
+  secretName: {{ $names.rootSecret | quote }}
+  commonName: {{ printf "%s management CA" .Release.Name | trunc 64 | quote }}
+  isCA: true
+  duration: 87600h
+  renewBefore: 2160h
+  privateKey: {algorithm: RSA, size: 2048, rotationPolicy: Never}
+  usages: [cert sign, crl sign, digital signature]
+  issuerRef: {name: {{ $names.selfSignedIssuer | quote }}, kind: Issuer, group: cert-manager.io}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ $names.caIssuer | quote }}
+spec:
+  ca:
+    secretName: {{ $names.rootSecret | quote }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $names.certificate | quote }}
+spec:
+  secretName: {{ .Values.dsga.tlsSecret | quote }}
+  dnsNames: [{{ printf "*.%s.svc" .Release.Namespace | quote }}]
+  duration: 8760h
+  renewBefore: 720h
+  privateKey: {algorithm: RSA, size: 2048, rotationPolicy: Always}
+  usages: [digital signature, key encipherment, server auth]
+  issuerRef: {name: {{ $names.caIssuer | quote }}, kind: Issuer, group: cert-manager.io}
+{{- if $p.agentCABundle }}
+---
+# 这里只接收公钥CA证书；根私钥保留在产品空间，Agent不挂载根/服务私钥。
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ required "Agent public CA Secret name required" $p.agentCASecret | quote }}
+  namespace: {{ .Values.dsga.agentNamespace | quote }}
+type: Opaque
+data:
+  ca.crt: {{ $p.agentCABundle | b64enc | quote }}
+{{- end }}
+{{- end }}

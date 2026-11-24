@@ -1,0 +1,13 @@
+{
+  "status": "retired-and-settled",
+  "projectID": "prj_743bcf09d3eedeb8",
+  "endpointID": "ep_743bcf09d3eedeb8",
+  "vmUID": "a3ad793b-855b-45e9-b731-f058ea3ea4a1",
+  "node": "node3",
+  "operationID": "op_93b7201444d1b7f1c1c14265",
+  "vmGone": true,
+  "runnerGone": true,
+  "remainingHolds": 0,
+  "remainingPlacements": 0,
+  "hostSettled": true
+}

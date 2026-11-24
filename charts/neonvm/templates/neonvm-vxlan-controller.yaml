@@ -60,20 +60,7 @@ spec:
     spec:
       {{- include "neonvm.placement.selector" $ | nindent 6 }}
       affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              {{- include "neonvm.placement.hostMatch" $ | nindent 14 }}
-              - key: kubernetes.io/arch
-                operator: In
-                values:
-                - amd64
-                - arm64
-              - key: kubernetes.io/os
-                operator: In
-                values:
-                - linux
+        {{- include "neonvm.placement.nodeAffinity" $ | nindent 8 }}
       containers:
       - env:
         - name: MY_NODE_IP

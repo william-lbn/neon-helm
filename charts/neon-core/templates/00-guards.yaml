@@ -1,9 +1,18 @@
-{{- if and .Values.storageController.enabled (not .Values.pageserver.enabled) -}}{{- fail "storageController needs pageserver" -}}{{- end -}}
+{{- if and .Values.storageController.enabled (not .Values.pageserver.enabled) (empty .Values.storageController.externalManagedPageserver) -}}{{- fail "storageController needs a managed core or explicit external pageserver" -}}{{- end -}}
 {{- if and (not .Values.validation.labAcknowledged) (or .Values.minio.enabled .Values.storageController.devMode .Values.compute.enabled .Values.computeResize.enabled) -}}{{- fail "current single-instance/dev-auth components require labAcknowledged; they are not a production HA/TLS profile" -}}{{- end -}}
 {{- if lt (int .Values.safekeeper.replicas) 3 -}}{{- fail "safekeeper replicas must be at least 3; one-replica durability is not supported" -}}{{- end -}}
 {{- if and .Values.storageController.enabled .Values.storageController.managePageserver (not .Values.storageController.hookUrl) -}}{{- fail "managed pageserver requires a working compute notification hookUrl" -}}{{- end -}}
 {{- if and .Values.storageController.enabled (gt (len (.Values.global.componentImages | default dict)) 0) (or (not .Values.storageController.hookUrl) (not .Values.storageController.hookTokenSecret)) -}}{{- fail "fork storage-controller requires a notification hook URL and token Secret" -}}{{- end -}}
-{{- if and .Values.storageController.enabled (not .Values.storageController.managePageserver) (not .Values.storageController.devMode) -}}{{- fail "isolated controller API trial requires devMode; production requires a managed pageserver and hook" -}}{{- end -}}
+{{- $externalManaged := .Values.storageController.externalManagedPageserver | default dict -}}
+{{- if $externalManaged -}}
+{{- if .Release.IsUpgrade -}}
+{{- $externalService := lookup "v1" "Service" .Release.Namespace $externalManaged.serviceName -}}
+{{- if or (empty $externalService) (ne (dig "metadata" "uid" "" $externalService) $externalManaged.serviceUID) -}}{{ fail "external managed pageserver Service identity changed or is absent" }}{{- end -}}
+{{- end -}}
+{{- if or .Values.storageController.managePageserver (eq $externalManaged.serviceName "pageserver") -}}{{ fail "external managed pageserver must not adopt the retained core pageserver" }}{{- end -}}
+{{- if or .Values.storageController.devMode (not .Values.storageController.management.enabled) (not .Values.storageController.management.authenticationEnabled) (empty .Values.storageController.hookUrl) (empty .Values.storageController.hookTokenSecret) -}}{{ fail "external managed pageserver requires authenticated management and notification hook" }}{{- end -}}
+{{- end -}}
+{{- if and .Values.storageController.enabled (not .Values.storageController.managePageserver) (not $externalManaged) (not .Values.storageController.devMode) -}}{{- fail "isolated controller API trial requires devMode; production requires a managed pageserver and hook" -}}{{- end -}}
 {{- if and .Values.storageController.enabled .Values.validation.requirePinnedImages (not (regexMatch "@sha256:[a-f0-9]{64}$" .Values.storageController.dbImage)) -}}{{- fail "storageController.dbImage must be pinned by digest" -}}{{- end -}}
 {{- if and .Values.compute.enabled (not .Values.pageserver.enabled) -}}{{- fail "compute needs pageserver" -}}{{- end -}}
 {{- if and .Values.compute.enabled (not (has .Values.compute.mode (list "wrapper" "public"))) -}}{{- fail "compute.mode must be wrapper or public" -}}{{- end -}}

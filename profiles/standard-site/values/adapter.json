@@ -1,0 +1,62 @@
+{
+  "compatibilityAcknowledged": true,
+  "fullnameOverride": "neon-control-adapter",
+  "hookTokenSecret": "neon-control-hook-auth",
+  "image": "10.11.9.236:5000/neon/neon-candidate-control-adapter@sha256:ea422b46624b351b617914e93e4bfe998a7beeedc00fd628e5ffc7cdb552455b",
+  "managedRuntimeRead": {
+    "computes": []
+  },
+  "maxConcurrentWakes": 8,
+  "notificationsConfigMap": "neon-control-notifications",
+  "pageserverNodeID": 2,
+  "placement": {
+    "allowedNodeNames": [],
+    "matchExpressions": [
+      {
+        "key": "node-role.kubernetes.io/control-plane",
+        "operator": "DoesNotExist"
+      },
+      {
+        "key": "node-role.kubernetes.io/master",
+        "operator": "DoesNotExist"
+      }
+    ]
+  },
+  "podAnnotations": {},
+  "priorityClassName": "",
+  "proxyTokenSecret": "neon-proxy-auth",
+  "resources": {
+    "limits": {
+      "cpu": "1",
+      "memory": "256Mi"
+    },
+    "requests": {
+      "cpu": "100m",
+      "memory": "64Mi"
+    }
+  },
+  "routesSecret": "neon-control-routes",
+  "securityContext": {
+    "allowPrivilegeEscalation": false,
+    "capabilities": {
+      "drop": [
+        "ALL"
+      ]
+    },
+    "readOnlyRootFilesystem": true,
+    "runAsNonRoot": true,
+    "runAsUser": 65532
+  },
+  "storageManagement": {
+    "enabled": true,
+    "profile": {
+      "credential_secret_name": "neon-storage-management-observer",
+      "credential_secret_uid": "",
+      "port": 1235,
+      "protocol_version": 1,
+      "service_name": "storage-controller-management",
+      "service_uid": ""
+    }
+  },
+  "wakeTimeout": "300s"
+}

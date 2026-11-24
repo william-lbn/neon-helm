@@ -56,9 +56,10 @@ images:
   vxlanController: ''
   devicePlugin: docker.io/squat/generic-device-plugin@sha256:dc192e164c69b03f156765793a1be62ca437709ae477b27ca7d8f3dcf5021576
 
-# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+# 站点调度条件；不要求实验节点名或由节点名单拼接的专用标签。
 placement:
-  allowedNodeNames:
-  - worker-117
-  - worker-118
-  - worker-119
+  # Empty: Kubernetes may use any eligible node matching nodeSelector.
+  # Explicit names remain available for deliberate site constraints.
+  nodeSelector: {}
+  matchExpressions: []
+  allowedNodeNames: []

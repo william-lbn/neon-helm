@@ -1,0 +1,12 @@
+{
+  "agentDaemonSet": "autoscaler-agent",
+  "agentNamespace": "kube-system",
+  "allowedNodes": [],
+  "apiServiceAccount": "neon-control-api",
+  "hostLeaseNames": [],
+  "hostLeaseNamespace": "neon",
+  "nodeReadClusterRole": "neon-control-runtime-worker-nodes",
+  "qualifierServiceAccount": "qualification-issuer",
+  "workerServiceAccount": "neon-control-worker",
+  "workloadNamespace": "neon"
+}

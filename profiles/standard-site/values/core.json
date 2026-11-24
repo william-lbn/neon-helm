@@ -1,0 +1,297 @@
+{
+  "compute": {
+    "allowLabAutoBootstrap": false,
+    "buildProfile": "full",
+    "configImage": "",
+    "enabled": false,
+    "image": {
+      "digest": "",
+      "pullPolicy": "IfNotPresent",
+      "repository": "neon-compute-wrapper",
+      "tag": ""
+    },
+    "mode": "wrapper",
+    "pgVersion": 16,
+    "replicaCount": 1,
+    "resources": {
+      "requests": {
+        "cpu": "500m",
+        "memory": "1Gi"
+      }
+    },
+    "service": {
+      "port": 55433,
+      "type": "ClusterIP"
+    },
+    "tenantId": "",
+    "timelineId": ""
+  },
+  "computeResize": {
+    "cooldownSeconds": 120,
+    "downSamples": 8,
+    "downUtilization": 0.2,
+    "enabled": false,
+    "image": "",
+    "intervalSeconds": 15,
+    "maxCpuMilli": 2000,
+    "minCpuMilli": 500,
+    "upSamples": 3,
+    "upUtilization": 0.65
+  },
+  "disruptionBudget": {
+    "minAvailable": 2,
+    "safekeeperEnabled": true
+  },
+  "global": {
+    "componentImages": {
+      "pageserver": "10.11.9.236:5000/neon/neon-candidate-pageserver@sha256:1bb14fb264e46211e054942b31d782562d4252099db3941274976a588a9b7799",
+      "proxy": "10.11.9.236:5000/neon/neon-proxy@sha256:c57a3b59cf55a2ae92a5596f2c8f00cf1bc5c539bf075af8d08266fdc3aeaf4d",
+      "safekeeper": "10.11.9.236:5000/neon/neon-candidate-safekeeper@sha256:79b3e3a7fa607fa7ac11491e8a2e986775632a3218edecd21fcbc8191bfc4d40",
+      "storageBroker": "10.11.9.236:5000/neon/neon-candidate-storage-broker@sha256:703020d483370fe76467a1ac1f8cf6a5c3aed49becef566b959165b507de1941",
+      "storageController": "10.11.9.236:5000/neon/neon-candidate-storage-controller@sha256:87fd193f6f4dd9c2658d166832d14f21bcf47ea4de2fc4a277476af13f1b3876"
+    },
+    "initImage": "10.11.9.236:5000/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
+    "neonImage": {
+      "digest": "",
+      "pullPolicy": "IfNotPresent",
+      "repository": "docker.io/neondatabase/neon",
+      "tag": ""
+    },
+    "platformPriorityClassName": "neon-platform-critical"
+  },
+  "minio": {
+    "bucket": "neon",
+    "enabled": true,
+    "existingSecret": "neon-object-store",
+    "image": "10.11.9.236:5000/neon/neon-test-only-minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8",
+    "initResources": {
+      "limits": {
+        "cpu": "200m",
+        "memory": "512Mi"
+      },
+      "requests": {
+        "cpu": "25m",
+        "memory": "128Mi"
+      }
+    },
+    "mcImage": "10.11.9.236:5000/neon/neon-storage-bootstrap@sha256:fad09f74f9d18da09b71bbda6a7743c2659a8171c22eca0d4f95b24af55b044a",
+    "nodeSelector": {},
+    "persistence": {
+      "enabled": true,
+      "size": "20Gi",
+      "storageClassName": "local-path"
+    },
+    "productStorage": {
+      "bucket": "neon-product-blobs",
+      "enabled": true,
+      "existingSecret": "neon-product-blob-store"
+    },
+    "region": "eu-north-1",
+    "resources": {
+      "limits": {
+        "cpu": 2,
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "150m",
+        "memory": "512Mi"
+      }
+    },
+    "rootUser": "minio",
+    "service": {
+      "apiNodePort": 30900,
+      "consoleNodePort": 30901,
+      "type": "NodePort"
+    }
+  },
+  "objectStore": {
+    "bucket": "",
+    "endpoint": "",
+    "existingSecret": "neon-object-store",
+    "prefixPageserver": "/pageserver",
+    "prefixSafekeeper": "/safekeeper/",
+    "region": ""
+  },
+  "pageserver": {
+    "cache": {
+      "size": "20Gi",
+      "storageClassName": "local-path"
+    },
+    "enabled": false,
+    "id": 1,
+    "initResources": {
+      "limits": {
+        "cpu": "200m",
+        "memory": "128Mi"
+      },
+      "requests": {
+        "cpu": "25m",
+        "memory": "32Mi"
+      }
+    },
+    "managedComputeService": false,
+    "replicas": 1,
+    "resources": {
+      "limits": {
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      }
+    }
+  },
+  "placement": {
+    "allowedNodeNames": [],
+    "matchExpressions": [
+      {
+        "key": "node-role.kubernetes.io/control-plane",
+        "operator": "DoesNotExist"
+      },
+      {
+        "key": "node-role.kubernetes.io/master",
+        "operator": "DoesNotExist"
+      }
+    ]
+  },
+  "proxy": {
+    "allowedIps": [
+      "0.0.0.0/0"
+    ],
+    "apiResources": {
+      "limits": {
+        "cpu": 1,
+        "memory": "512Mi"
+      },
+      "requests": {
+        "cpu": "50m",
+        "memory": "128Mi"
+      }
+    },
+    "authEndpoint": "http://neon-control-adapter:8080/cplane/",
+    "authSecret": "neon-proxy-auth",
+    "computeAddress": "compute.neon.svc.cluster.local:55433",
+    "enabled": true,
+    "endpointId": "lab",
+    "image": "docker.io/library/python@sha256:8d9d0b8bcf6506481eae4907c18f5e3e7902e629f5f6d684f9e7c32e85e3ddf0",
+    "legacyApiEnabled": false,
+    "projectInfoCache": "size=0,ttl=0s,max_roles=500,gc_interval=60m",
+    "resources": {
+      "limits": {
+        "cpu": 2,
+        "memory": "1Gi"
+      },
+      "requests": {
+        "cpu": "100m",
+        "memory": "256Mi"
+      }
+    },
+    "roleName": "cloud_admin",
+    "scaleToZero": {
+      "adminSecret": "neon-scale-admin",
+      "enabled": false,
+      "idleSeconds": 180
+    },
+    "service": {
+      "port": 4432,
+      "public": {
+        "enabled": true,
+        "name": "neon-proxy-public",
+        "nodePort": 30432,
+        "type": "NodePort"
+      },
+      "type": "ClusterIP"
+    },
+    "tlsSecret": "neon-proxy-tls",
+    "tracing": {
+      "enabled": false,
+      "otlpEndpoint": ""
+    },
+    "vmComputeAddress": "",
+    "vmEndpointId": ""
+  },
+  "safekeeper": {
+    "enabled": true,
+    "persistence": {
+      "size": "10Gi",
+      "storageClassName": "local-path"
+    },
+    "replicas": 3,
+    "requireNodeSeparation": true,
+    "resources": {
+      "limits": {
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      }
+    }
+  },
+  "storageBroker": {
+    "enabled": true,
+    "replicas": 1,
+    "resources": {
+      "limits": {
+        "cpu": 1,
+        "memory": "512Mi"
+      },
+      "requests": {
+        "cpu": "50m",
+        "memory": "128Mi"
+      }
+    }
+  },
+  "storageController": {
+    "dbImage": "10.11.9.236:5000/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
+    "dbResources": {
+      "limits": {
+        "cpu": 2,
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      }
+    },
+    "devMode": false,
+    "enabled": true,
+    "existingSecret": "neon-controller-db",
+    "externalManagedPageserver": {
+      "serviceName": "pageserver-managed",
+      "serviceUID": ""
+    },
+    "hookTokenSecret": "neon-control-hook-auth",
+    "hookUrl": "http://neon-control-adapter:8080/",
+    "managePageserver": false,
+    "management": {
+      "authSecret": "neon-storage-management-server",
+      "authenticationEnabled": true,
+      "enabled": true,
+      "issuerName": "neon-storage-management-ca-v1",
+      "pageserverUpcallSecret": "neon-storage-upcall",
+      "port": 1235,
+      "serviceName": "storage-controller-management",
+      "tlsSecret": "neon-storage-controller-tls"
+    },
+    "nodeSelector": {},
+    "persistence": {
+      "size": "5Gi",
+      "storageClassName": "local-path"
+    },
+    "resources": {
+      "limits": {
+        "cpu": 2,
+        "memory": "1Gi"
+      },
+      "requests": {
+        "cpu": "150m",
+        "memory": "256Mi"
+      }
+    }
+  },
+  "validation": {
+    "labAcknowledged": true,
+    "requirePinnedImages": true
+  }
+}

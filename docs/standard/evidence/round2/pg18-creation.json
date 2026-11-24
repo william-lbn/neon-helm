@@ -1,0 +1,12 @@
+{
+  "status": "operation-succeeded",
+  "postgresVersion": 18,
+  "harborImagesAvailable": 6,
+  "organization": "org_c98a8a084dc022bdce480e98",
+  "businessE2E": "NOT_COMPLETE",
+  "creationEnabled": true,
+  "projectID": "prj_d1d871768a369026",
+  "operationID": "op_1ab3341f7d8b7cd3ebbbe5d7",
+  "operationPath": "/api/v1/projects/prj_d1d871768a369026/operations/op_1ab3341f7d8b7cd3ebbbe5d7",
+  "operationStatus": "succeeded"
+}

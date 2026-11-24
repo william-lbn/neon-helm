@@ -14,7 +14,7 @@ def main():
   rows.append({'binding':{'node_name':name,'node_uid':uid,'namespace':'neon','lease_name':'render-only-host-'+name,'lease_uid':'00000000-0000-0000-0000-'+str(i+1).zfill(12)},'profile':profile,'system_bytes':system,'kubernetes_budget':{'protocol_version':1,'scope':'kubernetes-node-memory-budget-v1','node_name':name,'node_uid':uid,'capacity_bytes':str(24<<30),'allocatable_bytes':str(24<<30),'system_reservation_bytes':system,'profile_sha256':digest}})
  wanted=['kube-system','neon-cert-manager','neonvm-system'];on['dsga']={'enabled':True,'hostIdentities':nodes,'agent':{'gatewayURL':'https://render.invalid:8444','managementCASecret':'render-only-public-ca'},'scheduler':{'nodes':rows,'podProtectionNamespaces':wanted}}
  cases=[('default-off',off,None),('explicit-three',on,None)]
- for name,values,reason in [('forbidden-namespace',['kube-system','neon-cert-manager','default'],'must be one of'),('duplicate',['kube-system','kube-system','neonvm-system'],'unique'),('incomplete',['kube-system'],'podProtectionNamespaces.0 does not match: "neonvm-system"'),('wrong-type','kube-system','Expected: array')]:
+ for name,values,reason in [('declared-product-namespace',['kube-system','neon-cert-manager','default'],None),('duplicate',['kube-system','kube-system','neonvm-system'],'unique'),('one-declared-namespace',['kube-system'],None),('namespace-wildcard',['*'],'Does not match pattern'),('namespace-empty',[''],'String length must be greater than or equal to 1'),('wrong-type','kube-system','Expected: array')]:
   fixture=copy.deepcopy(on);fixture['dsga']['scheduler']['podProtectionNamespaces']=values;cases.append((name,fixture,reason))
  # 仅合法的ConfigMap精确名称；来源真实性仍由固定运维主体及生产消费者逐项核验。
  source_names=['dsga-ordinary-stop-render-'+str(i) for i in range(7)]
@@ -29,6 +29,11 @@ def main():
  def objects(name):return [x for x in yaml.safe_load_all((out/(name+'.yaml')).read_text()) if x]
  def roles(name):return [x for x in objects(name) if x.get('metadata',{}).get('name')=='neon-dsga-scheduler-pod-protection']
  must(not roles('default-off'),'off changed privileges');actual=roles('explicit-three');must(len(actual)==6,'Role+Binding count differs')
+ # 保护范围来自显式站点输入，合法单一空间/新增产品空间必须精确授予，不能靠固定三空间拒绝。
+ for name,names in [('declared-product-namespace',['kube-system','neon-cert-manager','default']),('one-declared-namespace',['kube-system'])]:
+  granted=roles(name);must(len(granted)==2*len(names),'declared namespace grant count differs')
+  must({x['metadata']['namespace'] for x in granted}==set(names),'undeclared namespace privilege')
+  for role in [x for x in granted if x['kind']=='Role']:must(role['rules']==[{'apiGroups':[''],'resources':['pods'],'verbs':['get','patch']}],'declared namespace privilege widened')
  def scheduler(name):return next(x for x in objects(name) if x['kind']=='Deployment' and x['metadata']['name']=='autoscale-scheduler')
  must('strategy' not in scheduler('default-off')['spec'],'legacy rollout changed')
  strategy=scheduler('explicit-three')['spec']['strategy'];must(strategy=={'type':'RollingUpdate','rollingUpdate':{'maxSurge':0,'maxUnavailable':1}},'DSGA rollout must allow fenced takeover without a surge')

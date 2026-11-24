@@ -1,0 +1,60 @@
+{
+  "compatibility": {
+    "allowUntestedKubernetes": false,
+    "expectedKubernetesMinor": "36"
+  },
+  "controller": {
+    "apiClient": {
+      "burst": 50,
+      "concurrency": 8,
+      "qps": 25
+    },
+    "managedMemoryRetirement": {
+      "enabled": true,
+      "namespaces": [
+        "neon"
+      ]
+    },
+    "priorityClassName": "neon-platform-critical",
+    "replicas": 3,
+    "resources": {
+      "limits": {
+        "cpu": "2",
+        "memory": "2Gi"
+      },
+      "requests": {
+        "cpu": "500m",
+        "memory": "512Mi"
+      }
+    },
+    "spreadAcrossNodes": true
+  },
+  "experimentalAcknowledged": true,
+  "images": {
+    "controller": "10.11.9.236:5000/neon/dsga403-controller@sha256:6e91cf02af8f0bc3e44120373bccde43390ffb247837a9af0a5a931bed6ba6cb",
+    "devicePlugin": "10.11.9.236:5000/neon/squat-generic-device-plugin@sha256:ace7be8864a048cc767183962a1468e39157037147228c4dfbe90b9a2cef82b5",
+    "runner": "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:c3d74b419d50f04e7f9c575534bd621acbe7ef972a6e32653f74ea5427a9e1b5",
+    "vxlanController": "10.11.9.236:5000/neon/neon-neonvm-vxlan-controller@sha256:571803fc20d0c3daa782ab4b328acc8f79bc2d8cbb20ee857d3373aa1efe96f3"
+  },
+  "placement": {
+    "allowedNodeNames": [],
+    "matchExpressions": [
+      {
+        "key": "node-role.kubernetes.io/control-plane",
+        "operator": "DoesNotExist"
+      },
+      {
+        "key": "node-role.kubernetes.io/master",
+        "operator": "DoesNotExist"
+      }
+    ]
+  },
+  "platformPriority": {
+    "create": true
+  },
+  "network": {
+    "secondary": {
+      "enabled": false
+    }
+  }
+}

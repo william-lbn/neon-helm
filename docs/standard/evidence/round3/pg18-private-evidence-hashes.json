@@ -1,0 +1,14 @@
+{
+  "creation-intent.private.json": {
+    "sha256": "5c5240c9bae7046d90b1038c52ced14f3f710f61730bde9ad2d5539175ce3b41",
+    "bytes": 469
+  },
+  "automatic-memory-001/journal-after.private.json": {
+    "sha256": "e57b1a6d31eedcedf57d081649feeaece14964109f3e757b226562dbaa653fe0",
+    "bytes": 258354
+  },
+  "lifecycle-001/scope.private.json": {
+    "sha256": "c84fbd2b9f6c1026297e580e8de6afb30a627fb1c79b047e7f9e8a4e40464c9d",
+    "bytes": 265
+  }
+}

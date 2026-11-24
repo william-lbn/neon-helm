@@ -38,12 +38,13 @@ compute:
     configFile: ''
     postgresPort: 55432
 
-# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+# 站点调度条件；不要求实验节点名或由节点名单拼接的专用标签。
 placement:
-  allowedNodeNames:
-  - worker-117
-  - worker-118
-  - worker-119
+  # Empty: Kubernetes may use any eligible node matching nodeSelector.
+  # Explicit names remain available for deliberate site constraints.
+  nodeSelector: {}
+  matchExpressions: []
+  allowedNodeNames: []
 
 # 默认保留旧额外网络；本轮PG17显式false并整个省略extraNetwork，避免未启用时finalizer误触IPAM。
 network:

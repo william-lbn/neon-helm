@@ -1,5 +1,8 @@
 {{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" .Values.image) -}}{{- fail "image must be pinned by digest" -}}{{- end -}}
 {{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" .Values.initImage) -}}{{- fail "initImage must be pinned by digest" -}}{{- end -}}
+{{- if and .Values.config.upcallSecret (not (hasPrefix "https://" .Values.config.controllerEndpoint)) -}}{{ fail "authenticated upcall requires HTTPS" }}{{- end -}}
+{{- if and (hasPrefix "https://" .Values.config.controllerEndpoint) (empty .Values.config.upcallSecret) -}}{{ fail "HTTPS upcall requires its CA and token Secret" }}{{- end -}}
+{{- if and .Values.config.upcallSecret (not .Values.config.create) -}}{{ fail "authenticated upcall requires chart-managed configuration" }}{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,12 +26,26 @@ spec:
       - name: init-config
         image: {{ .Values.initImage | quote }}
         command: ["sh", "-ec"]
-        args: ["mkdir -p /data/.neon; cp /config/* /data/.neon/; chown -R 1000:1000 /data/.neon || true"]
+        args:
+        - |
+          mkdir -p /data/.neon
+          cp /config/* /data/.neon/
+          {{- if .Values.config.upcallSecret }}
+          chmod 600 /data/.neon/pageserver.toml
+          upcall_token="$(cat /run/neon/storage-upcall/token)"
+          case "$upcall_token" in ''|*[!A-Za-z0-9_.-]*) exit 1;; esac
+          printf "\ncontrol_plane_api_token='%s'\n" "$upcall_token" >> /data/.neon/pageserver.toml
+          unset upcall_token
+          {{- end }}
+          chown -R 1000:1000 /data/.neon || true
         resources:
 {{ toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - {name: data, mountPath: /data}
         - {name: config, mountPath: /config, readOnly: true}
+        {{- if .Values.config.upcallSecret }}
+        - {name: storage-upcall, mountPath: /run/neon/storage-upcall, readOnly: true}
+        {{- end }}
       containers:
       - name: pageserver
         image: {{ .Values.image | quote }}
@@ -46,9 +63,20 @@ spec:
 {{ toYaml .Values.resources | nindent 10 }}
         volumeMounts:
         - {name: data, mountPath: /data}
+        {{- if .Values.config.upcallSecret }}
+        - {name: storage-upcall, mountPath: /run/neon/storage-upcall/ca.crt, subPath: ca.crt, readOnly: true}
+        {{- end }}
       volumes:
       - {name: data, persistentVolumeClaim: {claimName: {{ .Values.existingClaim }}}}
       - {name: config, configMap: {name: {{ .Values.configMap }}}}
+      {{- if .Values.config.upcallSecret }}
+      - name: storage-upcall
+        secret:
+          secretName: {{ .Values.config.upcallSecret }}
+          items:
+          - {key: token, path: token, mode: 256}
+          - {key: ca.crt, path: ca.crt, mode: 292}
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,13 @@
+{
+  "developmentAcknowledged": true,
+  "enabled": true,
+  "image": "10.11.9.236:5000/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
+  "nodeSelector": {},
+  "persistence": {
+    "storageClassName": "local-path"
+  },
+  "service": {
+    "type": "ClusterIP",
+    "nodePort": 0
+  }
+}

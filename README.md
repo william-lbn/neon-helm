@@ -1,5 +1,12 @@
 # Neon Helm
 
+## 标准站点部署（2026-11-24）
+
+当前端到端标准入口为 [部署、清理与验收手册](docs/standard/README.zh-CN.md)。
+使用 profiles/standard-site 声明站点，控制面 Chart 从对应 control-plane 提交打包；不复用旧实验节点标签或运行 UID。
+旧 stack/profile 内容保留历史兼容；本轮新环境验收与源码边界以该手册和阶段证据为准。
+
+
 Versioned deployment source for self-hosted Neon, NeonVM, upstream autoscaling,
 the Go control API, independent Worker, Go Proxy/Storage adapter and TypeScript Console.
 

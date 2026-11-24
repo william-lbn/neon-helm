@@ -22,12 +22,13 @@ securityContext:
   capabilities: {drop: [ALL]}
 podAnnotations: {}
 
-# 本轮 PG17 专用节点池；部署前必须验证标签只属于这三个节点。
+# 站点调度条件；不要求实验节点名或由节点名单拼接的专用标签。
 placement:
-  allowedNodeNames:
-  - worker-117
-  - worker-118
-  - worker-119
+  # Empty: Kubernetes may use any eligible node matching nodeSelector.
+  # Explicit names remain available for deliberate site constraints.
+  nodeSelector: {}
+  matchExpressions: []
+  allowedNodeNames: []
 
 # managed 路由只验证原已封定实例，不读取控制签名seed或业务密码。
 # 每项显式绑定同一个Compute的SQL Service和不可变配置Secret；默认不增加权限。

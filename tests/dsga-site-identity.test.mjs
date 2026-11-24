@@ -16,6 +16,35 @@ const hostLease = node => `neon-dsga-host-${node}`;
 const fixture = chart => JSON.parse(fs.readFileSync(path.join(root, 'tests/fixtures/helm', `${chart}.json`), 'utf8'));
 const rules = docs => docs.filter(d => ['Role', 'ClusterRole'].includes(d.kind)).flatMap(d => d.rules);
 
+test('native Agent can verify real Host nodes with GET only', () => {
+  const docs = render('neon-autoscaler', valuesFor('neon-autoscaler'));
+  const role = docs.find(d => d.kind === 'ClusterRole' && d.metadata.name === 'neon-dsga-agent-node-reader');
+  assert.deepEqual(role.rules, [{apiGroups: [''], resources: ['nodes'], resourceNames: names(5), verbs: ['get']}]);
+  const binding = docs.find(d => d.kind === 'ClusterRoleBinding' && d.metadata.name === role.metadata.name);
+  assert.equal(binding.roleRef.name, role.metadata.name);
+  assert.deepEqual(binding.subjects, [{kind: 'ServiceAccount', name: 'autoscaler-agent', namespace: 'kube-system'}]);
+});
+
+test('explicit pool constrains Agent Node reads without granting writes', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.placement = {allowedNodeNames: names(5)};
+  const role = render('neon-autoscaler', values).find(d => d.kind === 'ClusterRole' && d.metadata.name === 'neon-dsga-agent-node-reader');
+  assert.deepEqual(role.rules, [{apiGroups: [''], resources: ['nodes'], resourceNames: names(5), verbs: ['get']}]);
+});
+
+test('runtime namespace ownership is explicit and observer permissions remain scoped', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.dsga.agent.runtimeSelectionNamespace = 'neon-control-existing';
+  values.dsga.agent.resourceReadSocket = {enabled: true, hostDirectory: '/run/neon-resource', mountDirectory: '/run/neon-resource', name: 'resource.sock'};
+  const docs = render('neon-autoscaler', values);
+  assert.equal(docs.some(d => d.kind === 'Namespace' && d.metadata.name === 'neon-control-existing'), false);
+  const role = docs.find(d => d.kind === 'Role' && d.metadata.name === 'neon-dsga-runtime-selection-observer');
+  assert.equal(role.metadata.namespace, 'neon-control-existing');
+  assert.deepEqual(role.rules, [{apiGroups: [''], resources: ['configmaps'], verbs: ['get']}]);
+  values.dsga.agent.runtimeSelectionCreateNamespace = true;
+  assert.equal(render('neon-autoscaler', values).filter(d => d.kind === 'Namespace' && d.metadata.name === 'neon-control-existing').length, 1);
+});
+
 function valuesFor(chart, count = 5) {
   const nodes = names(count);
   const identities = Object.fromEntries(nodes.map((name, i) => [name, uid(i + 1)]));
@@ -59,14 +88,14 @@ function valuesFor(chart, count = 5) {
   return values;
 }
 
-function render(chart, values, error) {
+function render(chart, values, error, kubeVersion = '1.31.2') {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'dsga-site-identity-'));
   try {
     const file = path.join(directory, 'values.json');
     fs.writeFileSync(file, JSON.stringify(values));
     const namespace = chart === 'neon-control-runtime-access' ? 'neon-control-offline' : chart === 'neon-autoscaler' ? 'default' : 'neon';
     const release = chart === 'dsga-qualification-issuer' ? values.subject.name : 'site-identity';
-    const result = spawnSync(helm, ['template', release, path.join(root, 'charts', chart), '--namespace', namespace, '--kube-version', '1.31.2', '--values', file], {cwd: root, encoding: 'utf8', timeout: 20000, maxBuffer: 8 * 1024 * 1024, env: {...process.env, HELM_NO_PLUGINS: '1'}});
+    const result = spawnSync(helm, ['template', release, path.join(root, 'charts', chart), '--namespace', namespace, '--kube-version', kubeVersion, '--values', file], {cwd: root, encoding: 'utf8', timeout: 20000, maxBuffer: 8 * 1024 * 1024, env: {...process.env, HELM_NO_PLUGINS: '1'}});
     assert.ifError(result.error);
     if (error) {
       assert.notEqual(result.status, 0, `${chart}: unsafe values rendered`);
@@ -79,6 +108,63 @@ function render(chart, values, error) {
     fs.rmSync(directory, {recursive: true, force: true});
   }
 }
+
+for (const namespace of ['neon-cert-manager', 'cert-manager', 'local-path-storage']) {
+  test(`autoscaler protects the explicit ${namespace} namespace without extra scope`, () => {
+    const values = valuesFor('neon-autoscaler');
+    values.dsga.scheduler.podProtectionNamespaces = ['kube-system', namespace, 'neonvm-system'];
+    const docs = render('neon-autoscaler', values);
+    const protectedNamespaces = docs.filter(d => d.kind === 'Role' && d.metadata.name === 'neon-dsga-scheduler-pod-protection').map(d => d.metadata.namespace).sort();
+    assert.deepEqual(protectedNamespaces, [...values.dsga.scheduler.podProtectionNamespaces].sort());
+  });
+}
+test('autoscaler refuses wildcard namespace authority', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.dsga.scheduler.podProtectionNamespaces.push('*');
+  render('neon-autoscaler', values, /podProtectionNamespaces/);
+});
+test('namespace portability does not bypass Kubernetes qualification', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.compatibility = {expectedKubernetesMinor: '36', allowUntestedKubernetes: true};
+  render('neon-autoscaler', values, /forbids compatibility.allowUntestedKubernetes/, '1.36.6');
+});
+
+test('configured Kubernetes target is explicit; rendering grants no runtime qualification', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.compatibility = {expectedKubernetesMinor: '36', allowUntestedKubernetes: false};
+  const docs = render('neon-autoscaler', values, null, '1.36.6');
+  assert.ok(docs.some(d => d.kind === 'Deployment'));
+  values.compatibility.expectedKubernetesMinor = '31';
+  render('neon-autoscaler', values, /configured target|configured actual target/, '1.36.6');
+});
+
+test('open node pool uses native selectors without hostname lists or derived labels', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.placement = {allowedNodeNames: [], nodeSelector: {'capacity.example.com/class': 'compute'}, matchExpressions: [{key: 'node-role.kubernetes.io/control-plane', operator: 'DoesNotExist'}]};
+  const docs = render('neon-autoscaler', values);
+  for (const object of docs.filter(d => ['Deployment', 'DaemonSet'].includes(d.kind))) {
+    const pod = object.spec.template.spec;
+    assert.equal(pod.nodeSelector['capacity.example.com/class'], 'compute');
+    assert.equal(pod.nodeSelector['kubernetes.io/os'], 'linux');
+    assert.equal(pod.nodeSelector['neon.tech/pg17-memory-pool'], undefined);
+    const terms = pod.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms;
+    assert.equal(terms.length, 1);
+    assert.deepEqual(terms[0].matchExpressions, values.placement.matchExpressions);
+  }
+});
+
+test('first-install Agent warmup precedes Host CAS without changing final Host defaults', () => {
+  const values = valuesFor('neon-autoscaler');
+  values.dsga.scheduler.enabled = false;
+  values.dsga.agent.resourceReadSocket = {enabled: true, hostDirectory: '/run/neon-test-resource', mountDirectory: '/run/neon-test-resource', name: 'resource.sock'};
+  const warm = render('neon-autoscaler', values);
+  const scheduler = docs => JSON.parse(docs.find(d => d.kind === 'ConfigMap' && d.metadata.name === 'scheduler-plugin-config').data['autoscale-enforcer-config.json']);
+  const agent = JSON.parse(warm.find(d => d.kind === 'ConfigMap' && d.metadata.name === 'autoscaler-agent-config').data['config.json']);
+  assert.equal(scheduler(warm).dsgaHost, undefined);
+  assert.equal(agent.dsga.resourceReadSocketPath, '/run/neon-test-resource/resource.sock');
+  values.dsga.scheduler.enabled = true;
+  assert.equal(scheduler(render('neon-autoscaler', values)).dsgaHost.nodes.length, values.dsga.scheduler.nodes.length);
+});
 
 for (const chart of charts) {
   test(`${chart}: five entirely new site Nodes/UIDs render without broader Node/Lease authority`, () => {
@@ -195,4 +281,16 @@ test('control access still rejects workload namespace reuse', () => {
 test('control access still rejects a foreign Host Lease namespace', () => {
   const values = valuesFor('neon-control-runtime-access'); values.hostLeaseNamespace = 'foreign';
   render('neon-control-runtime-access', values, /Host leases must share/);
+});
+
+for (const count of [1, 5, 16]) test(`open placement keeps Node authority bound to ${count} trusted Host identities`, () => {
+  const values = valuesFor('neon-autoscaler', count);
+  values.placement = {allowedNodeNames: []};
+  const docs = render('neon-autoscaler', values);
+  const authority = Object.keys(values.dsga.hostIdentities).sort();
+  for (const [name, verbs] of [['neon-dsga-agent-node-reader', ['get']], ['neon-dsga-scheduler-node-ledger', ['get', 'patch']]]) {
+    const role = docs.find(d => d.kind === 'ClusterRole' && d.metadata.name === name);
+    assert.deepEqual(role.rules, [{apiGroups: [''], resources: ['nodes'], resourceNames: authority, verbs}]);
+    assert.ok(role.rules[0].resourceNames.length > 0);
+  }
 });

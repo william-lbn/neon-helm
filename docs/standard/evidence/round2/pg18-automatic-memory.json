@@ -1,0 +1,41 @@
+{
+  "status": "completed",
+  "postgresVersion": 18,
+  "vmUID": "8b81e280-c92e-4eda-8c5e-be8043ac4497",
+  "podUID": "2a254921-dafd-48fd-a74e-8e882276546e",
+  "node": "node2",
+  "minMemoryBytes": 7516192768,
+  "maxMemoryBytes": 8589934592,
+  "sqlWorkers": 8,
+  "loadTransport": "standard-psql-proxy-verify-full",
+  "clientImage": "10.11.9.236:5000/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
+  "policyChanged": false,
+  "vmPatchedByTest": false,
+  "businessE2E": "NOT_COMPLETE",
+  "guestPhysicalConfirmation": "PENDING_ROOT_WATCH",
+  "before": {
+    "rowCount": 10000,
+    "sumID": 50005000,
+    "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+    "walLSN": "0/246A000"
+  },
+  "growthAt": "2026-11-24T11:25:14.415772+00:00",
+  "nativeGrowthConfirmed": true,
+  "afterGrowth": {
+    "rowCount": 10000,
+    "sumID": 50005000,
+    "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+    "walLSN": "0/24885C0"
+  },
+  "sqlLoadPassed": true,
+  "shrinkAt": "2026-11-24T11:28:50.362307+00:00",
+  "nativeShrinkConfirmed": true,
+  "automaticVmMemory": "PASS",
+  "afterShrink": {
+    "rowCount": 10000,
+    "sumID": 50005000,
+    "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+    "walLSN": "0/2548000"
+  },
+  "historyCount": 2
+}

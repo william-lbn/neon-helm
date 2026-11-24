@@ -1,0 +1,84 @@
+{
+  "apiVersion": "neon-standard-site/v1",
+  "name": "neon-standard-lab",
+  "kubeconfig": "/etc/rancher/rke2/rke2.yaml",
+  "namespaces": {
+    "workload": "neon",
+    "platform": "neon-control-runtime",
+    "agent": "kube-system",
+    "vmSystem": "neonvm-system"
+  },
+  "registry": "10.11.9.236:5000",
+  "storageRoots": [
+    "/data/neon-local"
+  ],
+  "allowLabHTTPObjectStorage": true,
+  "hostPolicy": {
+    "profile": {
+      "id": "pg17-kubernetes-budget-20261103-v1",
+      "pod_overhead_bytes": "16777216",
+      "scheduler_name": "autoscale-scheduler",
+      "vm_overhead_bytes": "3221225472"
+    },
+    "systemBytes": "4294967296"
+  },
+  "catalogTemplate": "runtime-catalog-template.json",
+  "releases": {
+    "neonvm": {
+      "release": "neonvm",
+      "namespace": "default",
+      "chart": "../../charts/neonvm",
+      "values": "values/neonvm.json"
+    },
+    "autoscaler": {
+      "release": "neon-autoscaler",
+      "namespace": "default",
+      "chart": "../../charts/neon-autoscaler",
+      "values": "values/autoscaler.json"
+    },
+    "metadata": {
+      "release": "neon-metadata",
+      "namespace": "neon",
+      "chart": "../../charts/neon-metadata",
+      "values": "values/metadata.json"
+    },
+    "adapter": {
+      "release": "neon-adapter",
+      "namespace": "neon",
+      "chart": "../../charts/neon-adapter",
+      "values": "values/adapter.json"
+    },
+    "core": {
+      "release": "neon-lab",
+      "namespace": "neon",
+      "chart": "../../charts/neon-core",
+      "values": "values/core.json"
+    },
+    "pageserver": {
+      "release": "managed-pageserver",
+      "namespace": "neon",
+      "chart": "../../charts/neon-managed-pageserver",
+      "values": "values/pageserver.json"
+    },
+    "gateway": {
+      "release": "neon-compute-management-gateway",
+      "namespace": "neon",
+      "chart": "../../charts/compute-management-gateway",
+      "values": "values/gateway.json"
+    },
+    "runtime-access": {
+      "release": "neon-runtime-access",
+      "namespace": "neon-control-runtime",
+      "chart": "../../charts/neon-control-runtime-access",
+      "values": "values/runtime-access.json"
+    },
+    "control": {
+      "release": "neon-control",
+      "namespace": "neon",
+      "chart": "../../control-plane-chart/neon-control-plane",
+      "values": "values/control.json"
+    }
+  },
+  "clusterDomain": "cluster.local",
+  "toolsImage": "10.11.9.236:5000/neon/neon-site-tools@sha256:85a6849c2e56e4d9cea9b5e1dece32b867e5fd6b2d2ef916e82ec7ff1533cd30"
+}

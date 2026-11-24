@@ -1,0 +1,74 @@
+[
+  {
+    "actor": "autoscale-scheduler",
+    "node": "master",
+    "verb": "patch",
+    "allowed": false
+  },
+  {
+    "actor": "autoscale-scheduler",
+    "node": "node1",
+    "verb": "patch",
+    "allowed": true
+  },
+  {
+    "actor": "autoscale-scheduler",
+    "node": "node2",
+    "verb": "patch",
+    "allowed": true
+  },
+  {
+    "actor": "autoscale-scheduler",
+    "node": "node3",
+    "verb": "patch",
+    "allowed": true
+  },
+  {
+    "actor": "autoscale-scheduler",
+    "node": "node4",
+    "verb": "patch",
+    "allowed": true
+  },
+  {
+    "actor": "autoscale-scheduler",
+    "node": "node5",
+    "verb": "patch",
+    "allowed": true
+  },
+  {
+    "actor": "autoscaler-agent",
+    "node": "master",
+    "verb": "patch",
+    "allowed": false
+  },
+  {
+    "actor": "autoscaler-agent",
+    "node": "node1",
+    "verb": "patch",
+    "allowed": false
+  },
+  {
+    "actor": "autoscaler-agent",
+    "node": "node2",
+    "verb": "patch",
+    "allowed": false
+  },
+  {
+    "actor": "autoscaler-agent",
+    "node": "node3",
+    "verb": "patch",
+    "allowed": false
+  },
+  {
+    "actor": "autoscaler-agent",
+    "node": "node4",
+    "verb": "patch",
+    "allowed": false
+  },
+  {
+    "actor": "autoscaler-agent",
+    "node": "node5",
+    "verb": "patch",
+    "allowed": false
+  }
+]

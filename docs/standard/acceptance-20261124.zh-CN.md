@@ -1,5 +1,8 @@
 # Neon Helm 标准化阶段验收报告 V3.2
 
+最终提交包冷安装验收已完成：运行源码为Helm提交1f04cc6de49c6d8cfdd589c59a672c752a69718b，完整离线包SHA256为f025993a6a4ccabaf4610e025b0bfbf484e4e31118ee2a3a1d47f18187f9871e。当前9个release deployed、6个Node Ready、Compute VM为零，5个Host无Hold及managed placement。后续归档提交只更新本报告、手册和公开证据，运行代码/Chart/站点参数/镜像摘要保持与该已验收提交相同。
+
+
 本轮核心任务已完成业务验收：新 228 集群既有 5 个 worker 的标准 Host 域建立、PG17/PG18 控制面创建、真实 SQL、自动内存增长与回缩、暂停恢复、正常退役、完整清理，以及从空状态一次自动重装后的第二轮全链路验证。最终 9 个选定 Helm release 均 deployed、6 个 Node Ready、Compute VM 为零，5 个 Host 的 holds/managed placements 均为零。普通平台 Pod 和其正常预算登记继续保留。
 
 本报告与部署手册、evidence/summary.json 为本轮标准依据。V3.0 和早期执行草案保留为历史来源，不应继续照抄其中旧节点名单、派生标签、旧 UID、旧 CA 或“未推送/通道中断”等阶段状态。
@@ -16,7 +19,7 @@
 
 旧现场 8 个 Retain 卷、候选标准环境 7 个 Retain 卷均完成原 UID 绑定的物理目录清理与 PV 删除。标准环境关闭了重复的旧内置 Pageserver，故 7 卷为预期数量。清理后确认选定 release、独占 namespace/CRD、旧 Host 身份、保护标记和专用网络均无残留；保留 RKE2、共享 CNI/DNS、StorageClass、cert-manager 和 Harbor。
 
-最终安装从 2026-11-24 19:01:52 开始，19:04:44 完成，共 172 秒。该次入口从 fresh-preflight 到 control-runtime-ready 一次完成，没有 retry/reconcile 或人工修改，安装输入 SHA256：
+第二轮安装从 2026-11-24 19:01:52 开始，19:04:44 完成，共 172 秒。该次入口从 fresh-preflight 到 control-runtime-ready 一次完成，没有 retry/reconcile 或人工修改，安装输入 SHA256：
 
 `45af92098e5b345cecd183e1454b3a46a397ec6635303750e105698f88323c7d`
 
@@ -24,7 +27,7 @@
 
 ## 三、第二轮独立业务验收
 
-所有结果来自最终新安装及新组织 `org_c98a8a084dc022bdce480e98`，没有复用第一轮回执。
+以下第二轮结果来自该轮新安装及新组织 `org_c98a8a084dc022bdce480e98`，没有复用第一轮回执。
 
 | 项目 | PG17 | PG18 |
 |---|---|---|
@@ -96,7 +99,27 @@
 
 两版本均 verify-full、10000行、sum(id)=50005000、校验和55dd7184c7eae5d9a2bae0b66e2924e3；原Compute/PG身份在内存往返中保持，无测试侧VM patch或策略修改。PG18在此前失败的node3上完整通过资格、SQL和自动物理内存，不能以排除该节点制造成功。
 
-该轮是空态安装后必要的单组件滚动升级验收；最终提交包的冷安装验收另行补充，不能把滚动结果冒称为该新镜像已经完成整套冷安装。
+该轮是空态安装后必要的单组件滚动升级验收；下一节第四轮另以精确提交包完成整套冷安装，二者证据分开。
+
+## 五补充之二、精确提交包最终冷安装验收
+
+先核对离线包SHA256、源码锁和包内全部SHA256SUMS，再正式停止旧写者并以原UID/RV结束Host域、归还普通Pod保护、删除七个Retain卷的原物理目录。22:53:06空态验收通过，随后同一入口用包内已提交工具安装；22:55:35全部27阶段一次成功，约150秒，没有人工接线、retry-phase或Helm reconciliation。Harbor及RKE2/CNI/DNS/StorageClass/共享cert-manager保留。
+
+该次新组织org_91c96b773f0c4130df5efaf6，PG17和PG18均为全新case001，公开创建首次成功，未换案例或重放Operation。Qualifier f8bb从冷安装目录生成，不依赖上一轮滚动更新。两版本verify-full、10000行、sum(id)=50005000、md5=55dd7184c7eae5d9a2bae0b66e2924e3；各8个有界标准psql客户端触发原VM/Runner自动7→8→7Gi，原Guest独立物理7413817344→8487559168→7413817344，原Compute/PG实例未变，WAL历史2条完整结清、Active为空，无测试侧VM patch或策略更改。
+
+| 项目 | PG17 | PG18 |
+|---|---|---|
+| 创建 | op_e8be0fc0f00fcc27c5164086 | op_a3bc0682fb58e7926d437e51 |
+| 原VM/节点 | 13f67938-555d-4de2-87e9-476fbdc4b362 / node2 | 56018c5b-0244-4490-a0f9-9fa6886a0fef / node4 |
+| 暂停 | op_4ff984852cfb3465b4f1acf4 | op_64d7f540d6dd85cc45dcf959 |
+| 恢复 | op_a8d25b05a5b0b9a893379e64 | op_4bd7dd5fed550f9d25e04874 |
+| 恢复VM/节点 | 857b403a-b43e-4c3e-b677-66e351c043cd / node2 | 610c6df6-4dd3-4dc2-916d-af6cc90c74c7 / node5 |
+| 正常退役 | op_17c19d89f9d969de4bfd2682 | op_94f98346c98bf3a2e2081ec8 |
+| 结果 | 全部succeeded；原/新VM及Runner Gone；原数据保持；Host零持有 | 相同 |
+
+PG17本轮恢复在同一节点，PG18恢复到另一节点；跨节点调度也已在前轮多次实测，不能把同节点恢复误报为跨节点。最终原生SubjectAccessReview再次核对：Scheduler仅能PATCH本次五个可信Host，master拒绝；Agent对所有Node均无PATCH。所有选定release均deployed、6个Node Ready、全局VM为零、5个Host的Hold/managed placement均零。普通平台Pod与其真实预算登记继续保留。
+
+公开最终证据汇总为BUSINESS_ACCEPTANCE_PASSED且committedBundleColdAcceptance=true；原子阶段NOT_COMPLETE等字段保持原样，由独立汇总逐项交叉核对原实例、数据及所有阶段，不修改原件制造成功。最终证据包SHA256：6e08249fd019e76e13973cc9e0d2a7694836b0be90bd39491d0d6e6f89dc02cf。清理卷数依次为8、7、7、7，所有原UID物理清理均留有回执。
 
 ## 六、未解决项与下一阶段验收条件
 
@@ -115,7 +138,7 @@ Root 读取未确认时关闭准入的安全原则正确；本轮修复的是取
 
 ## 七、归档范围
 
-公开证据包含两轮 SQL/内存/生命周期回执、第二轮原 Guest 物理观测、两次空态清理回执、最终一次自动安装回执及文件摘要。源意图、完整 WAL、凭据和元数据库备份保留在管理节点的专用 0700 目录，公开归档只给出必要摘要与索引，GitHub 不提交这些私有原件。
+公开证据包含四轮 SQL/内存/生命周期回执、第二轮原 Guest 物理观测、两次空态清理回执、最终一次自动安装回执及文件摘要。源意图、完整 WAL、凭据和元数据库备份保留在管理节点的专用 0700 目录，公开归档只给出必要摘要与索引，GitHub 不提交这些私有原件。
 
 本轮最终状态保留已部署且健康的 Neon 系统；验收 Compute 已正常退役，测试项目及其数据留作阶段追溯。新增 Node 和完整组合发行对齐按上表进入下一阶段。
 

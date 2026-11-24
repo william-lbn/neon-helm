@@ -41,6 +41,50 @@ state 必须是本机所有、权限 0700 的专用目录。先为独占环境�
 
 随后通过原公开 Operation 暂停、确认原 VM/Runner Gone 与 Host 结算，再恢复到新 VM UID，复核原数据，最后正常退役并确认 holds/managed placements 为零。VM/Runner 清单或单独的 manifest 改变不能代替 Guest 物理证据；失败、未知和原重试操作分别留档，不重放未知写请求。
 
+### 验收命令顺序
+
+以下从解包目录执行；为每轮选择全新的受保护目录和案例号，任何未知结果都先观察原 Operation：
+
+```bash
+export PATH="$PWD/bin:$PATH"
+export KUBECONFIG=/path/to/cluster-kubeconfig
+export NEON_SITE_ROOT=/var/lib/neon/acceptance-current
+python3 -B tools/acceptance/prepare-standard-acceptance.py \
+  --site profiles/standard-site/site.json \
+  --deployment /var/lib/neon/site-install/receipt.json --out "$NEON_SITE_ROOT"
+organization=$(python3 -B -c 'import json,os,pathlib;print(json.loads((pathlib.Path(os.environ["NEON_SITE_ROOT"])/"organization.json").read_text())["id"])')
+for pg in 17 18; do
+  bash tools/acceptance/start-business-e2e.sh "$organization" "$pg" 001
+  bash tools/acceptance/verify-business-sql.sh "$pg" 001
+done
+```
+
+对每个当前 Running VM，从真实 VM.status.node 和 Node.InternalIP 找到实际 Host，读取本轮目录、原 VM UID、Node UID、socket 路径与内存 slot。独立观察需具有该 Host 根权限的只读通道及 Python 3，不能拿管理面 manifest 代替：
+
+```bash
+# 在实际 Host 上执行，参数均来自当前原实例；本命令只读，不改变预算或内存。
+bash tools/acceptance/watch-root-resource.sh SOCKET_PATH VM_UID PRIVATE_OBSERVER_DIR SLOT_BYTES
+```
+
+确认该实例已取得基线后，在管理节点运行内存验收；每个 PG 分别进行，保留其独立物理增长与回缩回执：
+
+```bash
+export NEON_MEMORY_ATTEMPT=001
+bash tools/acceptance/verify-ramped-automatic-memory.sh 17 001
+bash tools/acceptance/verify-ramped-automatic-memory.sh 18 001
+```
+
+只有两版本的原实例内存往返、Guest 物理证据、原数据和 WAL 结清均通过，才进入生命周期验收：
+
+```bash
+for pg in 17 18; do
+  bash tools/acceptance/run-lifecycle-round.sh "$pg" 001 suspend
+  bash tools/acceptance/verify-lifecycle.sh "$pg" 001 retire
+done
+```
+
+所有工具都拒绝覆盖已存在的原意图或案例目录。失败不能靠换组织、案例、UID、报告或清除账本伪装成功；新的已授权验证尝试应保留旧失败及其正式清理结果，再使用新案例号。公开归档只包含审核字段、物理观测和私有原件摘要。
+
 ## 干净卸载
 
 先通过公开业务流程完成 Compute 退役。独占站点可执行：

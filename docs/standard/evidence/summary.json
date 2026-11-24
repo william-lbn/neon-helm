@@ -7,15 +7,16 @@
   "cleanupVolumeCounts": [
     8,
     7,
+    7,
     7
   ],
   "postgres": [
     {
       "major": 17,
-      "projectID": "prj_6c6ba4fb29fdc22f",
-      "creationOperation": "op_8645d78a9b2eced5b6abf540",
-      "vmUID": "302888ce-0dfd-49bd-85fd-d080bd2f9a8f",
-      "memoryNode": "node1",
+      "projectID": "prj_34fe69208b38fbd7",
+      "creationOperation": "op_e8be0fc0f00fcc27c5164086",
+      "vmUID": "13f67938-555d-4de2-87e9-476fbdc4b362",
+      "memoryNode": "node2",
       "memoryBytes": [
         7516192768,
         8589934592,
@@ -26,11 +27,11 @@
         8487559168,
         7413817344
       ],
-      "suspendOperation": "op_fc376d87c33a52d57dcc83ec",
-      "resumeOperation": "op_9cfeb821b11663c9c2f333ea",
-      "resumedNode": "node5",
-      "resumedVMUID": "5eb48958-a9d6-410a-a9a1-5a9015b10578",
-      "retireOperation": "op_bc06aba855c99aa56b6ca2af",
+      "suspendOperation": "op_4ff984852cfb3465b4f1acf4",
+      "resumeOperation": "op_a8d25b05a5b0b9a893379e64",
+      "resumedNode": "node2",
+      "resumedVMUID": "857b403a-b43e-4c3e-b677-66e351c043cd",
+      "retireOperation": "op_17c19d89f9d969de4bfd2682",
       "rowCount": 10000,
       "checksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
       "walHistory": 2,
@@ -38,10 +39,10 @@
     },
     {
       "major": 18,
-      "projectID": "prj_e888ea54efc153f5",
-      "creationOperation": "op_20b8b15cfa5be82da55eb690",
-      "vmUID": "8b26ca3c-45d5-4622-88a2-f4df5da5c0ca",
-      "memoryNode": "node3",
+      "projectID": "prj_97c5d4b22bb2aceb",
+      "creationOperation": "op_a3bc0682fb58e7926d437e51",
+      "vmUID": "56018c5b-0244-4490-a0f9-9fa6886a0fef",
+      "memoryNode": "node4",
       "memoryBytes": [
         7516192768,
         8589934592,
@@ -52,11 +53,11 @@
         8487559168,
         7413817344
       ],
-      "suspendOperation": "op_72b311c3245ca7863cd389c1",
-      "resumeOperation": "op_4ff1db4f572210503ad63cae",
-      "resumedNode": "node1",
-      "resumedVMUID": "dcba2e62-b00a-4083-acd7-5af004d53c6d",
-      "retireOperation": "op_bc38447a83ac766be3e60c88",
+      "suspendOperation": "op_64d7f540d6dd85cc45dcf959",
+      "resumeOperation": "op_4bd7dd5fed550f9d25e04874",
+      "resumedNode": "node5",
+      "resumedVMUID": "610c6df6-4dd3-4dc2-916d-af6cc90c74c7",
+      "retireOperation": "op_94f98346c98bf3a2e2081ec8",
       "rowCount": 10000,
       "checksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
       "walHistory": 2,
@@ -69,23 +70,23 @@
     {
       "name": "node1",
       "uid": "0cdd2f7d-aeb4-4ed8-897c-6383eb5dcfab",
+      "protocol": 3,
+      "holds": 0,
+      "managedPlacements": 0,
+      "ordinaryPlacements": 14
+    },
+    {
+      "name": "node2",
+      "uid": "335051f1-0eb0-463d-bca2-4c4045ba1e68",
       "protocol": 10,
       "holds": 0,
       "managedPlacements": 0,
       "ordinaryPlacements": 13
     },
     {
-      "name": "node2",
-      "uid": "335051f1-0eb0-463d-bca2-4c4045ba1e68",
-      "protocol": 3,
-      "holds": 0,
-      "managedPlacements": 0,
-      "ordinaryPlacements": 12
-    },
-    {
       "name": "node3",
       "uid": "70c92eec-070e-49e3-a6d4-8366c5908147",
-      "protocol": 10,
+      "protocol": 3,
       "holds": 0,
       "managedPlacements": 0,
       "ordinaryPlacements": 10
@@ -93,7 +94,7 @@
     {
       "name": "node4",
       "uid": "0fe248b6-bab6-45ab-8813-d42fbe7fb375",
-      "protocol": 3,
+      "protocol": 10,
       "holds": 0,
       "managedPlacements": 0,
       "ordinaryPlacements": 10
@@ -104,10 +105,11 @@
       "protocol": 10,
       "holds": 0,
       "managedPlacements": 0,
-      "ordinaryPlacements": 11
+      "ordinaryPlacements": 9
     }
   ],
   "allSelectedHelmReleasesDeployed": true,
   "nodeAuthorityBoundToTrustedHosts": true,
-  "qualifierRolledTo": "sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df"
+  "qualifierInstalledFromCold": "sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
+  "committedBundleColdAcceptance": true
 }

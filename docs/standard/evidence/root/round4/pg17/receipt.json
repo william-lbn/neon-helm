@@ -1,0 +1,16 @@
+{
+  "status": "completed",
+  "vmUID": "13f67938-555d-4de2-87e9-476fbdc4b362",
+  "readOnly": true,
+  "instance": {
+    "vm_uid": "13f67938-555d-4de2-87e9-476fbdc4b362",
+    "compute_instance_id": "ci_78bac1f8ec8b72d72cbba19bb52f006c",
+    "pg_boot_id": "13040774928120337153"
+  },
+  "baselineGuestMemTotalBytes": 7413817344,
+  "peakGuestMemTotalBytes": 8487559168,
+  "currentGuestMemTotalBytes": 7413817344,
+  "guestGrowthObserved": true,
+  "guestGrowthAndShrinkObserved": true,
+  "completedAt": "2026-11-24T15:15:09.653405+00:00"
+}

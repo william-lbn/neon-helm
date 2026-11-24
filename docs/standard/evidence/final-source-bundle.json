@@ -1,0 +1,19 @@
+{
+  "archiveSHA256": "f025993a6a4ccabaf4610e025b0bfbf484e4e31118ee2a3a1d47f18187f9871e",
+  "source": {
+    "helmCommit": "1f04cc6de49c6d8cfdd589c59a672c752a69718b",
+    "controlPlaneCommit": "e8935831c6aea14f93b8414686962038815d70d2",
+    "autoscalingSDKCommit": "3567f1c5076e81e754a4cea96ccf3d08f65ca3cc",
+    "hostNativeTests": {
+      "pass": 30,
+      "fail": 0,
+      "skip": 0
+    },
+    "runtimeBinaries": {
+      "helm": "c16af303055cfe1c1e64652b547cfdbed924e89fd2a20d8632d797978c14def3",
+      "node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "host-decommission-check": "5cc1f6c1b5fc4296f76a602ad4779d1f4b8a6c5f7b3dd95ed93e34fc2d11709e"
+    }
+  },
+  "allFilesVerified": true
+}

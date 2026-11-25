@@ -1,4 +1,5 @@
-import copy,datetime,json,time,unittest
+import copy,datetime,hashlib,json,pathlib,tempfile,time,types,unittest
+from standard_contract import input_manifest
 from standard_partial import PartialInstallation,unused_node,observer_handoff,LEDGER,ORIGIN,GUARD,EXIT,OBSERVER
 class NeverInitializedHost(unittest.TestCase):
  def fixture(self):return {'metadata':{'name':'worker','uid':'original','resourceVersion':'1','annotations':{}}},{'node_name':'worker','node_uid':'original'}
@@ -79,4 +80,16 @@ class PartialExitObservation(unittest.TestCase):
    if case=='partial-vms':c.vms['metadata']={'continue':'next'}
    with self.subTest(case=case),self.assertRaises(RuntimeError):p.end_unused(b,'/nodes/worker',n)
    self.assertEqual(c.writes,[])
+class OriginalOperatorLocation(unittest.TestCase):
+ def fixture(self):
+  temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);root=pathlib.Path(temp.name);tools=root/'original/tools';tools.mkdir(parents=True);(tools/'standard_contract.py').write_text('# original immutable operator\n');site=root/'site.json';site.write_text('{}');catalog=root/'catalog.json';catalog.write_text('{}');state=root/'original-install';state.mkdir(mode=0o700);(state/'lock').touch(mode=0o600)
+  config={'catalogTemplate':'catalog.json','releases':{}};original={'status':'incomplete','businessE2E':'NOT_RUN','inputSHA256':hashlib.sha256(site.read_bytes()).hexdigest(),'inputSet':input_manifest(site,config,tools=tools/'standard_contract.py'),'clusterUID':'original-cluster','steps':{'helm-autoscaler-host-activation':{'status':'completed'}},'createdResources':[{'kind':'Namespace','name':name,'uid':name+'-uid'} for name in ('workload','platform','vm-system')]};(state/'receipt.json').write_text(json.dumps(original));(state/'host-activation-values.private.json').write_text(json.dumps({'dsga':{'scheduler':{'nodes':[]}}}));c=types.SimpleNamespace(file=site,config=config,report={'clusterUID':'original-cluster'},exclusive=['workload','platform','vm-system'],kube=lambda *args:{'metadata':{'uid':args[-1]+'-uid'}});return c,state,tools
+ def test_original_directory_is_anchored_to_contract_file(self):
+  c,state,tools=self.fixture();p=PartialInstallation(c,state,tools);self.addCleanup(p.lock.close);p.check();self.assertTrue(c.report['partialInstallationSource']['controlPlaneNeverSubmitted']);self.assertEqual(c.report['partialInstallationSource']['tools'],str(tools))
+ def test_changed_original_tool_remains_rejected(self):
+  c,state,tools=self.fixture();(tools/'standard_contract.py').write_text('# changed operator\n')
+  with self.assertRaises(RuntimeError):PartialInstallation(c,state,tools)
+ def test_original_receipt_change_after_plan_remains_rejected(self):
+  c,state,tools=self.fixture();p=PartialInstallation(c,state,tools);self.addCleanup(p.lock.close);(state/'receipt.json').write_text('{}')
+  with self.assertRaises(RuntimeError):p.check()
 if __name__=='__main__':unittest.main()

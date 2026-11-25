@@ -26,7 +26,8 @@ class PartialInstallation:
   original=self.original
   if original.get('status')!='incomplete' or original.get('businessE2E')!='NOT_RUN' or any(name.startswith('helm-control') or name=='control-runtime-ready' for name in original['steps']):raise RuntimeError('部分退出仅支持原控制面从未提交、业务从未开始的安装；其他站点必须正常退役')
   if original.get('inputSHA256')!=hashlib.sha256(cleanup.file.read_bytes()).hexdigest():raise RuntimeError('原安装站点输入不匹配')
-  self.contract=OperationContract(cleanup.file,cleanup.config,original,tools=self.tools);self.check()
+  # 合同以文件所在目录定位；CLI 接收目录，内部必须使用原合同文件作为锚点。
+  self.contract=OperationContract(cleanup.file,cleanup.config,original,tools=self.tools/'standard_contract.py');self.check()
   namespaces={r['name']:r['uid'] for r in original.get('createdResources',[]) if r['kind']=='Namespace'}
   for name in cleanup.exclusive:
    if name not in namespaces or cleanup.kube('get','namespace',name)['metadata']['uid']!=namespaces[name]:raise RuntimeError('独占命名空间不属于本次原安装，禁止部分退出')

@@ -52,3 +52,5 @@ npm run helm:dsga
 ```
 
 `stack/stack.json` 是保留的静态组合工具合同；当前完整产品部署采用上面的标准入口，不混用两套安装流程。控制面 Chart 来自 `william-lbn/control-plane` 对应维护提交。源码和 CI 检查不能替代实际 Kubernetes 与业务验收。
+
+平台责任、静态 Pod 真实硬限和未开放控制面的失败安装退出，见 [平台前置与部分安装退出](docs/standard/平台前置与部分安装退出.md)。

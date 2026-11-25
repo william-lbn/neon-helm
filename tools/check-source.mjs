@@ -12,6 +12,8 @@ for(const name of tracked)if(/(^|\/)node_modules(\/|$)|\.pyc$|\.private\./.test(
 const allowedPython = new Set([
   'tools/standard-site.py',
   'tools/standard_contract.py',
+  'tools/standard_partial.py',
+  'tools/standard_partial_test.py',
   'tools/standard_contract_test.py',
   'tools/standard-init.py',
   'tools/standard-doctor.py',

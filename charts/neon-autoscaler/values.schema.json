@@ -608,8 +608,34 @@
                         "pattern": "^[a-f0-9]{64}$"
                       }
                     }
+                  },
+                  "initialize_mode": {
+                    "type": "string",
+                    "enum": [
+                      "kubernetes-current-snapshot-v1"
+                    ],
+                    "description": "显式原 Kubernetes 预算快照初始化；与冻结 RV 互斥，已有账本只读恢复。"
                   }
-                }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "initialize_mode"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "kubernetes_budget"
+                      ],
+                      "not": {
+                        "required": [
+                          "initialize_at_resource_version"
+                        ]
+                      }
+                    }
+                  }
+                ]
               }
             },
             "podProtectionNamespaces": {

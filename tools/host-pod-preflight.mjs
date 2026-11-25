@@ -14,7 +14,7 @@ export function projectHostSnapshot(nodes, pods, leases) {
   const projectedPods = pods.items.map(pod => {
     const spec = fields(pod.spec, ['nodeName', 'schedulerName', 'overhead']);
     for (const name of ['containers', 'initContainers', 'ephemeralContainers']) spec[name] = (pod.spec?.[name] || []).map(container => ({...fields(container, ['name', 'restartPolicy']), resources: fields(container.resources, ['requests', 'limits'])}));
-    return {apiVersion: 'v1', kind: 'Pod', metadata: metadata(pod.metadata), spec, status: fields(pod.status, ['phase'])};
+    return {apiVersion: 'v1', kind: 'Pod', metadata: {...metadata(pod.metadata), annotations: fields(pod.metadata?.annotations, ['kubernetes.io/config.mirror', 'kubernetes.io/config.source'])}, spec, status: {...fields(pod.status, ['phase', 'qosClass']), containerStatuses: (pod.status?.containerStatuses || []).map(status => fields(status, ['name', 'ready', 'resources'])), initContainerStatuses: (pod.status?.initContainerStatuses || []).map(status => fields(status, ['name', 'ready', 'resources']))}};
   });
   const projectedLeases = leases.items.filter(lease => lease.metadata?.name?.startsWith('neon-dsga-host-')).map(lease => ({apiVersion: 'coordination.k8s.io/v1', kind: 'Lease', metadata: {...metadata(lease.metadata), annotations: fields(lease.metadata?.annotations, ['internal.autoscaling.neon.tech/dsga-host-lease-v1'])}}));
   return {nodes: {apiVersion: 'v1', kind: 'NodeList', metadata: fields(nodes.metadata, ['resourceVersion']), items: projectedNodes}, pods: {apiVersion: 'v1', kind: 'PodList', metadata: fields(pods.metadata, ['resourceVersion']), items: projectedPods}, leases: {apiVersion: 'coordination.k8s.io/v1', kind: 'LeaseList', metadata: fields(leases.metadata, ['resourceVersion']), items: projectedLeases}};
@@ -66,6 +66,19 @@ export function inspectHostPodLimits(pods, hostNames) {
       continue;
     }
     host.ordinaryPods++;
+    // 静态 Pod 的 API 镜像可以与节点清单漂移；只看镜像 spec 的 limits 会产生虚假硬限证明。
+    // 资格发行要求 kubelet 已确认运行，并且容器状态中的实际资源与声明内存上限一致。
+    // 不修改镜像 Pod，也不把 Kubernetes/RKE2 的节点配置路径写入通用产品。
+    const staticMirror = metadata.annotations?.['kubernetes.io/config.mirror'] || metadata.annotations?.['kubernetes.io/config.source'] === 'file';
+    if (staticMirror) {
+      if (pod.status?.phase !== 'Running') issue('static-pod-runtime-unconfirmed');
+      for (const [field, statusField] of [['containers', 'containerStatuses'], ['initContainers', 'initContainerStatuses']]) for (const container of pod.spec[field] || []) {
+        const status = (pod.status?.[statusField] || []).find(item => item.name === container.name);
+        const declared = positiveMemoryBytes(container.resources?.limits?.memory);
+        const actual = positiveMemoryBytes(status?.resources?.limits?.memory);
+        if (!status || field === 'containers' && status.ready !== true || actual === null || actual !== declared) issue('static-pod-resource-status-unconfirmed', {containerType: field, container: container.name});
+      }
+    }
     if (!Array.isArray(pod.spec.containers) || !pod.spec.containers.length) issue('unsupported-container-set');
     if (pod.spec.ephemeralContainers?.length) issue('unsupported-ephemeral-containers');
     for (const field of ['containers', 'initContainers']) for (const container of pod.spec[field] || []) {

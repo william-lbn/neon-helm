@@ -48,7 +48,7 @@
   "experimentalAcknowledged": true,
   "images": {
     "agent": "registry.invalid/neon/neon-autoscaler-agent@sha256:1dbf01ba892b3348668616957cce05a11c6d43b5bc03a6e85168e13e28db9141",
-    "scheduler": "registry.invalid/neon/dsga403-scheduler@sha256:d112dd1453912548078ab076bc45a32e67949e728738f59741366ff494d1bbc2"
+    "scheduler": "registry.invalid/neon/dsga403-scheduler@sha256:9456de1bcc4b7b6983671a57623a09f9f02647841fd4ffdd4df3dd2696354b98"
   },
   "placement": {
     "allowedNodeNames": [],

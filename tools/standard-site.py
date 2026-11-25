@@ -13,6 +13,13 @@ def quantity(value):
  if number<=0 or number!=int(number) or number>2**63-1:raise ValueError('Memory must be positive integral int64 bytes')
  return int(number)
 
+def host_bootstrap_row(node,binding,profile,system_bytes):
+ # 原身份和预算策略是批准边界；本轮 RV 由实际 Scheduler 在启动时获取并 CAS。
+ # 不把 Node 心跳或标签产生的版本推进误当成另一台 Host，也不刷新预算边界。
+ if node['metadata']['name']!=binding['node_name'] or node['metadata']['uid']!=binding['node_uid']:raise RuntimeError('原 Host 身份变化')
+ profile=copy.deepcopy(profile);profile_hash=digest(json.dumps({k:profile[k] for k in ('id','scheduler_name','vm_overhead_bytes','pod_overhead_bytes')},separators=(',',':')).encode())
+ return {'binding':copy.deepcopy(binding),'profile':profile,'system_bytes':system_bytes,'initialize_mode':'kubernetes-current-snapshot-v1','kubernetes_budget':{'protocol_version':1,'scope':'kubernetes-node-memory-budget-v1','node_name':binding['node_name'],'node_uid':binding['node_uid'],'capacity_bytes':str(quantity(node['status']['capacity']['memory'])),'allocatable_bytes':str(quantity(node['status']['allocatable']['memory'])),'system_reservation_bytes':system_bytes,'profile_sha256':profile_hash}}
+
 class Site:
  def __init__(self,args):
   os.umask(0o077);self.args=args;self.readonly=args.action=='inspect';self.file=safe_path(args.site);self.config=json.loads(self.file.read_text());self.base=self.file.parent;self.state=private_state(args.state,self.readonly)
@@ -193,7 +200,7 @@ class Site:
   selected=self.eligibleNodes();auto=self.values['autoscaler'];d=auto['dsga'];policy=self.config['hostPolicy'];profile=policy['profile'];profileHash=digest(json.dumps({k:profile[k] for k in ('id','scheduler_name','vm_overhead_bytes','pod_overhead_bytes')},separators=(',',':')).encode());rows=[];identities={}
   for n in selected:
    m=n['metadata'];name=m['name'];uid=m['uid'];lease=self.create({'apiVersion':'coordination.k8s.io/v1','kind':'Lease','metadata':{'name':'neon-dsga-host-'+name,'namespace':self.ns['workload'],'annotations':{'internal.autoscaling.neon.tech/dsga-host-lease-v1':'1:'+uid+':'+name},'ownerReferences':[{'apiVersion':'v1','kind':'Node','name':name,'uid':uid,'controller':True}]},'spec':{}})
-   binding={'node_name':name,'node_uid':uid,'namespace':self.ns['workload'],'lease_name':lease['metadata']['name'],'lease_uid':lease['metadata']['uid']};rows.append({'binding':binding,'profile':profile,'system_bytes':policy['systemBytes'],'initialize_at_resource_version':m['resourceVersion'],'kubernetes_budget':{'protocol_version':1,'scope':'kubernetes-node-memory-budget-v1','node_name':name,'node_uid':uid,'capacity_bytes':str(quantity(n['status']['capacity']['memory'])),'allocatable_bytes':str(quantity(n['status']['allocatable']['memory'])),'system_reservation_bytes':policy['systemBytes'],'profile_sha256':profileHash}});identities[name]=uid
+   binding={'node_name':name,'node_uid':uid,'namespace':self.ns['workload'],'lease_name':lease['metadata']['name'],'lease_uid':lease['metadata']['uid']};rows.append(host_bootstrap_row(n,binding,profile,policy['systemBytes']));identities[name]=uid
   d['hostIdentities']=identities;d['scheduler']['nodes']=rows;d['scheduler']['enabled']=False;pods=self.kube('get','pods','-A')['items'];d['scheduler']['podProtectionNamespaces']=sorted({self.ns['platform']}|{p['metadata']['namespace'] for p in pods if p['spec'].get('nodeName') in identities and p['metadata']['namespace']!=self.ns['workload'] and p['status']['phase'] not in ('Succeeded','Failed')});access=self.values['runtime-access'];access.update(allowedNodes=sorted(identities),hostLeaseNamespace=self.ns['workload'],hostLeaseNames=[r['binding']['lease_name'] for r in rows]);self.private('hosts.private.json',{'autoscaler':auto,'runtime-access':access});self.report['selectedHosts']=[{'name':n['metadata']['name'],'uid':n['metadata']['uid']} for n in selected];self.save()
  def prepareSockets(self):
   auto=self.values['autoscaler'];directories=[v['hostDirectory'] for v in [auto['dsga']['agent']['resourceReadSocket'],auto['dsga']['agent']['controlSocket']] if v['enabled']]
@@ -215,7 +222,9 @@ class Site:
   for row in d['scheduler']['nodes']:
    n=nodes[row['binding']['node_name']];m=n['metadata']
    if m['uid']!=row['binding']['node_uid'] or m.get('annotations',{}).get('internal.autoscaling.neon.tech/dsga-host-ledger-v1'):raise RuntimeError('First Host initialization requires original unused identity')
-   row['initialize_at_resource_version']=m['resourceVersion']
+   observed=host_bootstrap_row(n,row['binding'],row['profile'],row['system_bytes'])
+   if row.get('initialize_mode')!='kubernetes-current-snapshot-v1' or row['kubernetes_budget']!=observed['kubernetes_budget']:raise RuntimeError('原 Host 预算策略在激活前变化，禁止自动刷新批准边界')
+   if m.get('annotations',{}).get('internal.autoscaling.neon.tech/dsga-host-origin-v1') or 'autoscaling.neon.tech/dsga-host-ledger-protection' in m.get('finalizers',[]):raise RuntimeError('原 Host 存在残缺保护状态，不能重新建账')
   d['scheduler']['enabled']=True;self.private('host-activation-values.private.json',auto)
  def verifyHosts(self):
   deadline=time.monotonic()+120;expected=self.values['autoscaler']['dsga']['hostIdentities']
@@ -226,7 +235,7 @@ class Site:
     if m['name'] in expected and m['uid']==expected[m['name']] and raw:seen[m['name']]=json.loads(raw)
    if len(seen)==len(expected):self.private('initial-host-ledgers.private.json',seen);return
    time.sleep(3)
-  raise RuntimeError('Initial Host CAS not confirmed; preserve original frozen RV')
+  raise RuntimeError('原 Host 首次建账未确认；保留原身份、预算策略与操作收据，只读核实后接续')
  def wireStorage(self):
   ns=self.ns['workload'];core=self.values['core'];mgmt=core['storageController']['management'];service=self.kube('-n',ns,'get','service',mgmt['serviceName']);adapter=self.values['adapter'];name=adapter['storageManagement']['profile']['credential_secret_name'];secret=self.kube('-n',ns,'get','secret',name);adapter['storageManagement']['profile'].update(service_uid=service['metadata']['uid'],credential_secret_uid=secret['metadata']['uid']);self.private('adapter-bound-values.private.json',adapter)
  def catalog(self):

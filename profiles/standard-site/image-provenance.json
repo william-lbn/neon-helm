@@ -1,0 +1,19 @@
+{
+  "apiVersion": "neon-standard-image-provenance/v1",
+  "images": {
+    "autoscale-scheduler": {
+      "reference": "registry.invalid/neon/dsga403-scheduler@sha256:9456de1bcc4b7b6983671a57623a09f9f02647841fd4ffdd4df3dd2696354b98",
+      "repository": "william-lbn/autoscaling",
+      "branch": "codex/dsga-autoscaling-20261019",
+      "sourceCommit": "c509518dbc772d1f65ca2b2e12ec5ae12efa7d58",
+      "tests": {
+        "pass": 450,
+        "fail": 0,
+        "skip": 0
+      },
+      "runtimeBaseDigest": "sha256:d112dd1453912548078ab076bc45a32e67949e728738f59741366ff494d1bbc2",
+      "ledgerWireProtocolChanged": false
+    }
+  },
+  "description": "镜像记录实际编译源码；之后纯测试或文档提交不冒充重新构建。站点仓库由显式输入替换占位主机。"
+}

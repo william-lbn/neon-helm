@@ -68,3 +68,19 @@ test('operator snapshot projection rejects partial input instead of manufacturin
   const nodes = {kind: 'NodeList', items: [], metadata: {continue: 'next'}};
   assert.throws(() => projectHostSnapshot(nodes, list([]), {kind: 'LeaseList', items: []}), /Complete unpaginated NodeList/);
 });
+
+test('Pending static mirror limits cannot certify the actual node process', () => {
+ const item = pod('static-pending'); item.metadata.annotations = {'kubernetes.io/config.mirror': 'original-static-hash'}; item.status.phase = 'Pending';
+ const result = inspectHostPodLimits(list([item]), ['host-a']); assert.equal(result.ready, false); assert(result.hosts[0].issues.some(issue => issue.code === 'static-pod-runtime-unconfirmed'));
+});
+test('static mirror requires matching kubelet observed container limits', () => {
+ const item = pod('static-running'); item.metadata.annotations = {'kubernetes.io/config.source': 'file'};
+ item.status.containerStatuses = [{name: 'app', ready: true, resources: {limits: {memory: '256Mi'}}}]; item.status.initContainerStatuses = [{name: 'init', resources: {limits: {memory: '64Mi'}}}];
+ assert.equal(inspectHostPodLimits(list([item]), ['host-a']).ready, true);
+ item.status.containerStatuses[0].resources = {requests: {memory: '256Mi'}}; assert.equal(inspectHostPodLimits(list([item]), ['host-a']).ready, false);
+});
+test('snapshot keeps only static identity and resource evidence for preflight', () => {
+ const item = pod('static-project'); item.metadata.annotations = {'kubernetes.io/config.mirror': 'hash', password: 'do-not-persist'}; item.status.containerStatuses = [{name: 'app', ready: true, resources: {limits: {memory: '256Mi'}}, message: 'do-not-persist'}];
+ const output = projectHostSnapshot({kind: 'NodeList', items: []}, list([item]), {kind: 'LeaseList', items: []});
+ assert.equal(output.pods.items[0].metadata.annotations['kubernetes.io/config.mirror'], 'hash'); assert.equal(output.pods.items[0].status.containerStatuses[0].resources.limits.memory, '256Mi'); assert(!JSON.stringify(output).includes('do-not-persist'));
+});

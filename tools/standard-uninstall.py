@@ -3,6 +3,7 @@
 import argparse,base64,copy,datetime,fcntl,hashlib,http.client,ipaddress,json,os,pathlib,re,secrets,socket,subprocess,time,urllib.parse,urllib.request
 import yaml
 from standard_contract import OperationContract,atomic_json,private_state,lock_state,safe_path,verify_images
+from standard_partial import PartialInstallation,OBSERVER,observer_handoff
 
 LEDGER='internal.autoscaling.neon.tech/dsga-host-ledger-v1'
 ORIGIN='internal.autoscaling.neon.tech/dsga-host-origin-v1'
@@ -22,6 +23,7 @@ class Cleanup:
   self.lock=lock_state(self.state,self.readonly);self.receipt=safe_path(self.state/'receipt.json');self.ns=self.config['namespaces'];self.entries=self.config['releases'];self.helm=os.environ.get('HELM_BIN','helm');self.proxy=None
   if self.readonly:
    self.report=json.loads(self.receipt.read_text());return
+  self.partial=None
   os.environ['KUBECONFIG']=self.config['kubeconfig']
   kubeconfig=pathlib.Path(self.config['kubeconfig'])
   if not kubeconfig.is_absolute() or not kubeconfig.is_file() or len(self.config['name'])>63 or not re.fullmatch('[a-z0-9]([-a-z0-9]*[a-z0-9])?',self.config['name']):raise RuntimeError('Explicit absolute kubeconfig and valid site name required')
@@ -30,8 +32,13 @@ class Cleanup:
   self.contract=OperationContract(self.file,self.config,self.report,fresh=not self.receipt.exists());self.checkContract()
   self.exclusive=[self.ns[k] for k in ('workload','platform','vmSystem')]
   if len(set(self.exclusive))!=3 or any(n in ('default','kube-system','kube-public','kube-node-lease','cert-manager','neon-cert-manager') for n in self.exclusive):raise RuntimeError('Only explicit dedicated product/platform/NeonVM namespaces can be erased')
+  if bool(args.incomplete_install_state)!=bool(args.original_operator_tools):raise RuntimeError('部分安装退出必须同时给出原安装状态和原操作工具目录')
+  if self.report.get('partialInstallationSource') and not args.incomplete_install_state:raise RuntimeError('接续本次部分退出必须保持原来源参数')
+  if args.incomplete_install_state:self.partial=PartialInstallation(self,args.incomplete_install_state,args.original_operator_tools)
   self.save()
- def checkContract(self):self.contract.check(self.kube('get','namespace','kube-system')['metadata']['uid'])
+ def checkContract(self):
+  self.contract.check(self.kube('get','namespace','kube-system')['metadata']['uid'])
+  if self.partial:self.partial.check()
  def save(self):
   if self.readonly:raise RuntimeError('只读检查不能修改卸载收据')
   atomic_json(self.receipt,self.report)
@@ -81,6 +88,7 @@ class Cleanup:
   if code not in (200,202,404):raise RuntimeError('Original UID-conditional deletion not confirmed')
   self.report['deleted'].append({'path':path,'uid':uid});self.save()
  def metadata(self,dump=False):
+  if self.partial and not dump:return self.partial.metadata()
   values=json.loads((self.state/'helm-values.private.json').read_text());entry=self.entries['metadata'];name=values['metadata'].get('fullnameOverride','neon-control-v2-db');pods=self.kube('-n',entry['namespace'],'get','pods','-l','app.kubernetes.io/name='+name)['items'];pods=[p for p in pods if p['status']['phase']=='Running' and not p['metadata'].get('deletionTimestamp')]
   if len(pods)!=1:raise RuntimeError('Unique original metadata database Pod required')
   script='export PGPASSWORD="$POSTGRES_PASSWORD"; export PGOPTIONS="-c statement_timeout=30000 -c lock_timeout=3000 -c idle_in_transaction_session_timeout=30000"; '
@@ -96,11 +104,15 @@ class Cleanup:
   if self.kube('get','virtualmachines.vm.neon.tech','-A')['items']:raise RuntimeError('Retire all Computes through original public Operations first')
   releases=json.loads(self.command(self.helm,'list','-A','-o','json'));selected=[];manifests={};values={}
   for id,e in self.entries.items():
-   if not any(r['name']==e['release'] and r['namespace']==e['namespace'] for r in releases):raise RuntimeError('Selected release missing before cleanup planning')
+   if not any(r['name']==e['release'] and r['namespace']==e['namespace'] for r in releases):
+    if self.partial and self.partial.missing_release(id):continue
+    raise RuntimeError('Selected release missing before cleanup planning')
    values[id]=json.loads(self.command(self.helm,'get','values',e['release'],'-n',e['namespace'],'--all','-o','json'));manifests[id]=[d for d in yaml.safe_load_all(self.command(self.helm,'get','manifest',e['release'],'-n',e['namespace'])) if isinstance(d,dict)];selected.append({'id':id,**e})
   self.private('helm-values.private.json',values);self.private('helm-manifests.private.json',manifests);nodes=self.kube('get','nodes');pods=self.kube('get','pods','-A');leases=self.kube('get','leases','-A');self.private('nodes-before.private.json',nodes);self.private('pods-before.private.json',pods);self.private('leases-before.private.json',leases)
   cluster=self.kube('get','namespace','kube-system')['metadata']['uid'];bindings=[r['binding'] for r in values['autoscaler']['dsga']['scheduler']['nodes']]
+  if self.partial:self.partial.classify(nodes,bindings)
   for binding in bindings:
+   if self.partial and binding['node_name'] in self.report['neverInitializedHosts']:continue
    n=next(n for n in nodes['items'] if n['metadata']['name']==binding['node_name']);m=json.loads(n['metadata']['annotations'][LEDGER])
    if n['metadata']['uid']!=binding['node_uid'] or m['holds'] or any(p.get('managed') or p.get('vm_uid') for p in m['placements']):raise RuntimeError('Original Host still has Compute capacity')
   ae=self.entries['autoscaler'];objects=manifests['autoscaler'];owners=set()
@@ -110,7 +122,7 @@ class Cleanup:
   for rs in self.kube('get','replicasets','-A')['items']:
    if any(r['uid'] in owners for r in rs['metadata'].get('ownerReferences',[])):owners.add(rs['metadata']['uid'])
   writers=[p for p in pods['items'] if any(r['uid'] in owners for r in p['metadata'].get('ownerReferences',[]))]
-  if not writers or any(POD_GUARD not in p['metadata'].get('finalizers',[]) for p in writers):raise RuntimeError('Original protected capacity writer inventory incomplete')
+  if not writers or not self.partial and any(POD_GUARD not in p['metadata'].get('finalizers',[]) for p in writers):raise RuntimeError('Original protected capacity writer inventory incomplete')
   pvcs=self.kube('get','pvc','-A')['items'];volumes=[];nodeMap={n['metadata']['name']:n for n in nodes['items']};storageRoots=self.config.get('storageRoots',[])
   if not storageRoots:raise RuntimeError('Explicit storageRoots required for physical Retain-volume cleanup')
   for pv in self.kube('get','pv')['items']:
@@ -144,7 +156,8 @@ class Cleanup:
   crds=[c for c in self.kube('get','crds')['items'] if c['metadata']['name'] in ('virtualmachines.vm.neon.tech','virtualmachinemigrations.vm.neon.tech','ippools.vm.neon.tech')];self.private('crds-before.private.json',crds);self.metadata();self.metadata(dump=True);self.report.update(status='planned',clusterUID=cluster,bindings=bindings,writerUIDs=[p['metadata']['uid'] for p in writers],namespaces=namespaceRefs,volumeCount=len(volumes),selectedReleases=selected);self.save()
  def stopWriters(self):
   # 先停止业务生产者；不伪造成功Operation，也不清任何VM/预算来源。
-  entry=self.entries['control'];docs=json.loads((self.state/'helm-manifests.private.json').read_text())['control'];self.metadata()
+  if self.partial:self.partial.protect_writers()
+  entry=self.entries['control'];docs=json.loads((self.state/'helm-manifests.private.json').read_text()).get('control',[]);self.metadata()
   for d in docs:
    if d.get('kind')=='Deployment':self.command('kubectl','-n',d['metadata'].get('namespace',entry['namespace']),'scale','deployment/'+d['metadata']['name'],'--replicas=0')
   deadline=time.monotonic()+180
@@ -186,7 +199,8 @@ class Cleanup:
    existing=self.report['nodes'].get(name);annotations=node['metadata'].get('annotations',{})
    if existing and annotations.get(EXIT_MARKER)==existing['marker'] and LEDGER not in annotations and ORIGIN not in annotations:self.report['nodes'][name]['status']='domain-ended';self.save();continue
    if existing:raise RuntimeError('Original Node CAS unresolved; do not refresh an unknown write')
-   pending=[b for b in self.report['bindings'] if self.report['nodes'].get(b['node_name'],{}).get('status')!='domain-ended'];snapshot=self.snapshot(pending);file=self.private('domain-snapshots/'+name+'.private.json',snapshot)
+   if self.partial and self.partial.end_unused(binding,path,node):continue
+   pending=[b for b in self.report['bindings'] if self.report['nodes'].get(b['node_name'],{}).get('status')!='domain-ended' and (not self.partial or b['node_name'] not in self.report['neverInitializedHosts'])];snapshot=self.snapshot(pending);file=self.private('domain-snapshots/'+name+'.private.json',snapshot)
    # 只读SDK门拒绝所有未结清/未知事实；原Lease自然到期后才可结束整个域。
    self.command(self.args.host_check,str(file));fresh=next(n for n in snapshot['nodes']['items'] if n['metadata']['name']==name);m=fresh['metadata'];marker=json.dumps({'nonce':self.report['nonce'],'nodeUID':m['uid'],'leaseUID':binding['lease_uid'],'ledgerSHA256':sha(m['annotations'][LEDGER].encode())},separators=(',',':'));self.report['nodes'][name]={'status':'submitted','marker':marker,'sourceRV':m['resourceVersion']};self.save()
    patch=[{'op':'test','path':'/metadata/uid','value':m['uid']},{'op':'test','path':'/metadata/resourceVersion','value':m['resourceVersion']},{'op':'test','path':'/metadata/annotations/'+escaped(LEDGER),'value':m['annotations'][LEDGER]},{'op':'test','path':'/metadata/annotations/'+escaped(ORIGIN),'value':m['annotations'][ORIGIN]},{'op':'test','path':'/metadata/finalizers','value':m['finalizers']},{'op':'add','path':'/metadata/annotations/'+escaped(EXIT_MARKER),'value':marker},{'op':'remove','path':'/metadata/annotations/'+escaped(LEDGER)},{'op':'remove','path':'/metadata/annotations/'+escaped(ORIGIN)},{'op':'replace','path':'/metadata/finalizers','value':[f for f in m['finalizers'] if f!=NODE_GUARD]}];self.private('node-intents/'+name+'.json',patch);code,result=self.api('PATCH',path,patch,'application/json-patch+json')
@@ -197,14 +211,15 @@ class Cleanup:
   if self.kube('get','virtualmachines.vm.neon.tech','-A')['items']:raise RuntimeError('VM exists during ordinary handoff')
   nodes={b['node_name'] for b in self.report['bindings']}
   for p in self.kube('get','pods','-A')['items']:
-   if p['spec'].get('nodeName') not in nodes:continue
+   if p['spec'].get('nodeName') not in nodes and p['metadata']['uid'] not in self.report['writerUIDs']:continue
    m=p['metadata']
    if any(r.get('kind')=='VirtualMachine' for r in m.get('ownerReferences',[])):raise RuntimeError('Never hand off a Runner or force its finalizer')
    annotations=m.get('annotations',{});keys=[k for k in annotations if k.startswith('internal.autoscaling.neon.tech/dsga-host-')];finalizers=m.get('finalizers',[])
+   observer_keys=observer_handoff(m,self.report['writerUIDs'],self.report['nonce']);keys+=observer_keys
    if POD_GUARD not in finalizers and not keys:continue
    patch=[{'op':'test','path':'/metadata/uid','value':m['uid']},{'op':'test','path':'/metadata/resourceVersion','value':m['resourceVersion']}]
    for key in keys:patch.extend([{'op':'test','path':'/metadata/annotations/'+escaped(key),'value':annotations[key]},{'op':'remove','path':'/metadata/annotations/'+escaped(key)}])
-   if POD_GUARD in finalizers:patch.extend([{'op':'test','path':'/metadata/finalizers','value':finalizers},{'op':'replace','path':'/metadata/finalizers','value':[f for f in finalizers if f!=POD_GUARD]}])
+   if POD_GUARD in finalizers or observer_keys:patch.extend([{'op':'test','path':'/metadata/finalizers','value':finalizers},{'op':'replace','path':'/metadata/finalizers','value':[f for f in finalizers if f!=POD_GUARD and f not in observer_keys]}])
    self.private('pod-handoff/'+m['uid']+'.json',{'namespace':m['namespace'],'name':m['name'],'patch':patch});code,result=self.api('PATCH','/api/v1/namespaces/'+m['namespace']+'/pods/'+m['name'],patch,'application/json-patch+json')
    if code!=200:raise RuntimeError('Original ordinary Pod handoff changed; inspect before continuing')
   for b in self.report['bindings']:self.deleteOriginal('/apis/coordination.k8s.io/v1/namespaces/'+b['namespace']+'/leases/'+b['lease_name'],b['lease_uid'])
@@ -281,6 +296,7 @@ printf '{"hostArtifactsAbsent":true}\\n'
  def uninstall(self):
   # 逆依赖顺序；AS已在正式停域阶段退出，其他release继续使用原生Helm删除。
   for id in ('control','runtime-access','gateway','pageserver','core','adapter','metadata','neonvm'):
+   if id not in {e['id'] for e in self.report['selectedReleases']}:continue
    e=self.entries[id];self.command(self.helm,'uninstall',e['release'],'-n',e['namespace'],'--wait','--timeout','5m',timeout=330)
   for ns,uid in self.report['namespaces'].items():self.deleteOriginal('/api/v1/namespaces/'+ns,uid)
   for crd in json.loads((self.state/'crds-before.private.json').read_text()):self.deleteOriginal('/apis/apiextensions.k8s.io/v1/customresourcedefinitions/'+crd['metadata']['name'],crd['metadata']['uid'])
@@ -346,7 +362,7 @@ printf '{"originalVolumeDataAbsent":true}\\n'
    if any(k in m.get('annotations',{}) for k in (LEDGER,ORIGIN,EXIT_MARKER)) or NODE_GUARD in m.get('finalizers',[]) or 'neon.tech/pg17-memory-pool' in m.get('labels',{}):raise RuntimeError('Original Host domain residue remains')
    if not any(c['type']=='Ready' and c['status']=='True' for c in n['status']['conditions']):raise RuntimeError('Shared cluster Node is not Ready')
   for p in self.kube('get','pods','-A')['items']:
-   if POD_GUARD in p['metadata'].get('finalizers',[]) or any(k.startswith('internal.autoscaling.neon.tech/dsga-host-') for k in p['metadata'].get('annotations',{})):raise RuntimeError('Original ordinary Pod protection residue remains')
+   if OBSERVER in p['metadata'].get('finalizers',[]) or OBSERVER in p['metadata'].get('annotations',{}) or POD_GUARD in p['metadata'].get('finalizers',[]) or any(k.startswith('internal.autoscaling.neon.tech/dsga-host-') for k in p['metadata'].get('annotations',{})):raise RuntimeError('Original ordinary Pod protection residue remains')
   if any(p['spec'].get('claimRef',{}).get('namespace') in self.exclusive for p in self.kube('get','pv')['items']):raise RuntimeError('Original dedicated PV remains')
   for c in json.loads((self.state/'crds-before.private.json').read_text()):
    if self.api('GET','/apis/apiextensions.k8s.io/v1/customresourcedefinitions/'+c['metadata']['name'])[0]!=404:raise RuntimeError('Exclusive Neon CRD remains')
@@ -354,7 +370,7 @@ printf '{"originalVolumeDataAbsent":true}\\n'
   self.verifyImage(self.config['toolsImage']);self.report.update(status='clean-and-verified',sharedPlatformPreserved=True,harborAvailable=True);self.save();print(json.dumps({'status':self.report['status'],'erasedVolumes':len(self.report['erasedVolumes']),'sharedPlatformPreserved':True}))
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('action',choices=['plan','stop-host-writers','end-host-domains','handoff-ordinary','cleanup-host-artifacts','uninstall','erase-data','verify-empty','inspect']);p.add_argument('--site',required=True);p.add_argument('--state',required=True);p.add_argument('--confirm-site',required=True);p.add_argument('--host-check',default='host-decommission-check');p.add_argument('--erase-data',action='store_true');p.add_argument('--resume-phase',choices=['end-native-host-domains','verify-clean-empty-state']);args=p.parse_args();cleanup=Cleanup(args)
+ p=argparse.ArgumentParser();p.add_argument('action',choices=['plan','stop-host-writers','end-host-domains','handoff-ordinary','cleanup-host-artifacts','uninstall','erase-data','verify-empty','inspect']);p.add_argument('--site',required=True);p.add_argument('--state',required=True);p.add_argument('--confirm-site',required=True);p.add_argument('--host-check',default='host-decommission-check');p.add_argument('--erase-data',action='store_true');p.add_argument('--resume-phase',choices=['end-native-host-domains','verify-clean-empty-state']);p.add_argument('--incomplete-install-state');p.add_argument('--original-operator-tools');args=p.parse_args();cleanup=Cleanup(args)
  try:
   if args.action=='inspect':print(json.dumps(cleanup.report));return
   if args.action=='plan':cleanup.phase('inventory-and-original-scope',cleanup.plan);return

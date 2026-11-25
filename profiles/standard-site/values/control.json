@@ -30,7 +30,7 @@
     "existingSecret": "neon-control-plane-credentials",
     "image": {
       "pullPolicy": "IfNotPresent",
-      "reference": "10.11.9.236:5000/neon/neon-control-api-site@sha256:2210b82aa592242d89dffc0f9796b3a914161c0fc69bb4f715f537262a535dba"
+      "reference": "registry.invalid/neon/neon-control-api-site@sha256:2210b82aa592242d89dffc0f9796b3a914161c0fc69bb4f715f537262a535dba"
     },
     "nodeSelector": {},
     "pgCASecret": "neon-control-proxy-public-ca",
@@ -197,9 +197,8 @@
     "subscriptionLimit": 0
   },
   "service": {
-    "nodePort": 30788,
     "port": 8080,
-    "type": "NodePort"
+    "type": "ClusterIP"
   },
   "sqlHistory": {
     "enabled": false
@@ -209,7 +208,7 @@
     "enabled": true,
     "image": {
       "pullPolicy": "IfNotPresent",
-      "reference": "10.11.9.236:5000/neon/williamluckyli-control-web@sha256:80b21028ce1518f60d25f95ecfe28cd833a23ea8f0de9400bc93880054fd5ad1"
+      "reference": "registry.invalid/neon/williamluckyli-control-web@sha256:80b21028ce1518f60d25f95ecfe28cd833a23ea8f0de9400bc93880054fd5ad1"
     },
     "replicaCount": 1,
     "resources": {

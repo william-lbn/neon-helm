@@ -1,18 +1,18 @@
 {
   "apiVersion": "neon-standard-site/v1",
-  "name": "neon-standard-lab",
-  "kubeconfig": "/etc/rancher/rke2/rke2.yaml",
+  "name": "configure-site",
+  "kubeconfig": "/CONFIGURE/kubeconfig",
   "namespaces": {
     "workload": "neon",
     "platform": "neon-control-runtime",
     "agent": "kube-system",
     "vmSystem": "neonvm-system"
   },
-  "registry": "10.11.9.236:5000",
+  "registry": "registry.invalid",
   "storageRoots": [
-    "/data/neon-local"
+    "/CONFIGURE/local-volumes"
   ],
-  "allowLabHTTPObjectStorage": true,
+  "allowLabHTTPObjectStorage": false,
   "hostPolicy": {
     "profile": {
       "id": "pg17-kubernetes-budget-20261103-v1",
@@ -80,5 +80,9 @@
     }
   },
   "clusterDomain": "cluster.local",
-  "toolsImage": "10.11.9.236:5000/neon/neon-site-tools@sha256:85a6849c2e56e4d9cea9b5e1dece32b867e5fd6b2d2ef916e82ec7ff1533cd30"
+  "toolsImage": "registry.invalid/neon/neon-site-tools@sha256:85a6849c2e56e4d9cea9b5e1dece32b867e5fd6b2d2ef916e82ec7ff1533cd30",
+  "registryAccess": {
+    "scheme": "https"
+  },
+  "computeNodeSelector": {}
 }

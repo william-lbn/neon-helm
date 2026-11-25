@@ -2,6 +2,7 @@
 """全新站点的有界初始化。Helm管理工作负载，原Controller/Owner管理运行身份与预算。"""
 import argparse,base64,copy,decimal,fcntl,hashlib,json,os,pathlib,re,secrets,subprocess,time,urllib.parse,urllib.request
 import yaml
+from standard_contract import OperationContract,atomic_json,private_state,lock_state,safe_path,verify_images
 
 def digest(data):return hashlib.sha256(data).hexdigest()
 def quantity(value):
@@ -14,12 +15,14 @@ def quantity(value):
 
 class Site:
  def __init__(self,args):
-  os.umask(0o077);self.args=args;self.file=pathlib.Path(args.site).resolve();self.config=json.loads(self.file.read_text());self.base=self.file.parent;self.state=pathlib.Path(args.state).resolve();self.state.mkdir(parents=True,mode=0o700,exist_ok=True)
-  if self.state.is_symlink() or self.state.stat().st_uid!=os.getuid() or self.state.stat().st_mode&0o077:raise RuntimeError('Private owned state directory required')
-  self.lock=(self.state/'lock').open('a');fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-  self.receipt=self.state/'receipt.json';self.identity=digest(self.file.read_bytes())
+  os.umask(0o077);self.args=args;self.readonly=args.action=='inspect';self.file=safe_path(args.site);self.config=json.loads(self.file.read_text());self.base=self.file.parent;self.state=private_state(args.state,self.readonly)
+  self.lock=lock_state(self.state,self.readonly)
+  self.receipt=safe_path(self.state/'receipt.json');self.identity=digest(self.file.read_bytes())
+  if self.readonly and not self.receipt.is_file():raise RuntimeError('原安装收据不存在，不能把只读观察当成新操作')
   self.report=json.loads(self.receipt.read_text()) if self.receipt.exists() else {'apiVersion':'neon-standard-site-receipt/v1','site':self.config['name'],'inputSHA256':self.identity,'status':'prepared','steps':{},'createdResources':[],'businessE2E':'NOT_RUN'}
   if self.report['inputSHA256']!=self.identity:raise RuntimeError('Original site input changed; preserve the original operation')
+  if self.readonly:return
+  self.contract=OperationContract(self.file,self.config,self.report,fresh=not self.receipt.exists())
   if self.config['apiVersion']!='neon-standard-site/v1' or len(self.config['name'])>63 or not re.fullmatch('[a-z0-9]([-a-z0-9]*[a-z0-9])?',self.config['name']):raise RuntimeError('Unsupported named site contract')
   self.ns=self.config['namespaces'];self.entries=self.config['releases'];self.kubeconfig=pathlib.Path(self.config['kubeconfig']);self.helm=os.environ.get('HELM_BIN','helm');self.node=os.environ.get('NEON_NODE_BIN','node');self.domain=self.config['clusterDomain']
   if not re.fullmatch('[a-z0-9]([-a-z0-9.]*[a-z0-9])?',self.domain) or len(self.domain)>253 or '..' in self.domain:raise RuntimeError('Explicit valid clusterDomain required')
@@ -28,23 +31,28 @@ class Site:
   if not re.fullmatch('neon-control-[a-z0-9]([-a-z0-9]*[a-z0-9])?',self.ns['platform']) or self.ns['platform']==self.ns['workload']:raise RuntimeError('Current native protocol requires a distinct neon-control-* platform namespace')
   for ns in self.ns.values():
    if len(ns)>63 or not re.fullmatch('[a-z0-9]([-a-z0-9]*[a-z0-9])?',ns):raise RuntimeError('Explicit DNS namespace required')
-  self.values={id:json.loads((self.base/e['values']).read_text()) for id,e in self.entries.items()};self.wireNamespaces();self.save()
+  if self.config.get('allowLabHTTPObjectStorage') is not True:raise RuntimeError('本发行的内置对象存储使用 HTTP，必须显式允许；当前尚未进行任何集群变更')
+  self.values={id:json.loads((self.base/e['values']).read_text()) for id,e in self.entries.items()};self.wireNamespaces();self.checkContract();self.save()
+ def checkContract(self):self.contract.check(self.kube('get','namespace','kube-system')['metadata']['uid'])
  def wireNamespaces(self):
   # 系统组件的发行命名空间是协议输入；产品/平台命名空间可以按站点改变。
   if self.ns['agent']!='kube-system' or self.ns['vmSystem']!='neonvm-system':raise RuntimeError('This chart release declares kube-system/neonvm-system for system components')
   ns=self.ns['workload'];platform=self.ns['platform'];auto=self.values['autoscaler'];core=self.values['core'];control=self.values['control'];gateway=self.values['gateway'];access=self.values['runtime-access']
   for id in ('metadata','adapter','core','pageserver','gateway','control'):self.entries[id]['namespace']=ns
   self.entries['runtime-access']['namespace']=platform;auto['dsga']['vmNamespace']=ns;auto['dsga']['agent']['runtimeSelectionNamespace']=platform;gateway['dsga']['agentNamespace']=self.ns['agent'];access.update(workloadNamespace=ns,agentNamespace=self.ns['agent'],hostLeaseNamespace=ns)
-  prefix=(platform+'-'+self.entries['runtime-access']['release'])[:48].rstrip('-');control['dsga'].update(runtimeSelectionNamespace=platform,agentNamespace=self.ns['agent'],runtimeAccessRolePrefix=prefix,nodeReadClusterRole=access['nodeReadClusterRole']);control['api']['proxyHost']='proxy.'+ns+'.svc.'+self.domain;control['api']['computeControlHost']=self.entries['gateway']['release']+'.'+ns+'.svc';self.values['pageserver']['config']['clusterDomain']=self.domain
+  rawPrefix=platform+'-'+self.entries['runtime-access']['release'];prefix=rawPrefix if len(rawPrefix)<=48 else rawPrefix[:35].rstrip('-')+'-'+digest(rawPrefix.encode())[:12];access['nodeReadClusterRole']=prefix+'-nodes';control['dsga'].update(runtimeSelectionNamespace=platform,agentNamespace=self.ns['agent'],runtimeAccessRolePrefix=prefix,nodeReadClusterRole=access['nodeReadClusterRole']);control['api']['proxyHost']='proxy.'+ns+'.svc.'+self.domain;control['api']['computeControlHost']=self.entries['gateway']['release']+'.'+ns+'.svc';self.values['pageserver']['config']['clusterDomain']=self.domain
+  auto['dsga']['scheduler']['podProtectionNamespaces']=sorted({self.ns['agent'],self.ns['vmSystem'],platform})
+  core['proxy']['computeAddress']='compute.'+ns+'.svc.'+self.domain+':'+core['proxy']['computeAddress'].rsplit(':',1)[1]
   for value,key in [(control['api'],'computeGatewayURL'),(auto['dsga']['agent'],'gatewayURL')]:
    u=urllib.parse.urlsplit(value[key])
    if u.scheme!='https' or u.port is None:raise RuntimeError('Explicit TLS Gateway port required')
    value[key]='https://'+self.entries['gateway']['release']+'.'+ns+'.svc:'+str(u.port)
   mgmt=core['storageController']['management'];self.values['pageserver']['config']['controllerEndpoint']='https://'+mgmt['serviceName']+'.'+ns+'.svc:'+str(mgmt['port'])+'/upcall/v1/';self.values['neonvm']['controller']['managedMemoryRetirement']['namespaces']=[ns]
  def save(self):
-  pending=self.receipt.with_suffix('.pending');pending.write_text(json.dumps(self.report,indent=2,ensure_ascii=False)+'\n');pending.replace(self.receipt)
+  if self.readonly:raise RuntimeError('只读检查不能修改安装收据')
+  atomic_json(self.receipt,self.report)
  def private(self,name,value):
-  path=self.state/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n');return path
+  return atomic_json(self.state/name,value)
  def command(self,*args,input=None,timeout=60):
   result=subprocess.run(args,input=input,capture_output=True,timeout=timeout)
   if result.returncode:
@@ -54,6 +62,7 @@ class Site:
  def get(self,kind,name,ns=None):
   raw=self.command('kubectl',*(['-n',ns] if ns else []),'get',kind,name,'--ignore-not-found','-o','json');return json.loads(raw) if raw.strip() else None
  def phase(self,name,action):
+  self.checkContract()
   old=self.report['steps'].get(name)
   if old:
    if old['status']=='completed':return
@@ -75,6 +84,20 @@ class Site:
   if immutable:obj['immutable']=True
   return self.create(obj)
  def preflight(self):
+  version=self.kube('version')['serverVersion'];minor=re.sub('[^0-9]','',version['minor'])
+  if version['major']!='1' or minor!=self.config['kubernetesMinor']:raise RuntimeError('实际 Kubernetes 版本与显式站点及发行资格不一致，尚未创建产品资源')
+  refs=set();storageClasses=set()
+  def collect(value):
+   if isinstance(value,dict):
+    for key,item in value.items():
+     if key in ('storageClass','storageClassName') and isinstance(item,str) and item:storageClasses.add(item)
+     collect(item)
+   elif isinstance(value,list):
+    for item in value:collect(item)
+   elif isinstance(value,str) and '@sha256:' in value:refs.add(value)
+  collect(self.values);collect(json.loads((self.base/self.config['catalogTemplate']).read_text()));collect(self.config['toolsImage']);self.checkImages(refs)
+  for storageClass in storageClasses:
+   if not self.get('storageclass',storageClass):raise RuntimeError('声明的存储类不存在；尚未创建产品资源')
   existing=json.loads(self.command(self.helm,'list','-A','-o','json'))
   if any(any(r['name']==e['release'] and r['namespace']==e['namespace'] for r in existing) for e in self.entries.values()):raise RuntimeError('Fresh install requires all selected releases absent')
   required=['certificates.cert-manager.io','network-attachment-definitions.k8s.cni.cncf.io']
@@ -87,7 +110,7 @@ class Site:
   if any(v['spec'].get('claimRef',{}).get('namespace')==self.ns['workload'] for v in self.kube('get','persistentvolumes')['items']):raise RuntimeError('Old dedicated PVs remain; finish the original data cleanup before fresh installation')
   for ns in set(self.ns.values())|{e['namespace'] for e in self.entries.values()}:
    if not self.get('namespace',ns):self.create({'apiVersion':'v1','kind':'Namespace','metadata':{'name':ns}})
-  self.report['serverVersion']=self.kube('version')['serverVersion']['gitVersion'];self.save()
+  self.report['serverVersion']=version['gitVersion'];self.save()
  def rootCA(self,name):
   directory=self.state/'pki';directory.mkdir(exist_ok=True,mode=0o700);key=directory/(name+'.key');cert=directory/(name+'.crt')
   self.command('openssl','req','-x509','-newkey','ec','-pkeyopt','ec_paramgen_curve:P-256','-nodes','-days','3650','-subj','/CN='+self.config['name']+' '+name,'-addext','basicConstraints=critical,CA:TRUE,pathlen:0','-addext','keyUsage=critical,keyCertSign,cRLSign','-keyout',str(key),'-out',str(cert));return key,cert
@@ -110,15 +133,8 @@ class Site:
   proxyKey,proxyRoot=self.rootCA('proxy-root');directory=self.state/'pki';key=directory/'proxy.key';csr=directory/'proxy.csr';cert=directory/'proxy.crt';host=control['api']['proxyHost'];ext=directory/'proxy-ext.cnf';ext.write_text('basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:'+host+',DNS:proxy,DNS:proxy.'+ns+'.svc\n')
   self.command('openssl','req','-new','-newkey','rsa:2048','-nodes','-subj','/CN='+host,'-keyout',str(key),'-out',str(csr));self.command('openssl','x509','-req','-in',str(csr),'-CA',str(proxyRoot),'-CAkey',str(proxyKey),'-CAcreateserial','-days','365','-extfile',str(ext),'-out',str(cert));self.secret(core['proxy']['tlsSecret'],{'tls.key':key.read_text(),'tls.crt':cert.read_text(),'ca.crt':proxyRoot.read_text()},type='kubernetes.io/tls');self.secret(control['api']['pgCASecret'],{'ca.crt':proxyRoot.read_text()})
  def checkImages(self,refs):
-  opener=urllib.request.build_opener(urllib.request.ProxyHandler({}));registry=self.config['registry']
-  for ref in sorted(refs):
-   if not re.fullmatch(re.escape(registry)+r'/[a-zA-Z0-9/_-]+@sha256:[a-f0-9]{64}',ref):raise RuntimeError('All used images must be pinned in the declared site Harbor')
-   repo,digestValue=ref.split('/',1)[1].split('@');base='http://'+registry;query=urllib.parse.urlencode({'service':'harbor-registry','scope':'repository:'+repo+':pull'})
-   with opener.open(base+'/service/token?'+query,timeout=20) as r:issued=json.load(r)
-   request=urllib.request.Request(base+'/v2/'+repo+'/manifests/'+digestValue,method='HEAD',headers={'Authorization':'Bearer '+(issued.get('token') or issued['access_token']),'Accept':'application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.index.v1+json'})
-   with opener.open(request,timeout=20) as r:
-    if r.status!=200:raise RuntimeError('Required Harbor image unavailable')
-  self.report.setdefault('harborVerified',[]).extend(sorted(refs));self.save()
+  verified=verify_images(self.config,refs)
+  self.report['harborVerified']=sorted(set(self.report.get('harborVerified',[]))|set(verified));self.save()
  def claimBootstrapNamespace(self,doc,entry):
   if doc.get('kind')!='Namespace':return
   name=doc['metadata']['name'];actual=self.get('namespace',name)
@@ -128,6 +144,7 @@ class Site:
   if not any(r['kind']=='Namespace' and r['name']==name and r['uid']==m['uid'] for r in self.report['createdResources']) or m.get('labels',{}).get('neon.tech/site-bootstrap')!=self.config['name'] or any(k in annotations and annotations[k]!=v for k,v in expected.items()):raise RuntimeError('Cannot adopt a namespace outside this original bootstrap intent')
   patched=dict(annotations,**expected);patch=[{'op':'test','path':'/metadata/uid','value':m['uid']},{'op':'test','path':'/metadata/resourceVersion','value':m['resourceVersion']},{'op':'test','path':'/metadata/labels/neon.tech~1site-bootstrap','value':self.config['name']},{'op':'add','path':'/metadata/labels/app.kubernetes.io~1managed-by','value':'Helm'},{'op':'add','path':'/metadata/annotations','value':patched}];self.private('namespace-ownership/'+name+'.json',{'originalUID':m['uid'],'patch':patch});self.command('kubectl','patch','namespace',name,'--type=json','-p',json.dumps(patch))
  def helmApply(self,id,stage=None,wait=True):
+  self.checkContract()
   e=self.entries[id];valuesFile=self.state/'values'/((stage or id)+'.private.json')
   if valuesFile.exists():
    if json.loads(valuesFile.read_text())!=self.values[id]:raise RuntimeError('Original Helm phase inputs changed; reconcile the frozen operation')
@@ -164,6 +181,7 @@ class Site:
   selected=[]
   for n in self.kube('get','nodes')['items']:
    m=n['metadata'];s=n['spec'];status=n['status'];labels=m.get('labels',{})
+   if any(labels.get(k)!=v for k,v in self.config.get('computeNodeSelector',{}).items()):continue
    if m.get('deletionTimestamp') or s.get('unschedulable') or any(k in labels for k in ('node-role.kubernetes.io/control-plane','node-role.kubernetes.io/master')) or labels.get('kubernetes.io/os')!='linux' or labels.get('kubernetes.io/arch')!='amd64' or any(t.get('effect') in ('NoSchedule','NoExecute') for t in s.get('taints',[])):continue
    kvm=status.get('allocatable',{}).get('neonvm/kvm')
    if not any(c['type']=='Ready' and c['status']=='True' for c in status['conditions']) or kvm is None or quantity(kvm)<1:continue
@@ -229,6 +247,7 @@ class Site:
    if isinstance(doc,dict) and doc.get('kind') in ('Deployment','DaemonSet','StatefulSet'):
     ns=doc['metadata'].get('namespace',e['namespace']);self.command('kubectl','-n',ns,'rollout','status',doc['kind'].lower()+'/'+doc['metadata']['name'],'--timeout=300s',timeout=320)
  def reconcileRelease(self,id,attempt):
+  self.checkContract()
   if id not in self.entries or not re.fullmatch('[0-9]{3}',attempt):raise RuntimeError('Explicit selected release and reconciliation attempt required')
   phase='helm-'+id;old=self.report['steps'].get(phase);result=self.state/('helm/'+id+'-result.json');frozen=self.state/('values/'+id+'.private.json');entry=self.entries[id]
   if old is None or old['status']=='completed' or not result.exists() or json.loads(result.read_text())['exitCode']==0:raise RuntimeError('Only an original confirmed failed native Helm process can be reconciled')

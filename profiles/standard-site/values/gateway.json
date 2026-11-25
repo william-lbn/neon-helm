@@ -13,7 +13,7 @@
   },
   "image": {
     "pullPolicy": "IfNotPresent",
-    "reference": "10.11.9.236:5000/neon/neon-compute-management-gateway@sha256:4a144b091c90d058df7bb5facaf0d5128cdc1dd12e61ca8fd3a8bba2bdc3b5f6"
+    "reference": "registry.invalid/neon/neon-compute-management-gateway@sha256:4a144b091c90d058df7bb5facaf0d5128cdc1dd12e61ca8fd3a8bba2bdc3b5f6"
   },
   "placement": {
     "allowedNodeNames": [],

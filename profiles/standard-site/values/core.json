@@ -44,13 +44,13 @@
   },
   "global": {
     "componentImages": {
-      "pageserver": "10.11.9.236:5000/neon/neon-candidate-pageserver@sha256:1bb14fb264e46211e054942b31d782562d4252099db3941274976a588a9b7799",
-      "proxy": "10.11.9.236:5000/neon/neon-proxy@sha256:c57a3b59cf55a2ae92a5596f2c8f00cf1bc5c539bf075af8d08266fdc3aeaf4d",
-      "safekeeper": "10.11.9.236:5000/neon/neon-candidate-safekeeper@sha256:79b3e3a7fa607fa7ac11491e8a2e986775632a3218edecd21fcbc8191bfc4d40",
-      "storageBroker": "10.11.9.236:5000/neon/neon-candidate-storage-broker@sha256:703020d483370fe76467a1ac1f8cf6a5c3aed49becef566b959165b507de1941",
-      "storageController": "10.11.9.236:5000/neon/neon-candidate-storage-controller@sha256:87fd193f6f4dd9c2658d166832d14f21bcf47ea4de2fc4a277476af13f1b3876"
+      "pageserver": "registry.invalid/neon/neon-candidate-pageserver@sha256:1bb14fb264e46211e054942b31d782562d4252099db3941274976a588a9b7799",
+      "proxy": "registry.invalid/neon/neon-proxy@sha256:c57a3b59cf55a2ae92a5596f2c8f00cf1bc5c539bf075af8d08266fdc3aeaf4d",
+      "safekeeper": "registry.invalid/neon/neon-candidate-safekeeper@sha256:79b3e3a7fa607fa7ac11491e8a2e986775632a3218edecd21fcbc8191bfc4d40",
+      "storageBroker": "registry.invalid/neon/neon-candidate-storage-broker@sha256:703020d483370fe76467a1ac1f8cf6a5c3aed49becef566b959165b507de1941",
+      "storageController": "registry.invalid/neon/neon-candidate-storage-controller@sha256:87fd193f6f4dd9c2658d166832d14f21bcf47ea4de2fc4a277476af13f1b3876"
     },
-    "initImage": "10.11.9.236:5000/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
+    "initImage": "registry.invalid/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
     "neonImage": {
       "digest": "",
       "pullPolicy": "IfNotPresent",
@@ -63,7 +63,7 @@
     "bucket": "neon",
     "enabled": true,
     "existingSecret": "neon-object-store",
-    "image": "10.11.9.236:5000/neon/neon-test-only-minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8",
+    "image": "registry.invalid/neon/neon-test-only-minio@sha256:ae71c80e096ab7609b7e574b70d535a0061702ff2d505165508a1416cfc128b8",
     "initResources": {
       "limits": {
         "cpu": "200m",
@@ -74,19 +74,19 @@
         "memory": "128Mi"
       }
     },
-    "mcImage": "10.11.9.236:5000/neon/neon-storage-bootstrap@sha256:fad09f74f9d18da09b71bbda6a7743c2659a8171c22eca0d4f95b24af55b044a",
+    "mcImage": "registry.invalid/neon/neon-storage-bootstrap@sha256:fad09f74f9d18da09b71bbda6a7743c2659a8171c22eca0d4f95b24af55b044a",
     "nodeSelector": {},
     "persistence": {
       "enabled": true,
       "size": "20Gi",
-      "storageClassName": "local-path"
+      "storageClassName": "configure-storage-class"
     },
     "productStorage": {
       "bucket": "neon-product-blobs",
       "enabled": true,
       "existingSecret": "neon-product-blob-store"
     },
-    "region": "eu-north-1",
+    "region": "configure-region",
     "resources": {
       "limits": {
         "cpu": 2,
@@ -99,9 +99,7 @@
     },
     "rootUser": "minio",
     "service": {
-      "apiNodePort": 30900,
-      "consoleNodePort": 30901,
-      "type": "NodePort"
+      "type": "ClusterIP"
     }
   },
   "objectStore": {
@@ -115,7 +113,7 @@
   "pageserver": {
     "cache": {
       "size": "20Gi",
-      "storageClassName": "local-path"
+      "storageClassName": "configure-storage-class"
     },
     "enabled": false,
     "id": 1,
@@ -214,7 +212,7 @@
     "enabled": true,
     "persistence": {
       "size": "10Gi",
-      "storageClassName": "local-path"
+      "storageClassName": "configure-storage-class"
     },
     "replicas": 3,
     "requireNodeSeparation": true,
@@ -243,7 +241,7 @@
     }
   },
   "storageController": {
-    "dbImage": "10.11.9.236:5000/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
+    "dbImage": "registry.invalid/neon/library-postgres@sha256:59033b0c825183e84f626aced4805f5b3472269a2f8d69919b3cc04580d1b14b",
     "dbResources": {
       "limits": {
         "cpu": 2,
@@ -277,7 +275,7 @@
     "nodeSelector": {},
     "persistence": {
       "size": "5Gi",
-      "storageClassName": "local-path"
+      "storageClassName": "configure-storage-class"
     },
     "resources": {
       "limits": {

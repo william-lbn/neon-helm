@@ -2,7 +2,7 @@
   "compatibilityAcknowledged": true,
   "fullnameOverride": "neon-control-adapter",
   "hookTokenSecret": "neon-control-hook-auth",
-  "image": "10.11.9.236:5000/neon/neon-candidate-control-adapter@sha256:ea422b46624b351b617914e93e4bfe998a7beeedc00fd628e5ffc7cdb552455b",
+  "image": "registry.invalid/neon/neon-candidate-control-adapter@sha256:ea422b46624b351b617914e93e4bfe998a7beeedc00fd628e5ffc7cdb552455b",
   "managedRuntimeRead": {
     "computes": []
   },

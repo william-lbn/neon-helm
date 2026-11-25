@@ -1,8 +1,10 @@
 set -eu
+export PYTHONPATH="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)${PYTHONPATH:+:$PYTHONPATH}"
 export KUBECONFIG=${KUBECONFIG:?Explicit kubeconfig required}
 export NEON_E2E_PG=${1:?Major required} NEON_E2E_CASE=${2:?Case required}
 python3 -B - <<'PY'
 import base64,concurrent.futures,datetime,decimal,hashlib,http.cookiejar,json,math,os,pathlib,re,subprocess,time,urllib.error,urllib.parse,urllib.request,zlib,yaml
+from standard_contract import verify_images
 os.umask(0o077);pg=int(os.environ['NEON_E2E_PG']);caseID=os.environ['NEON_E2E_CASE'];attempt=os.environ.get('NEON_MEMORY_ATTEMPT','003')
 if pg not in (17,18) or not all(re.fullmatch('[0-9]{3}',s) for s in (caseID,attempt)):raise RuntimeError('Invalid acceptance case')
 root=pathlib.Path(os.environ['NEON_SITE_ROOT']);case=root/('business-pg'+str(pg)+'-'+caseID);out=case/('automatic-memory-'+attempt)
@@ -30,11 +32,8 @@ birth=next(cm for cm in kube('-n',ns,'get','configmaps')['items'] if cm['metadat
 threshold=(normalMax*int(policy['growThresholdPermille'])+999)//1000;perBytes=min(8<<20,max(1<<20,threshold//20));workers=8;rows=math.ceil(perBytes/1024);workMB=32
 if workers*perBytes>normalMax//2:raise RuntimeError('Bounded SQL load would exceed half the original normal budget')
 metadata=entries['metadata'];metadataDocs=[d for d in yaml.safe_load_all(run('helm','get','manifest',metadata['release'],'-n',metadata['namespace'])) if isinstance(d,dict)];metadataDeployment=next(d for d in metadataDocs if d.get('kind')=='Deployment');selector=','.join(k+'='+v for k,v in metadataDeployment['spec']['selector']['matchLabels'].items());clientPod=next(p for p in kube('-n',metadata['namespace'],'get','pods','-l',selector)['items'] if p['status']['phase']=='Running');clientContainer=next(c for c in clientPod['spec']['containers'] if c['name']==metadataDeployment['spec']['template']['spec']['containers'][0]['name'])
-for ref in sorted(set(json.loads((case/'harbor-images.json').read_text())['available']+[clientContainer['image']])):
- registry,part=ref.split('/',1);repo,digest=part.split('@');opener=urllib.request.build_opener(urllib.request.ProxyHandler({}));registryURL='http://'+registry;tokenQuery=urllib.parse.urlencode({'service':'harbor-registry','scope':'repository:'+repo+':pull'})
- with opener.open(registryURL+'/service/token?'+tokenQuery,timeout=20) as response:issued=json.load(response)
- with opener.open(urllib.request.Request(registryURL+'/v2/'+repo+'/manifests/'+digest,method='HEAD',headers={'Authorization':'Bearer '+(issued.get('token') or issued['access_token']),'Accept':'application/vnd.oci.image.manifest.v1+json,application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.v2+json'}),timeout=20) as response:
-  if response.status!=200:raise RuntimeError('Required Harbor reference unavailable')
+siteConfig=json.loads(pathlib.Path(json.loads((root/'site.json').read_text())['siteConfig']).read_text())
+verify_images(siteConfig,set(json.loads((case/'harbor-images.json').read_text())['available']+[clientContainer['image']]))
 loadSQL="SET statement_timeout='100s'; SET max_parallel_workers_per_gather=0; SET jit=off; SET work_mem='"+str(workMB)+"MB'; WITH ordered AS MATERIALIZED (SELECT repeat(md5(g::text),32) AS payload FROM generate_series(1,"+str(rows)+") g ORDER BY payload) SELECT count(*)::integer, pg_sleep(65) FROM ordered"
 out.mkdir(mode=0o700);(out/'load-intent.json').write_text(json.dumps({'sql':loadSQL,'workers':workers,'declaredNormalMaxBytes':normalMax,'growThresholdBytes':threshold,'estimatedPayloadPerClientBytes':perBytes,'changesToPolicyOrVM':False},indent=2)+'\n')
 report={'status':'starting','postgresVersion':pg,'vmUID':vmUID,'podUID':podUID,'node':vm['status']['node'],'minMemoryBytes':low,'maxMemoryBytes':high,'sqlWorkers':workers,'loadTransport':'standard-psql-proxy-verify-full','clientImage':clientContainer['image'],'policyChanged':False,'vmPatchedByTest':False,'businessE2E':'NOT_COMPLETE','guestPhysicalConfirmation':'PENDING_ROOT_WATCH'}

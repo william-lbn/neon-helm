@@ -2,6 +2,7 @@
 """独占Neon站点的正式停域和卸载；所有变更绑定原对象UID，不强制删除VM。"""
 import argparse,base64,copy,datetime,fcntl,hashlib,http.client,ipaddress,json,os,pathlib,re,secrets,socket,subprocess,time,urllib.parse,urllib.request
 import yaml
+from standard_contract import OperationContract,atomic_json,private_state,lock_state,safe_path,verify_images
 
 LEDGER='internal.autoscaling.neon.tech/dsga-host-ledger-v1'
 ORIGIN='internal.autoscaling.neon.tech/dsga-host-origin-v1'
@@ -17,20 +18,25 @@ class UnixHTTP(http.client.HTTPConnection):
 
 class Cleanup:
  def __init__(self,args):
-  os.umask(0o077);self.args=args;self.file=pathlib.Path(args.site).resolve();self.config=json.loads(self.file.read_text());self.state=pathlib.Path(args.state).resolve();self.state.mkdir(mode=0o700,parents=True,exist_ok=True)
-  if self.state.is_symlink() or self.state.stat().st_uid!=os.getuid() or self.state.stat().st_mode&0o077:raise RuntimeError('Private owned state required')
-  self.lock=(self.state/'lock').open('a');fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB);self.receipt=self.state/'receipt.json';self.ns=self.config['namespaces'];self.entries=self.config['releases'];self.helm=os.environ.get('HELM_BIN','helm');os.environ['KUBECONFIG']=self.config['kubeconfig'];self.proxy=None
+  os.umask(0o077);self.args=args;self.readonly=args.action=='inspect';self.file=safe_path(args.site);self.config=json.loads(self.file.read_text());self.state=private_state(args.state,self.readonly)
+  self.lock=lock_state(self.state,self.readonly);self.receipt=safe_path(self.state/'receipt.json');self.ns=self.config['namespaces'];self.entries=self.config['releases'];self.helm=os.environ.get('HELM_BIN','helm');self.proxy=None
+  if self.readonly:
+   self.report=json.loads(self.receipt.read_text());return
+  os.environ['KUBECONFIG']=self.config['kubeconfig']
   kubeconfig=pathlib.Path(self.config['kubeconfig'])
   if not kubeconfig.is_absolute() or not kubeconfig.is_file() or len(self.config['name'])>63 or not re.fullmatch('[a-z0-9]([-a-z0-9]*[a-z0-9])?',self.config['name']):raise RuntimeError('Explicit absolute kubeconfig and valid site name required')
   self.report=json.loads(self.receipt.read_text()) if self.receipt.exists() else {'site':self.config['name'],'inputSHA256':sha(self.file.read_bytes()),'status':'new','nonce':secrets.token_hex(16),'steps':{},'nodes':{},'deleted':[],'dataErased':False}
   if self.report['inputSHA256']!=sha(self.file.read_bytes()) or args.confirm_site!=self.config['name']:raise RuntimeError('Original exact site confirmation required')
+  self.contract=OperationContract(self.file,self.config,self.report,fresh=not self.receipt.exists());self.checkContract()
   self.exclusive=[self.ns[k] for k in ('workload','platform','vmSystem')]
   if len(set(self.exclusive))!=3 or any(n in ('default','kube-system','kube-public','kube-node-lease','cert-manager','neon-cert-manager') for n in self.exclusive):raise RuntimeError('Only explicit dedicated product/platform/NeonVM namespaces can be erased')
   self.save()
+ def checkContract(self):self.contract.check(self.kube('get','namespace','kube-system')['metadata']['uid'])
  def save(self):
-  path=self.receipt.with_suffix('.pending');path.write_text(json.dumps(self.report,indent=2,ensure_ascii=False)+'\n');path.replace(self.receipt)
+  if self.readonly:raise RuntimeError('只读检查不能修改卸载收据')
+  atomic_json(self.receipt,self.report)
  def private(self,name,value):
-  path=self.state/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n');return path
+  return atomic_json(self.state/name,value)
  def command(self,*a,input=None,timeout=60):
   r=subprocess.run(a,input=input,capture_output=True,timeout=timeout)
   if r.returncode:
@@ -59,6 +65,7 @@ class Cleanup:
    c.request(method,path,body=None if body is None else json.dumps(body).encode(),headers={'Content-Type':contentType});r=c.getresponse();raw=r.read();value=json.loads(raw) if raw else {};return r.status,value
   finally:c.close()
  def phase(self,name,action):
+  self.checkContract()
   old=self.report['steps'].get(name)
   if old and old['status']=='completed':return
   if old:
@@ -202,12 +209,7 @@ class Cleanup:
    if code!=200:raise RuntimeError('Original ordinary Pod handoff changed; inspect before continuing')
   for b in self.report['bindings']:self.deleteOriginal('/apis/coordination.k8s.io/v1/namespaces/'+b['namespace']+'/leases/'+b['lease_name'],b['lease_uid'])
  def verifyImage(self,image):
-  registry=self.config['registry']
-  if not re.fullmatch(re.escape(registry)+r'/[a-zA-Z0-9/_-]+@sha256:[a-f0-9]{64}',image):raise RuntimeError('Pinned site Harbor image required')
-  repo,pin=image.split('/',1)[1].split('@');base='http://'+registry;op=urllib.request.build_opener(urllib.request.ProxyHandler({}));q=urllib.parse.urlencode({'service':'harbor-registry','scope':'repository:'+repo+':pull'})
-  with op.open(base+'/service/token?'+q,timeout=20) as r:v=json.load(r)
-  with op.open(urllib.request.Request(base+'/v2/'+repo+'/manifests/'+pin,method='HEAD',headers={'Authorization':'Bearer '+(v.get('token') or v['access_token']),'Accept':'application/vnd.oci.image.manifest.v1+json,application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.v2+json'}),timeout=20) as r:
-   if r.status!=200:raise RuntimeError('Required cleanup image absent from Harbor')
+  verify_images(self.config,[image])
  def cleanupNamespace(self):
   if self.report.get('hostCleanupNamespace'):return self.report['hostCleanupNamespace']['name']
   name='neon-host-clean-'+self.report['nonce'][:10];obj={'apiVersion':'v1','kind':'Namespace','metadata':{'name':name,'labels':{'pod-security.kubernetes.io/enforce':'privileged','neon.tech/cleanup-intent':self.report['nonce']}}};self.private('host-cleanup-namespace-intent.json',obj);code,actual=self.api('POST','/api/v1/namespaces',obj)

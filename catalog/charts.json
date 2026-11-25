@@ -3,31 +3,217 @@
   "platformPrerequisites": {
     "layer": "L0",
     "owner": "platform-operator",
-    "components": ["kubernetes", "cni", "multus", "whereabouts", "kvm", "persistent-storage", "cert-manager", "metrics-server", "registry"],
+    "components": [
+      "kubernetes",
+      "cni",
+      "multus",
+      "whereabouts",
+      "kvm",
+      "persistent-storage",
+      "cert-manager",
+      "metrics-server",
+      "registry"
+    ],
     "applicationStackMayReplace": false
   },
   "layers": {
-    "L1": "Node virtualization and resource scheduling",
-    "L2": "Persistent database and storage services",
-    "L3": "Control plane and authenticated service access",
-    "L4": "Optional runtimes and qualification access"
+    "L1": "节点虚拟化与资源调度",
+    "L2": "持久数据库与存储服务",
+    "L3": "控制面与认证访问",
+    "L4": "可选运行时与资格权限"
   },
   "charts": [
-    {"name":"neonvm","layer":"L1","role":"stack-default","responsibility":"VM CRDs, controllers and node virtualization devices","managesPVC":false,"managesCRDs":true,"externalInputs":["KVM devices","network attachment and address pool","certificate issuer"]},
-    {"name":"neon-autoscaler","layer":"L1","role":"stack-default","responsibility":"Scheduler, node agents and guarded DSGA wiring","managesPVC":false,"managesCRDs":false,"externalInputs":["immutable images","site Node and Host Lease identities","certified Host budgets","management CA","per-VM qualifications"]},
-    {"name":"neon-core","layer":"L2","role":"stack-default","responsibility":"Storage controller, broker, Safekeepers, Pageserver, Proxy and laboratory object storage","managesPVC":true,"managesCRDs":false,"externalInputs":["storage credentials","scoped management identity","Proxy credentials","storage class"]},
-    {"name":"neon-managed-pageserver","layer":"L2","role":"stack-default","responsibility":"Controller-managed Pageserver and retained cache","managesPVC":true,"managesCRDs":false,"externalInputs":["storage management credentials","storage class"]},
-    {"name":"neon-metadata","layer":"L2","role":"stack-default","responsibility":"Laboratory control metadata PostgreSQL","managesPVC":true,"managesCRDs":false,"externalInputs":["metadata database credentials","storage class"]},
-    {"name":"neon-adapter","layer":"L3","role":"stack-default","responsibility":"Compiled Proxy authentication, wake and storage observation adapter","managesPVC":false,"managesCRDs":false,"externalInputs":["Proxy routes","scoped storage credentials","public CA"]},
-    {"name":"compute-management-gateway","layer":"L3","role":"stack-default","responsibility":"Authenticated compute management and isolated DSGA credential broker","managesPVC":false,"managesCRDs":false,"externalInputs":["management TLS identity","trusted runtime images"]},
-    {"name":"neon-control-plane","layer":"L3","role":"stack-default","responsibility":"API, Worker, Console and opt-in laboratory mailbox PVC","managesPVC":true,"managesCRDs":false,"externalInputs":["metadata database","platform credentials","runtime catalog","public endpoint identities"]},
-    {"name":"neon-compute","layer":"L4","role":"optional","responsibility":"Retained static Compute VM, not Driver-created managed Computes","managesPVC":false,"managesCRDs":false,"externalInputs":["original tenant and timeline","trusted VM configuration","qualified runtime images"]},
-    {"name":"data-api-gateway","layer":"L4","role":"optional","responsibility":"Standalone Data API gateway, not Driver-created branch runtimes","managesPVC":false,"managesCRDs":false,"externalInputs":["database credentials"]},
-    {"name":"dsga-platform-qualifier","layer":"L4","role":"qualification","responsibility":"Guarded per-VM qualification publisher Job","managesPVC":false,"managesCRDs":false,"externalInputs":["original private certification artifacts","resource-read socket","VM, Node, Runner and Lease bindings"]},
-    {"name":"dsga-qualification-issuer","layer":"L4","role":"qualification","responsibility":"Independent qualification publisher access binding","managesPVC":false,"managesCRDs":false,"externalInputs":["trusted publisher identity","original VM qualification inputs"]},
-    {"name":"dsga-qualifier-access","layer":"L4","role":"qualification","responsibility":"Explicit qualifier observation permissions","managesPVC":false,"managesCRDs":false,"externalInputs":["original resource names and subject identity"]},
-    {"name":"dsga-runner-access","layer":"L4","role":"qualification","responsibility":"Bound Runner source and lifecycle permissions","managesPVC":false,"managesCRDs":false,"externalInputs":["original Runner identity and exact source names"]},
-    {"name":"neon-control-runtime-access","layer":"L4","role":"qualification","responsibility":"Control Worker runtime and qualification access","managesPVC":false,"managesCRDs":false,"externalInputs":["trusted control Worker identity","site namespace and Host Lease names"]}
+    {
+      "name": "neonvm",
+      "layer": "L1",
+      "role": "stack-default",
+      "responsibility": "VM 定义、控制器与节点虚拟化设备",
+      "managesPVC": false,
+      "managesCRDs": true,
+      "externalInputs": [
+        "KVM devices",
+        "network attachment and address pool",
+        "certificate issuer"
+      ]
+    },
+    {
+      "name": "neon-autoscaler",
+      "layer": "L1",
+      "role": "stack-default",
+      "responsibility": "调度器、节点 Agent 与受保护的 DSGA 接线",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "immutable images",
+        "site Node and Host Lease identities",
+        "certified Host budgets",
+        "management CA",
+        "per-VM qualifications"
+      ]
+    },
+    {
+      "name": "neon-core",
+      "layer": "L2",
+      "role": "stack-default",
+      "responsibility": "存储控制器、Broker、Safekeeper、Pageserver、Proxy 与实验对象存储",
+      "managesPVC": true,
+      "managesCRDs": false,
+      "externalInputs": [
+        "storage credentials",
+        "scoped management identity",
+        "Proxy credentials",
+        "storage class"
+      ]
+    },
+    {
+      "name": "neon-managed-pageserver",
+      "layer": "L2",
+      "role": "stack-default",
+      "responsibility": "受管 Pageserver 和保留缓存",
+      "managesPVC": true,
+      "managesCRDs": false,
+      "externalInputs": [
+        "storage management credentials",
+        "storage class"
+      ]
+    },
+    {
+      "name": "neon-metadata",
+      "layer": "L2",
+      "role": "stack-default",
+      "responsibility": "控制面元数据 PostgreSQL",
+      "managesPVC": true,
+      "managesCRDs": false,
+      "externalInputs": [
+        "metadata database credentials",
+        "storage class"
+      ]
+    },
+    {
+      "name": "neon-adapter",
+      "layer": "L3",
+      "role": "stack-default",
+      "responsibility": "编译型 Proxy 认证、唤醒与存储观察适配器",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "Proxy routes",
+        "scoped storage credentials",
+        "public CA"
+      ]
+    },
+    {
+      "name": "compute-management-gateway",
+      "layer": "L3",
+      "role": "stack-default",
+      "responsibility": "认证的 Compute 管理与隔离凭据代理",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "management TLS identity",
+        "trusted runtime images"
+      ]
+    },
+    {
+      "name": "neon-control-plane",
+      "layer": "L3",
+      "role": "stack-default",
+      "responsibility": "API、Worker、控制台与可选实验邮箱存储",
+      "managesPVC": true,
+      "managesCRDs": false,
+      "externalInputs": [
+        "metadata database",
+        "platform credentials",
+        "runtime catalog",
+        "public endpoint identities"
+      ]
+    },
+    {
+      "name": "neon-compute",
+      "layer": "L4",
+      "role": "optional",
+      "responsibility": "保留的静态 Compute VM，不是 Driver 创建的受管 Compute",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "original tenant and timeline",
+        "trusted VM configuration",
+        "qualified runtime images"
+      ]
+    },
+    {
+      "name": "data-api-gateway",
+      "layer": "L4",
+      "role": "optional",
+      "responsibility": "独立 Data API 网关，不是 Driver 创建的分支运行时",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "database credentials"
+      ]
+    },
+    {
+      "name": "dsga-platform-qualifier",
+      "layer": "L4",
+      "role": "qualification",
+      "responsibility": "受保护的逐 VM 资格发布任务",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "original private certification artifacts",
+        "resource-read socket",
+        "VM, Node, Runner and Lease bindings"
+      ]
+    },
+    {
+      "name": "dsga-qualification-issuer",
+      "layer": "L4",
+      "role": "qualification",
+      "responsibility": "独立资格发布身份绑定",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "trusted publisher identity",
+        "original VM qualification inputs"
+      ]
+    },
+    {
+      "name": "dsga-qualifier-access",
+      "layer": "L4",
+      "role": "qualification",
+      "responsibility": "显式资格观察权限",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "original resource names and subject identity"
+      ]
+    },
+    {
+      "name": "dsga-runner-access",
+      "layer": "L4",
+      "role": "qualification",
+      "responsibility": "绑定原 Runner 的来源与生命周期权限",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "original Runner identity and exact source names"
+      ]
+    },
+    {
+      "name": "neon-control-runtime-access",
+      "layer": "L4",
+      "role": "qualification",
+      "responsibility": "控制面 Worker 的运行时与资格权限",
+      "managesPVC": false,
+      "managesCRDs": false,
+      "externalInputs": [
+        "trusted control Worker identity",
+        "site namespace and Host Lease names"
+      ]
+    }
   ],
-  "qualification": {"productionReady":false,"physicalMemoryReleaseQualified":false}
+  "qualification": {
+    "productionReady": false,
+    "physicalMemoryReleaseQualified": false
+  }
 }

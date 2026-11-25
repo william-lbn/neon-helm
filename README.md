@@ -1,114 +1,54 @@
-# Neon Helm
+# Neon 通用内网部署
 
-## 标准站点部署（2026-11-24）
+本仓库提供 Neon 的分层 Helm Chart、站点生成器、一次安装入口、只读诊断、业务验收与正式卸载工具。面向 Kubernetes 内网环境，不要求公网 IP、公网域名或公网入口。
 
-当前端到端标准入口为 [部署、清理与验收手册](docs/standard/README.zh-CN.md)。
-使用 profiles/standard-site 声明站点，控制面 Chart 从对应 control-plane 提交打包；不复用旧实验节点标签或运行 UID。
-旧 stack/profile 内容保留历史兼容；本轮新环境验收与源码边界以该手册和阶段证据为准。
+默认服务采用 ClusterIP，不预占固定节点端口。当前发行资格要求 Kubernetes 1.36、Linux/amd64 和 KVM；其他小版本与硬件需独立资格。
 
+当前唯一推荐的完整产品入口是[标准部署手册](docs/standard/README.zh-CN.md)。按发布包的源码锁、文件摘要和不可变镜像摘要部署；Chart 版本号、分支名称或 CI 成功不能单独代表端到端验收。
 
-Versioned deployment source for self-hosted Neon, NeonVM, upstream autoscaling,
-the Go control API, independent Worker, Go Proxy/Storage adapter and TypeScript Console.
+## 分层架构
 
-**Status: laboratory release candidate. Not certified for production.**
-The repository applies production-oriented deployment discipline, but the
-underlying product still has independent [production gates](docs/PRODUCTION-GATES.md).
-Installing a chart does not implement Neon's proprietary Backend services.
+| 层级 | 微服务与职责 | 生命周期归属 |
+| --- | --- | --- |
+| 平台前置 | Kubernetes、主 CNI、所需网络附件 CRD、KVM、存储类、证书控制器、内网镜像仓库 | 平台运维提供，产品卸载保留 |
+| 虚拟化与调度 | NeonVM Controller、设备插件、Scheduler、节点 Agent | Helm 管理工作负载，原生协议管理 Host 预算 |
+| 存储 | 元数据库、Storage Controller、Broker、Safekeeper、受管 Pageserver、对象存储 | Helm 管理服务和持久卷声明，数据擦除单独核验 |
+| 控制面与访问 | API、Worker、Web、Compute 管理网关、Proxy/Storage 适配器、SQL Proxy | Helm 管理常驻微服务，Worker 执行业务 Operation |
+| 业务运行时 | PG17/PG18 Compute、Runner、资格任务、租户与时间线 | 控制面及原生 Controller 创建，不能用静态 Helm VM 冒充 |
 
-Current source candidate `0.1.32` contains fifteen independent Charts: eight
-default stack components, two optional components and five qualification/access
-components. The machine-checked [Chart catalog](catalog/charts.json) records their
-layers, ownership and operator-supplied inputs; see [resource layering](docs/ARCHITECTURE.md#2-chart-and-deployment-ownership).
+完整依赖关系见[产品架构](docs/standard/架构与边界.zh-CN.md)。标准方案有 9 个常驻 release；仓库还保留可选产品和资格工具 Chart，数量不同不是重复部署。
 
-Source Chart versions are not the complete product release identity. A unified
-release can replace the control-plane Chart with its source-bound product Chart
-and add product-owned packages. Use its exact manifest, Chart SHA256 receipts,
-image digests and runtime capability statement, not a count or branch name.
-Existing [public image locks](docs/PUBLICATION-2026-10-16.md) remain separate from
-accepted research runtimes; neither a package build nor CI grants platform qualification.
+## 一次部署
 
-The preceding `0.1.29` adds scoped S3 credentials, authenticated signed chunk uploads,
-real SDK list/range/presigned reads and application account security.
-[Auth/S3 Linux/UI acceptance](docs/ACCEPTANCE-2026-10-14-AUTH-S3.md) records
-the exact source, eight image digests and original-fixture recovery.
-The preceding `0.1.28` adds a separate Functions HTTP/SSE origin and opt-in idle
-eviction/cold wake. [Exact Linux/UI acceptance](docs/ACCEPTANCE-2026-10-14-FUNCTIONS-HTTP.md)
-records source, image locks, lifecycle evidence and remaining gates; see
-[Functions deployment and API contract](docs/FUNCTIONS-PUBLIC-HTTP.md).
-
-## Start here
-
-1. [Architecture and component coverage](docs/ARCHITECTURE.md)
-2. [Cluster prerequisites: online and air-gapped](docs/CLUSTER-PREREQUISITES.md)
-3. [Site overlay, image pins and data-plane-only install](docs/SITE-OVERLAY.md)
-4. [New Linux cluster deployment](docs/DEPLOYMENT.md)
-5. [Existing cluster migration, backups and rollback](docs/UPGRADE.md)
-6. [Linux CI and UI end-to-end reproduction](docs/TESTING.md)
-7. [Security, persistence and production requirements](docs/PRODUCTION-GATES.md)
-8. [Version/source ownership](docs/SOURCE-PROVENANCE.md)
-9. [Historical Compute lifecycle acceptance](docs/ACCEPTANCE-2026-10-10-COMPUTE-LIFECYCLE.md) / [Object Storage baseline](docs/ACCEPTANCE-2026-10-09-OBJECT-STORAGE.md) / [Managed Auth baseline](docs/ACCEPTANCE-2026-10-08-MANAGED-AUTH.md) / [Retained lifecycle baseline](docs/ACCEPTANCE-2026-10-08-LIFECYCLE.md) / [Go runtime baseline](docs/ACCEPTANCE-2026-10-07-GO-ADAPTER.md)
-10. [Linux capacity, resource retirement and incident diagnostics](docs/RESOURCE-RUNBOOK.md)
-11. [Branch Object Storage deployment and real permission tests](docs/OBJECT-STORAGE.md)
-12. [Independent Compute deletion and replacement](docs/COMPUTE-LIFECYCLE.md)
-13. [Native Functions deployment, operator inputs and execution gates](docs/FUNCTIONS.md)
-    [Managed database Owner deployment and reproduction](docs/DATABASE-OWNER.md)
-    [SQL script deployment and focused reproduction](docs/SQL-SCRIPTS.md)
-14. [Historical 0.1.12 UI acceptance](docs/ACCEPTANCE-2026-10-12.md) / [Native Functions actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS.md) / [Monitoring actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS-MONITORING.md) / [Explicit wake actual UI acceptance](docs/ACCEPTANCE-2026-10-12-FUNCTIONS-WAKE.md)
-15. [Current SQL script actual UI acceptance](docs/ACCEPTANCE-2026-10-13-SQL-SCRIPTS.md)
-16. [Current SQL plans/download actual UI acceptance](docs/ACCEPTANCE-2026-10-13-SQL-TOOLS.md)
-17. [Function history restoration deployment and focused reproduction](docs/FUNCTIONS-ROLLBACK.md)
-18. [Function history restoration actual UI acceptance and SDK correction](docs/ACCEPTANCE-2026-10-13-FUNCTIONS-ROLLBACK.md)
+取得已核对的标准发行包，填写显式站点输入，执行：
 
 ```bash
-git clone --branch codex/dsga-neon-helm-v3-20261019 --single-branch git@github.com:william-lbn/neon-helm.git
-cd neon-helm
+cd neon-standard
+sha256sum -c SHA256SUMS
+export PATH="$PWD/bin:$PATH"
+bash tools/standard-up.sh /secure/site-input.json /secure/new-site-operation
+```
+
+站点输入示例位于 `profiles/standard-site/site-input.example.json`，其中占位值必须替换。模板不含现场地址；生成器不搬运镜像。必须先在目标仓库准备相同摘要的镜像，并在 Kubernetes 节点配置其拉取信任和权限。一次入口在新操作目录分别保存 config 和 install，拒绝覆盖既有操作。需要分步核对时，可分别执行 standard-init.py 和 standard-site.py。
+
+仓库协议、CA、认证、存储类、存储根目录、区域、集群 DNS 后缀、产品/平台命名空间、节点标签筛选和系统预留均由站点输入声明。系统组件保留产品协议的 `kube-system` / `neonvm-system` 命名空间，独立平台空间采用 `neon-control-*`；这些是当前协议约束，不是某个实验环境的节点、IP 或 UID。
+
+## 验证与运维
+
+[部署和业务验收](docs/standard/README.zh-CN.md)覆盖公开控制面创建、真实 SQL、原 Compute 物理内存自动往返、WAL 结清、暂停恢复与退役。[故障与接续](docs/standard/故障与接续.zh-CN.md)说明只读诊断、未知结果及正式卸载。[发行与中文文档管理](docs/standard/发行与文档.zh-CN.md)说明来源和历史资料边界。
+
+2026-11-24 已完成的四轮现场验收见[原始阶段报告](docs/standard/acceptance-20261124.zh-CN.md)，它只证明当次源码、镜像和环境，不能冒称后续改动已实测。本轮新增 Node 接入暂缓；生产 HA、完整 TLS、灾备、其他硬件与规格、可选产品全量验收未包含在现有结论中。
+
+## 开发检查
+
+```bash
 npm ci --ignore-scripts --no-audit --fund=false
-bash tools/install-helm.sh "$PWD/.local/bin"
-export HELM_BIN="$PWD/.local/bin/helm"
-node tools/stack.mjs plan
+npm run check
+npm run test:standard
+npm test
+npm run helm
+npm run helm:stack
+npm run helm:dsga
 ```
 
-This prints the deployment order and prerequisites; it changes no cluster state.
-The [stack contract](stack/stack.json) has eight independently upgradeable
-releases. Two optional charts cover the retained static Compute and a standalone
-Data API gateway. Native Computes and branch Data API workloads are created by
-the control-plane Drivers, not permanently installed by Helm.
-
-## Repository layout
-
-| Path | Purpose |
-|---|---|
-| `catalog/charts.json` | Validated L0–L4 boundaries, Chart roles and resource ownership |
-| `charts/` | Fifteen independently packaged charts, schemas and commented defaults |
-| `profiles/lab/` | Public, digest-pinned component settings; no credentials |
-| `locks/` | Source revisions, full image distribution, control images and tool checksums |
-| `stack/stack.json` | Release identity, dependency order and rollout checks |
-| `tools/` | Linux validation, bootstrap, maintenance and packaging |
-| `tests/` | Ownership, dependency, persistence and schema rejection contracts |
-| `docs/` | Deployment, upgrade, test and qualification runbooks |
-
-Data-plane images use the public `williamluckyli` Docker Hub repositories;
-the eight current control images select public `williamluckyli` Docker Hub
-publications with equivalent GHCR mirrors. All references are fixed digests. See the selected
-source/image lock for exact provenance. The chart repository does not rebuild
-these images. GitHub CI
-validates all charts on Linux; a version tag publishes chart packages and hashes
-as GitHub Release assets using the repository's own `GITHUB_TOKEN`.
-No Docker Hub publishing credential is needed for chart publication.
-
-After a versioned release is published, the standard Helm repository endpoint is:
-
-```bash
-helm repo add neon https://github.com/william-lbn/neon-helm/releases/download/v0.1.25
-helm repo update
-helm search repo neon
-```
-
-Use the stack tool for the complete ordered installation; installing one search
-result does not install all external prerequisites or dependent releases.
-
-The initial deployment retains existing resource names and namespaces. Only one
-stack is supported per cluster. This preserves existing data identities; it is
-not a multi-install or cross-region HA architecture.
-
-See [CONTRIBUTING](CONTRIBUTING.md), [SECURITY](SECURITY.md) and [LICENSE](LICENSE).
+`stack/stack.json` 是保留的静态组合工具合同；当前完整产品部署采用上面的标准入口，不混用两套安装流程。控制面 Chart 来自 `william-lbn/control-plane` 对应维护提交。源码和 CI 检查不能替代实际 Kubernetes 与业务验收。

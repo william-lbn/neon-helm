@@ -1,10 +1,12 @@
 set -eu
+export PYTHONPATH="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)${PYTHONPATH:+:$PYTHONPATH}"
 export KUBECONFIG=${KUBECONFIG:?Explicit kubeconfig required}
 export NEON_E2E_ORG=${1:?Organization ID required}
 export NEON_E2E_PG=${2:-17}
 export NEON_E2E_CASE=${3:-001}
 python3 -B - <<'PY'
 import base64,concurrent.futures,http.cookiejar,json,os,pathlib,re,secrets,subprocess,time,urllib.error,urllib.parse,urllib.request
+from standard_contract import verify_images
 os.umask(0o077);root=pathlib.Path(os.environ['NEON_SITE_ROOT']);pg=int(os.environ['NEON_E2E_PG']);org=os.environ['NEON_E2E_ORG'];case=os.environ['NEON_E2E_CASE']
 if not re.fullmatch('[0-9]{3}',case):raise RuntimeError('Invalid E2E case ID')
 out=root/('business-pg'+str(pg)+'-'+case)
@@ -36,16 +38,8 @@ def collect(v):
   for x in v:collect(x)
  elif isinstance(v,str) and '@sha256:' in v and '/' in v:refs.add(v)
 collect(catalog)
-def checkImage(image):
- registry,reference=image.split('/',1);repo,digest=reference.split('@');base='http://'+registry
- if not re.fullmatch(r'[a-zA-Z0-9.-]+:[0-9]+',registry):raise RuntimeError('E2E requires the declared internal registry')
- op=urllib.request.build_opener(urllib.request.ProxyHandler({}));query=urllib.parse.urlencode({'service':'harbor-registry','scope':'repository:'+repo+':pull'})
- with op.open(base+'/service/token?'+query,timeout=20) as response:issued=json.load(response)
- headers={'Authorization':'Bearer '+(issued.get('token') or issued['access_token']),'Accept':'application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.index.v1+json'}
- with op.open(urllib.request.Request(base+'/v2/'+repo+'/manifests/'+digest,headers=headers,method='HEAD'),timeout=20) as response:
-  if response.status!=200:raise RuntimeError('Catalog image unavailable')
- return image
-with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:available=list(executor.map(checkImage,sorted(refs)))
+siteConfig=json.loads(pathlib.Path(json.loads((root/'site.json').read_text())['siteConfig']).read_text())
+available=verify_images(siteConfig,refs)
 out.mkdir(mode=0o700);(out/'harbor-images.json').write_text(json.dumps({'available':available,'missing':[]},indent=2)+'\n')
 report={'status':'submitted','postgresVersion':pg,'harborImagesAvailable':len(available),'organization':org,'businessE2E':'NOT_COMPLETE'}
 def save(): (out/'receipt.json').write_text(json.dumps(report,indent=2)+'\n')

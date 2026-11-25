@@ -1,7 +1,12 @@
 {{- if ne .Values.hostLeaseNamespace .Values.workloadNamespace -}}{{ fail "Host leases must share the managed workload namespace for scoped delegation" }}{{- end -}}
 {{- if or (not (hasPrefix "neon-control-" .Release.Namespace)) (eq .Release.Namespace .Values.workloadNamespace) -}}{{ fail "dedicated neon-control-* namespace must differ from workload namespace" }}{{- end -}}
 {{- $ns := .Release.Namespace -}}
-{{- $prefix := printf "%s-%s" $ns .Release.Name | trunc 48 | trimSuffix "-" -}}
+{{/* 长名称保留来源摘要，避免不同站点截断后得到相同的集群级角色名。 */}}
+{{- $rawPrefix := printf "%s-%s" $ns .Release.Name -}}
+{{- $prefix := $rawPrefix -}}
+{{- if gt (len $rawPrefix) 48 -}}
+{{- $prefix = printf "%s-%s" ($rawPrefix | trunc 35 | trimSuffix "-") ($rawPrefix | sha256sum | trunc 12) -}}
+{{- end -}}
 {{- $nodes := .Values.allowedNodes -}}
 {{- if not (kindIs "slice" $nodes) -}}{{- fail "allowedNodes must be an explicit list" -}}{{- end -}}
 {{- if or (lt (len $nodes) 1) (gt (len $nodes) 16) -}}{{- fail "allowedNodes requires 1..16 explicit observed Nodes" -}}{{- end -}}

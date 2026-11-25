@@ -1,4 +1,6 @@
 import base64,hashlib,http.cookiejar,json,os,pathlib,re,secrets,subprocess,sys,time,urllib.error,urllib.parse,urllib.request,zlib
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]))
+from standard_contract import verify_images
 os.umask(0o077)
 pg,caseID,action=sys.argv[1:4]
 if pg not in ('17','18') or not re.fullmatch('[0-9]{3}',caseID) or action not in ('inspect','suspend','retry-suspend','status-suspend','observe-suspend','resume','verify','retire'):raise RuntimeError('Invalid lifecycle scope')
@@ -43,11 +45,8 @@ save()
 if action in ('suspend','retry-suspend','resume','retire'):
  refs=set(json.loads((case/'harbor-images.json').read_text())['available']);refs.add(values['api']['image']['reference'])
  auto=entries['autoscaler'];autoValues=json.loads(run('helm','get','values',auto['release'],'-n',auto['namespace'],'--all','-o','json'));refs.update(autoValues['images'].values())
- for ref in sorted(refs):
-  registry,part=ref.split('/',1);repo,digest=part.split('@');registryURL='http://'+registry;opener=urllib.request.build_opener(urllib.request.ProxyHandler({}));query=urllib.parse.urlencode({'service':'harbor-registry','scope':'repository:'+repo+':pull'})
-  with opener.open(registryURL+'/service/token?'+query,timeout=20) as response:issued=json.load(response)
-  with opener.open(urllib.request.Request(registryURL+'/v2/'+repo+'/manifests/'+digest,method='HEAD',headers={'Authorization':'Bearer '+(issued.get('token') or issued['access_token']),'Accept':'application/vnd.oci.image.manifest.v1+json,application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.v2+json'}),timeout=20) as response:
-   if response.status!=200:raise RuntimeError('Required Harbor image unavailable')
+ siteConfig=json.loads(pathlib.Path(json.loads((root/'site.json').read_text())['siteConfig']).read_text())
+ verify_images(siteConfig,refs)
  report[action+'HarborImagesAvailable']=len(refs);save()
 def settlement(uid,podName,nodeName,label):
  node=kube('get','node',nodeName);model=json.loads(node['metadata']['annotations']['internal.autoscaling.neon.tech/dsga-host-ledger-v1']);vms=kube('-n',ns,'get','virtualmachines.vm.neon.tech')['items'];pods=kube('-n',ns,'get','pods')['items'];held=[h for h in model['holds'] if h['plan']['request']['key']['instance']['vm_uid']==uid];placements=[p for p in model.get('placements',[]) if p.get('vm_uid')==uid];result={'vmGone':not any(v['metadata']['uid']==uid for v in vms),'runnerGone':not any(p['metadata']['name']==podName for p in pods),'remainingHolds':len(held),'remainingPlacements':len(placements),'vmUID':uid,'node':nodeName};result['hostSettled']=result['vmGone'] and result['runnerGone'] and not held and not placements;(out/(label+'-settlement.json')).write_text(json.dumps(result,indent=2)+'\n');(out/(label+'-node.private.json')).write_text(json.dumps(node,indent=2)+'\n')

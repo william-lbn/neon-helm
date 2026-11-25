@@ -1,14 +1,22 @@
 import fs from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {root,readJSON,validatePlan,validateControlImagesLock,pinned,digest,documents} from './lib.mjs';
 import {checkChartCatalog} from './chart-catalog.mjs';
 const failures=[];
+// 目录忽略规则不能掩盖 Git 已跟踪的依赖链接；校验真实索引，阻止构建机路径进入发行。
+const tracked=execFileSync('git',['ls-files','-z'],{cwd:root,encoding:'utf8'}).split('\0').filter(Boolean);
+for(const name of tracked)if(/(^|\/)node_modules(\/|$)|\.pyc$|\.private\./.test(name))failures.push('Git 跟踪了运行或私有材料 '+name);
 // Reviewed operator entry points and offline validators are source.
 // Runtime Proxy/Storage remain compiled Go; new Python requires explicit review.
 const allowedPython = new Set([
   'tools/standard-site.py',
+  'tools/standard_contract.py',
+  'tools/standard_contract_test.py',
+  'tools/standard-init.py',
+  'tools/standard-doctor.py',
   'tools/standard-uninstall.py',
-  'tools/standard-site_test.py',
+  'tools/standard_site_test.py',
   'tools/package-standard-site.py',
   'tools/host-decommission/context.py',
   'tools/acceptance/prepare-standard-acceptance.py',

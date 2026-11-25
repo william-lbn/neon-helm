@@ -3,7 +3,7 @@
   "releases": [
     {
       "protocol_version": 1,
-      "region": "rke2-lab",
+      "region": "configure-region",
       "default_flavor": true,
       "bounds": {
         "max_cpu_milli": 2000,
@@ -15,7 +15,7 @@
         "postgres_version": 17,
         "native_bootstrap_version": 3,
         "namespace": "neon",
-        "image": "10.11.9.236:5000/neon/neon-candidate-pg17-guest@sha256:369f8d000d78bae192d7be0b2d69d8599d610d1f307d66740d15c4a419ea8fec",
+        "image": "registry.invalid/neon/neon-candidate-pg17-guest@sha256:369f8d000d78bae192d7be0b2d69d8599d610d1f307d66740d15c4a419ea8fec",
         "memory_slot_bytes": 1073741824,
         "budget": {
           "bootstrap_buffer_bytes": 2097152,
@@ -26,8 +26,8 @@
         "vm": {
           "protocol_version": 5,
           "architecture": "amd64",
-          "runner_image": "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
-          "kernel_image": "10.11.9.236:5000/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
+          "runner_image": "registry.invalid/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
+          "kernel_image": "registry.invalid/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
           "root_disk_bytes": 8589934592,
           "scheduler_name": "autoscale-scheduler",
           "service_account": "neon-dsga-runner-base",
@@ -153,7 +153,7 @@
               "agent_daemon_set": "autoscaler-agent",
               "agent_dump_port": 10300,
               "platform_namespace": "neon-control-runtime",
-              "qualifier_image": "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
+              "qualifier_image": "registry.invalid/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
               "qualifier_service_account": "qualification-issuer",
               "adapter_service_account": "neon-control-adapter",
               "node_read_cluster_role": "neon-control-runtime-worker-nodes",
@@ -210,7 +210,7 @@
     },
     {
       "protocol_version": 1,
-      "region": "rke2-lab",
+      "region": "configure-region",
       "default_flavor": true,
       "bounds": {
         "max_cpu_milli": 2000,
@@ -222,7 +222,7 @@
         "postgres_version": 18,
         "native_bootstrap_version": 3,
         "namespace": "neon",
-        "image": "10.11.9.236:5000/neon/neon-candidate-pg18-guest@sha256:1ca04bcef85ea7917c092e266c5c7b0f56350deb7b188712e4ba61d6b87513c5",
+        "image": "registry.invalid/neon/neon-candidate-pg18-guest@sha256:1ca04bcef85ea7917c092e266c5c7b0f56350deb7b188712e4ba61d6b87513c5",
         "memory_slot_bytes": 1073741824,
         "budget": {
           "bootstrap_buffer_bytes": 2097152,
@@ -233,8 +233,8 @@
         "vm": {
           "protocol_version": 5,
           "architecture": "amd64",
-          "runner_image": "10.11.9.236:5000/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
-          "kernel_image": "10.11.9.236:5000/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
+          "runner_image": "registry.invalid/neon/neon-candidate-neonvm-runner@sha256:b9b55a70cf2568cb0d6860dc8181ca92baa501060746ce2b163c393b6b109253",
+          "kernel_image": "registry.invalid/neon/neon-candidate-vm-kernel@sha256:d219ea75c95bdd348b6c6b2e8979866aab4292087c80dd0e6291be886fbcb1f6",
           "root_disk_bytes": 8589934592,
           "scheduler_name": "autoscale-scheduler",
           "service_account": "neon-dsga-runner-base",
@@ -360,7 +360,7 @@
               "agent_daemon_set": "autoscaler-agent",
               "agent_dump_port": 10300,
               "platform_namespace": "neon-control-runtime",
-              "qualifier_image": "10.11.9.236:5000/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
+              "qualifier_image": "registry.invalid/neon/neon-platform-qualifier@sha256:f8bbfbac40ae9dc10f3d131e66270ab1d9c571ba61aadca523ca6d702d3772df",
               "qualifier_service_account": "qualification-issuer",
               "adapter_service_account": "neon-control-adapter",
               "node_read_cluster_role": "neon-control-runtime-worker-nodes",

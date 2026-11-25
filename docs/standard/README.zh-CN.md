@@ -1,10 +1,12 @@
 # Neon Helm 标准部署与验收
 
+当前通用方案按[架构与边界](架构与边界.zh-CN.md)、[故障与接续](故障与接续.zh-CN.md)、[发行与文档](发行与文档.zh-CN.md)分层维护。下述原验收结果是历史事实，新工具的检查另列归档。
+
 本标准以维护分支的实际代码和声明的站点配置为准。已完成完整清理、从空状态一次自动安装，以及第二轮 PG17/PG18 的公开 SQL、Guest 物理自动内存、暂停恢复和退役验收。结果见 [阶段验收报告](acceptance-20261124.zh-CN.md) 与 evidence/summary.json，不能用历史 118 结果替代。
 
 ## 站点边界与前置
 
-本次验收为 228 的现有 RKE2 集群，5 个 worker，linux/amd64、KVM、声明的本地存储与 Harbor。内置 MinIO 使用明确许可的实验 HTTP 配置；Compute 管理和 SQL 客户端分别校验 CA 与 verify-full。这不是生产 HA、全链路 TLS、外部 S3 或多站点共享 Host 域的验收。
+历史验收采用一个 RKE2 集群和 5 个 worker；这不是通用方案的主机或节点数量要求。当前发行资格要求 Kubernetes 1.36，并在输入显式声明 kubernetesMinor；其他小版本需要独立资格，不能仅改版本开关。当前资格范围为 linux/amd64、KVM、声明的本地存储与内网镜像仓库。内置 MinIO 使用明确许可的实验 HTTP 配置；Compute 管理和 SQL 客户端分别校验 CA 与 verify-full。这不是生产 HA、全链路 TLS、外部 S3 或多站点共享 Host 域的验收。
 
 平台先提供 Kubernetes 管理凭据、Ready/可调度且有 KVM 资源的 worker、网络附件 CRD、共享 cert-manager、实际 StorageClass 和可用的 Harbor 摘要镜像。系统组件按当前原生发行使用 kube-system/neonvm-system；产品空间可配置，独立平台空间沿原生协议采用 neon-control-*。所有普通 Pod（包括 init container）必须有明确的内存硬限；入口检查实际值，缺失时拒绝初始化，不能以估算容量填平。
 
@@ -12,18 +14,25 @@
 
 ## 构建与安装
 
-profiles/standard-site/site.json 声明 kubeconfig、clusterDomain、namespace、registry、存储根目录、Host 开销策略、工具镜像、9 个 release 的 Chart/values 和发行目录模板。IP、路径和运行规格是可替换的站点输入；程序不写死 worker 名单或拼接实验池标签。
+从包内 profiles/standard-site/site-input.example.json 复制并填写显式输入。standard-init.py 拒绝覆盖既有站点，生成的 /secure/site-config/site.json 声明 kubeconfig、clusterDomain、namespace、registry、存储根目录、Host 开销策略、工具镜像、9 个 release 的 Chart/values 和发行目录模板。IP、路径和运行规格是可替换的站点输入；程序不写死 worker 名单或拼接实验池标签。
 
 控制面 Chart 来自 control-plane 对应提交的 charts/neon-control-plane。禁止用 Helm 仓库中旧的同名 Chart 替代。先提交源码，再以 package-standard-site.py 的 --control-plane-source、--runtime-bin、--host-proof 和 --out 组装包；包内 standard-source-lock.json 与 SHA256SUMS 固定源码、实际测试及二进制摘要。Go 工具的上下文生成器位于 tools/host-decommission/context.py，必须使用干净且精确的 Autoscaling 提交。
 
-解包后检查摘要，在管理节点执行：
+推荐一次入口：填写显式输入后，执行 bash tools/standard-up.sh /secure/site-input.json /secure/new-site-operation。操作目录必须全新；失败后保留 config、install 和原回执，不重复执行包装器。
+
+需要逐层核对时，可按下面的等价分步流程操作。解包后检查摘要，在管理节点执行：
 
 ```bash
 cd neon-standard
 sha256sum -c SHA256SUMS
 export PATH="$PWD/bin:$PATH"
-python3 -B tools/standard-site.py install --site profiles/standard-site/site.json --state /var/lib/neon/site-install
+python3 -B tools/standard-init.py --config /secure/site-input.json --out /secure/site-config
+python3 -B tools/standard-site.py install --site /secure/site-config/site.json --state /var/lib/neon/site-install
 ```
+
+当前发行内置对象存储使用 HTTP。内网使用时需要在输入中显式设置 allowLabHTTPObjectStorage: true；false 会在生成阶段直接拒绝，不进入集群变更。仓库协议与对象存储协议分别声明，二者不是同一个开关。
+
+默认控制台与 MinIO 使用 ClusterIP，不预占固定 NodePort。控制台如需 NodePort，在输入 consoleService 中明确声明 type 与 nodePort；节点 IP 由访问方选择。对象存储区域由 objectStoreRegion 声明，区域和可用区不从实验主机名称推导。组件资源和持久卷容量等细项可在生成的 values 中于首次安装前确定；完整输入锁会拒绝安装接续时混入修改后的值。
 
 state 必须是本机所有、权限 0700 的专用目录。先为独占环境选择新的目录；不要把生产或另一站点的 namespace 声明为待清理范围。
 
@@ -50,7 +59,7 @@ export PATH="$PWD/bin:$PATH"
 export KUBECONFIG=/path/to/cluster-kubeconfig
 export NEON_SITE_ROOT=/var/lib/neon/acceptance-current
 python3 -B tools/acceptance/prepare-standard-acceptance.py \
-  --site profiles/standard-site/site.json \
+  --site /secure/site-config/site.json \
   --deployment /var/lib/neon/site-install/receipt.json --out "$NEON_SITE_ROOT"
 organization=$(python3 -B -c 'import json,os,pathlib;print(json.loads((pathlib.Path(os.environ["NEON_SITE_ROOT"])/"organization.json").read_text())["id"])')
 for pg in 17 18; do
@@ -90,7 +99,7 @@ done
 先通过公开业务流程完成 Compute 退役。独占站点可执行：
 
 ```bash
-bash tools/standard-clean.sh profiles/standard-site/site.json /var/lib/neon/site-clean EXACT_SITE_NAME --erase-data
+bash tools/standard-clean.sh /secure/site-config/site.json /var/lib/neon/site-clean EXACT_SITE_NAME --erase-data
 ```
 
 入口存档原 Helm 输入、对象 UID、Host 快照及私有元数据库备份；停止业务生产者并确认没有活动 Operation，再正常停止全部原容量写入者，等待原 Lease 自然过期。停域工具复用 SDK 的完整模型验证，接受新 Host 合法的 v3/v5 普通 Pod 账本以及后续 v10；未知格式、不完整来源、VM/Runner、Hold、managed placement 或未确认退出都拒绝。

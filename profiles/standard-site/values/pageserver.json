@@ -1,6 +1,6 @@
 {
   "config": {
-    "availabilityZone": "k8s-lab",
+    "availabilityZone": "configure-zone",
     "brokerEndpoint": "http://storage-broker:50051",
     "controllerEndpoint": "https://storage-controller-management.neon.svc:1235/upcall/v1/",
     "create": true,
@@ -8,18 +8,18 @@
     "objectStoreBucket": "neon",
     "objectStoreEndpoint": "http://minio:9000",
     "objectStorePrefix": "/pageserver",
-    "objectStoreRegion": "eu-north-1",
+    "objectStoreRegion": "configure-region",
     "upcallSecret": "neon-storage-upcall"
   },
   "configMap": "pageserver-managed-config",
   "existingClaim": "pageserver-managed-cache",
-  "image": "10.11.9.236:5000/neon/neon-candidate-pageserver@sha256:1bb14fb264e46211e054942b31d782562d4252099db3941274976a588a9b7799",
-  "initImage": "10.11.9.236:5000/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
+  "image": "registry.invalid/neon/neon-candidate-pageserver@sha256:1bb14fb264e46211e054942b31d782562d4252099db3941274976a588a9b7799",
+  "initImage": "registry.invalid/neon/library-busybox@sha256:5b0745afdfec8efe7225bbe20cd87dc9139381e676400707ea979ec5406de3a8",
   "objectStoreSecret": "neon-object-store",
   "persistence": {
     "create": true,
     "size": "10Gi",
-    "storageClassName": "local-path"
+    "storageClassName": "configure-storage-class"
   },
   "placement": {
     "allowedNodeNames": [],

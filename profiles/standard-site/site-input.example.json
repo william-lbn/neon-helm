@@ -1,0 +1,19 @@
+{
+  "name": "example-site",
+  "region": "example-region",
+  "objectStoreRegion": "us-east-1",
+  "kubernetesMinor": "36",
+  "consoleService": {"type": "ClusterIP"},
+  "kubeconfig": "/CONFIGURE/cluster-kubeconfig",
+  "registry": "registry.invalid",
+  "imageProject": "neon",
+  "registryAccess": {"scheme": "https", "caFile": "/CONFIGURE/registry-ca.crt"},
+  "storageClass": "configure-storage-class",
+  "storageRoots": ["/CONFIGURE/local-volume-parent"],
+  "clusterDomain": "cluster.local",
+  "workloadNamespace": "neon-example",
+  "platformNamespace": "neon-control-example",
+  "computeNodeSelector": {"neon.example/compute-pool": "selected"},
+  "systemBytes": "4294967296",
+  "allowLabHTTPObjectStorage": false
+}

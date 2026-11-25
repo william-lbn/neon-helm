@@ -15,3 +15,6 @@ __pycache__/
 *.pyc
 *.tgz
 # Helm packages are produced by Linux CI, not checked in.
+
+# 本地依赖目录与验证用符号链接均不属于源码。
+node_modules

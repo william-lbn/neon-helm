@@ -20,8 +20,25 @@ def observer_handoff(metadata,writer_uids,nonce):
  if metadata['uid'] not in writer_uids or annotations.get(OBSERVER)!=nonce or OBSERVER not in finalizers:raise RuntimeError('退出观察保护不属于本次原写者，禁止清理')
  return [OBSERVER]
 
+def original_namespace_status(name,uid,observed,report):
+ # 正常卸载完成后 Namespace 应当消失；必须同时有原 UID 删除回执和当前 404。
+ # 不能按同名接管重建的 Namespace，也不能把早于卸载的意外消失视为完成。
+ if observed is not None:
+  if observed['metadata']['uid']!=uid:raise RuntimeError('独占命名空间已被重建，禁止接续原退出')
+  return
+ completed=report.get('steps',{}).get('uninstall-original-releases',{}).get('status')=='completed'
+ deleted=any(d.get('path')=='/api/v1/namespaces/'+name and d.get('uid')==uid for d in report.get('deleted',[]))
+ if not completed or not deleted:raise RuntimeError('命名空间缺失但没有原完成删除证明')
+
 class PartialInstallation:
  def __init__(self,cleanup,state,tools):
+  self.lock=None
+  try:self._initialize(cleanup,state,tools)
+  except BaseException:
+   # 前置校验失败时也归还只读文件锁，避免反复诊断时持有失效句柄。
+   if self.lock is not None:self.lock.close()
+   raise
+ def _initialize(self,cleanup,state,tools):
   self.c=cleanup;self.state=private_state(state,True);self.lock=lock_state(self.state,True);self.file=safe_path(self.state/'receipt.json');self.raw=self.file.read_bytes();self.original=json.loads(self.raw);self.tools=safe_path(tools);self.activation=safe_path(self.state/'host-activation-values.private.json');self.activation_raw=self.activation.read_bytes();self.bindings=[n['binding'] for n in json.loads(self.activation_raw)['dsga']['scheduler']['nodes']]
   original=self.original
   if original.get('status')!='incomplete' or original.get('businessE2E')!='NOT_RUN' or any(name.startswith('helm-control') or name=='control-runtime-ready' for name in original['steps']):raise RuntimeError('部分退出仅支持原控制面从未提交、业务从未开始的安装；其他站点必须正常退役')
@@ -30,7 +47,11 @@ class PartialInstallation:
   self.contract=OperationContract(cleanup.file,cleanup.config,original,tools=self.tools/'standard_contract.py');self.check()
   namespaces={r['name']:r['uid'] for r in original.get('createdResources',[]) if r['kind']=='Namespace'}
   for name in cleanup.exclusive:
-   if name not in namespaces or cleanup.kube('get','namespace',name)['metadata']['uid']!=namespaces[name]:raise RuntimeError('独占命名空间不属于本次原安装，禁止部分退出')
+   if name not in namespaces:raise RuntimeError('独占命名空间不属于本次原安装，禁止部分退出')
+   if cleanup.report.get('steps',{}).get('uninstall-original-releases',{}).get('status')=='completed':
+    raw=cleanup.command('kubectl','get','namespace',name,'--ignore-not-found','-o','json');observed=json.loads(raw) if raw.strip() else None
+   else:observed=cleanup.kube('get','namespace',name)
+   original_namespace_status(name,namespaces[name],observed,cleanup.report)
   if original['steps'].get('helm-autoscaler-host-activation',{}).get('status')!='completed':raise RuntimeError('原 Host 激活 Helm 结果未确认，禁止推断部分退出范围')
   source={'state':str(self.state),'tools':str(self.tools),'receiptSHA256':hashlib.sha256(self.raw).hexdigest(),'activationSHA256':hashlib.sha256(self.activation_raw).hexdigest(),'clusterUID':original['clusterUID'],'controlPlaneNeverSubmitted':True}
   if cleanup.report.get('partialInstallationSource',source)!=source:raise RuntimeError('原部分安装退出来源变化')

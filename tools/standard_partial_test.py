@@ -1,5 +1,6 @@
 import copy,datetime,hashlib,json,pathlib,tempfile,time,types,unittest
 from standard_contract import input_manifest
+from standard_partial import original_namespace_status
 from standard_partial import PartialInstallation,unused_node,observer_handoff,LEDGER,ORIGIN,GUARD,EXIT,OBSERVER
 class NeverInitializedHost(unittest.TestCase):
  def fixture(self):return {'metadata':{'name':'worker','uid':'original','resourceVersion':'1','annotations':{}}},{'node_name':'worker','node_uid':'original'}
@@ -92,4 +93,20 @@ class OriginalOperatorLocation(unittest.TestCase):
  def test_original_receipt_change_after_plan_remains_rejected(self):
   c,state,tools=self.fixture();p=PartialInstallation(c,state,tools);self.addCleanup(p.lock.close);(state/'receipt.json').write_text('{}')
   with self.assertRaises(RuntimeError):p.check()
+class NamespaceExitLifecycle(unittest.TestCase):
+ def completed(self):return {'steps':{'uninstall-original-releases':{'status':'completed'}},'deleted':[{'path':'/api/v1/namespaces/product','uid':'original'}]}
+ def test_original_namespace_still_present_is_accepted(self):original_namespace_status('product','original',{'metadata':{'uid':'original'}},{})
+ def test_confirmed_original_deletion_and_current_absence_are_accepted(self):original_namespace_status('product','original',None,self.completed())
+ def test_missing_namespace_before_uninstall_is_rejected(self):
+  with self.assertRaises(RuntimeError):original_namespace_status('product','original',None,{})
+ def test_missing_delete_receipt_is_rejected(self):
+  report=self.completed();report['deleted']=[]
+  with self.assertRaises(RuntimeError):original_namespace_status('product','original',None,report)
+ def test_new_same_named_namespace_is_never_adopted(self):
+  with self.assertRaises(RuntimeError):original_namespace_status('product','original',{'metadata':{'uid':'replacement'}},self.completed())
+ def test_wrong_original_uid_and_incomplete_uninstall_are_rejected(self):
+  report=self.completed();report['deleted'][0]['uid']='other'
+  with self.assertRaises(RuntimeError):original_namespace_status('product','original',None,report)
+  report=self.completed();report['steps']['uninstall-original-releases']['status']='submitted'
+  with self.assertRaises(RuntimeError):original_namespace_status('product','original',None,report)
 if __name__=='__main__':unittest.main()

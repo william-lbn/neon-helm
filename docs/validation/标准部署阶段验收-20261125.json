@@ -1,0 +1,167 @@
+{
+  "apiVersion": "neon-standard-acceptance-archive/v1",
+  "status": "accepted",
+  "date": "2026-11-25",
+  "scope": "现有合格内网平台的通用 Helm 部署及 PG17/PG18 原生控制面端到端验收",
+  "sources": {
+    "helm": "88df1e7260503cebcd077651d22357a2edfb8004",
+    "autoscalingScheduler": "1a000066f5681e46d2103448175aec4d21e34b80",
+    "controlPlane": "3c94d32a790e1f06525538506d4e3acb8ad324bc",
+    "neonDistribution": "4968d6e02e6aec3beb355edfd15fa188b0ec591f",
+    "postgres17": "646159ec9e7a5a53ca19cf77184efd8684431855",
+    "postgres18": "47f4ff0d390996bffeaa6a14aa58ea6c29637855"
+  },
+  "schedulerImage": "registry.invalid/neon/dsga403-scheduler@sha256:ecb4dcaaff6d6b42cf8de803b1f8dcf63ca49a2f71de9f90087b36a2b684256e",
+  "bundleSHA256": "1de8558997596b4842512b00fbc8c7115ec3b427f10612cca84e7ed5b95ca58f",
+  "oneClickInstallSeconds": 184.281,
+  "inputSetSHA256": "ec012386687b08441939de340fffaa6b1f567a20758667840c3ee91ccc0411e8",
+  "platform": {
+    "readyNodes": 6,
+    "configuredComputeHosts": 5,
+    "schedulerRestartCount": 0,
+    "doctorFailedChecks": [],
+    "remainingVMs": 0
+  },
+  "cleanReinstall": {
+    "originalVolumesPhysicallyErased": 7,
+    "oldDomainsEnded": 5,
+    "newOriginalNamespaceIdentities": true,
+    "newOriginalLeaseIdentities": true,
+    "sharedPlatformAndHarborPreserved": true
+  },
+  "rounds": [
+    {
+      "round": "005",
+      "mode": "original-install-resumed-after-audited-scheduler-upgrade",
+      "finalFreshOneClickAcceptance": false,
+      "sourceReceiptSHA256": "9762afacf9d4a72c1310b263d8c45c7e49e5a611edebbd12978213dcf9114b9f",
+      "postgres": [
+        {
+          "major": 17,
+          "sqlRows": 10000,
+          "sumID": 50005000,
+          "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+          "vmMemoryRoundTripBytes": [
+            7516192768,
+            8589934592,
+            7516192768
+          ],
+          "actualGuestMemoryRoundTripBytes": [
+            7413817344,
+            8487559168,
+            7413817344
+          ],
+          "sqlMemoryDataAndWAL": "PASS",
+          "suspendResume": "PASS",
+          "retirement": "PASS",
+          "evidenceSHA256": {
+            "sql": "5477f846215e31914816fe8fb35870546c7317fb5ad30f3e95881dc0ab1f9fbf",
+            "automaticMemory": "5b9d434cc358d920383834518383074fe015071b44c1ddc7dcdf56ed1461fc63",
+            "nativeObservations": "84a4e1187bacebcf13c4fe94f75e350317d60744983e10d07982d7779a3e4368",
+            "physicalReceipt": "6ae17a5f0019f2f72c54f50f67b09fdbc218bd4c0e6c01a7d0c5e6a7ff9fc5f4",
+            "physicalObservations": "c2a73a218af9ec4cc866ca4c0f9ada3ef7ef572d896032740c738fad2738a775",
+            "lifecycle": "d00cbb835fc91ad050fea77a686594bc3a0361c607bd44016108fdd3516401a0"
+          },
+          "samePhysicalInstanceVerified": true
+        },
+        {
+          "major": 18,
+          "sqlRows": 10000,
+          "sumID": 50005000,
+          "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+          "vmMemoryRoundTripBytes": [
+            7516192768,
+            8589934592,
+            7516192768
+          ],
+          "actualGuestMemoryRoundTripBytes": [
+            7413813248,
+            8487555072,
+            7413813248
+          ],
+          "sqlMemoryDataAndWAL": "PASS",
+          "suspendResume": "PASS",
+          "retirement": "PASS",
+          "evidenceSHA256": {
+            "sql": "685e89b6f04408f0925e3c3366b4fa002a014fc2ee2727d55f5b86121821ed85",
+            "automaticMemory": "ffc7a2f3b8e3f8c615e558846791413cc2909521665c7733cc358802f28e8d26",
+            "nativeObservations": "1345fa156d8d116e60b9c5e79baa3339021c04000c69f515515488d2ba9b4d04",
+            "physicalReceipt": "c5bf952dde97d71c48c42077ed5f56c74b6d47c3a253fec7d6ea0212042c6817",
+            "physicalObservations": "457d90a9744151166b64066d1da60aece6fa01f212f80ec2ffa2adbc38e1ae21",
+            "lifecycle": "3a3431316a70d1b2e4b2de1bb8346959eee6891a0583d77a3e8837248a35f1ed"
+          },
+          "samePhysicalInstanceVerified": true
+        }
+      ]
+    },
+    {
+      "round": "006",
+      "mode": "one-click-fresh-after-verified-cleanup",
+      "finalFreshOneClickAcceptance": true,
+      "sourceReceiptSHA256": "cdaca0d28d25c2029050f6a9d638b51df449c3100b489149804a49ab71482221",
+      "postgres": [
+        {
+          "major": 17,
+          "sqlRows": 10000,
+          "sumID": 50005000,
+          "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+          "vmMemoryRoundTripBytes": [
+            7516192768,
+            8589934592,
+            7516192768
+          ],
+          "actualGuestMemoryRoundTripBytes": [
+            7413813248,
+            8487555072,
+            7413813248
+          ],
+          "sqlMemoryDataAndWAL": "PASS",
+          "suspendResume": "PASS",
+          "retirement": "PASS",
+          "evidenceSHA256": {
+            "sql": "c53df25d4f0c9748e73ee27b53168d0f5de6c306706eafa4712f4c73d120ae5b",
+            "automaticMemory": "466ed27baf8d9ad5dd11192404bfee8e3eba6baf627056f990bef9f243b99ad2",
+            "nativeObservations": "57f9e4bc63ec63b1d176c1c5e2365b1d87dc1d2fcc6832125ec7f7f41859ab3e",
+            "physicalReceipt": "1bfc037282dae05e6d04c01374c731b12a9ca1ed5da2b06d68f3e4a4310168c5",
+            "physicalObservations": "25e398c8c93098689df54de5a57b8edde3a6a2dd9785676322ac5e3493159e7a",
+            "lifecycle": "8402c965f9ac68d108bee66046d40e11f787846953e13e0256964ecc6d087e86"
+          },
+          "samePhysicalInstanceVerified": true
+        },
+        {
+          "major": 18,
+          "sqlRows": 10000,
+          "sumID": 50005000,
+          "dataChecksum": "55dd7184c7eae5d9a2bae0b66e2924e3",
+          "vmMemoryRoundTripBytes": [
+            7516192768,
+            8589934592,
+            7516192768
+          ],
+          "actualGuestMemoryRoundTripBytes": [
+            7413817344,
+            8487559168,
+            7413817344
+          ],
+          "sqlMemoryDataAndWAL": "PASS",
+          "suspendResume": "PASS",
+          "retirement": "PASS",
+          "evidenceSHA256": {
+            "sql": "e3976e859b825a582132b5bf41b817400e8cd2c72987d2d549162d85c0cc5d9e",
+            "automaticMemory": "27b9ced80278396da5d88ed2a280443285af716eb60cbe27408024a7fe2c5a97",
+            "nativeObservations": "663d48faffe3b1cad2f5161c1950c29c120600dd3012edea1b076811afed5d1e",
+            "physicalReceipt": "ac63b5d8e80853fe84423a8a689c761e6c4899dd37c57718848d7327b3daca24",
+            "physicalObservations": "4149a5573b1413c68fded128b8f8ae01198d3ebc152642182a0c17882fc5623d",
+            "lifecycle": "f409e88e8c148d131978d1ce9d9c61e72f648ba2cc53f48b520026b39a4ee546"
+          },
+          "samePhysicalInstanceVerified": true
+        }
+      ]
+    }
+  ],
+  "deferred": {
+    "newPhysicalNode": "按所有者要求暂缓，未纳入本次通过范围",
+    "productionHAFullTLSBackupDR": "不在本轮范围"
+  },
+  "originalPrivateEvidencePublished": false
+}

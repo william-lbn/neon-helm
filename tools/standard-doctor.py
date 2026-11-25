@@ -5,7 +5,7 @@ import json
 import os
 import pathlib
 import subprocess
-from standard_contract import input_manifest, private_state, lock_state, safe_path, verify_images
+from standard_contract import input_manifest, private_state, lock_state, safe_path, verify_images, preflight_image_references
 
 
 def diagnose(config_file, state):
@@ -66,20 +66,11 @@ def _diagnose_unlocked(config_file, state):
         if checked.returncode:raise RuntimeError('原普通 Pod 硬限检查未确认')
         hard_limits=json.loads(checked.stdout)
         result('ORDINARY_POD_HARD_LIMITS', hard_limits['ready'], '原 Host 上所有活动普通 Pod 和 init container 都必须有有效内存硬限')
-    refs = set()
-    def collect(value):
-        if isinstance(value, dict):
-            for item in value.values():
-                collect(item)
-        elif isinstance(value, list):
-            for item in value:
-                collect(item)
-        elif isinstance(value, str) and '@sha256:' in value:
-            refs.add(value)
-    collect(config)
-    for entry in config['releases'].values():
-        collect(json.loads((config_file.parent / entry['values']).read_text()))
-    collect(json.loads((config_file.parent / config['catalogTemplate']).read_text()))
+    values={name:json.loads((config_file.parent / entry['values']).read_text()) for name,entry in config['releases'].items()}
+    catalog=json.loads((config_file.parent / config['catalogTemplate']).read_text())
+    refs,deferred=preflight_image_references(config,values,catalog)
+    if deferred:
+        result('NON_SITE_VALUE_REFERENCES', None, '可选或兼容字段中的其他仓库引用由实际渲染判定，不能当成已经部署或已经拉取的镜像')
     try:
         verify_images(config, refs)
         result('REGISTRY_IMAGES', True, '内网仓库已确认所有声明镜像的原摘要')

@@ -208,3 +208,28 @@ def verify_images(config, refs):
     except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
         raise RuntimeError('镜像检查未确认；请检查内网仓库、CA、权限和原摘要') from None
     return verified
+
+
+def preflight_image_references(config, values, catalog):
+    """区分初步检查与实际使用，避免把未启用的兼容默认值当成部署依赖。
+
+    values 会保留 Chart 的可选功能和历史兼容输入，单纯扫描全部字符串
+    无法判断它们是否生成 Pod。初步检查这些值中已明确指向站点仓库的镜像。
+    toolsImage 和运行时目录属于实际使用的直接合同，所有引用都必须检查，
+    包括错误指向外部仓库的引用，不能在这里过滤掉。
+
+    本函数不放行任何实际镜像：helmApply 在每次写入前仍从真实渲染结果
+    收集 image 并调用严格的 verify_images。未启用字段只有在真正生成
+    工作负载时才成为部署依赖；不能为了通过预检搬运无关镜像或关闭检查。
+    返回的计数仅作诊断，不输出可能含操作者输入的原始字符串。
+    """
+    def collect(value):
+        if isinstance(value, dict):
+            return set().union(*(collect(item) for item in value.values())) if value else set()
+        if isinstance(value, list):
+            return set().union(*(collect(item) for item in value)) if value else set()
+        return {value} if isinstance(value, str) and '@sha256:' in value else set()
+    configured = collect(values)
+    site_values = {ref for ref in configured if ref.startswith(config['registry'] + '/')}
+    mandatory = collect(catalog) | {config['toolsImage']}
+    return site_values | mandatory, len(configured - site_values)

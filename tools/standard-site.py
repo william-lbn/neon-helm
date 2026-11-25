@@ -2,7 +2,7 @@
 """全新站点的有界初始化。Helm管理工作负载，原Controller/Owner管理运行身份与预算。"""
 import argparse,base64,copy,decimal,fcntl,hashlib,json,os,pathlib,re,secrets,subprocess,time,urllib.parse,urllib.request
 import yaml
-from standard_contract import OperationContract,atomic_json,private_state,lock_state,safe_path,verify_images
+from standard_contract import OperationContract,atomic_json,private_state,lock_state,safe_path,verify_images,preflight_image_references
 
 def digest(data):return hashlib.sha256(data).hexdigest()
 def quantity(value):
@@ -95,7 +95,7 @@ class Site:
    elif isinstance(value,list):
     for item in value:collect(item)
    elif isinstance(value,str) and '@sha256:' in value:refs.add(value)
-  collect(self.values);collect(json.loads((self.base/self.config['catalogTemplate']).read_text()));collect(self.config['toolsImage']);self.checkImages(refs)
+  collect(self.values);catalog=json.loads((self.base/self.config['catalogTemplate']).read_text());collect(catalog);refs,deferred=preflight_image_references(self.config,self.values,catalog);self.report['nonSiteValueReferencesDeferredToRender']=deferred;self.checkImages(refs)
   for storageClass in storageClasses:
    if not self.get('storageclass',storageClass):raise RuntimeError('声明的存储类不存在；尚未创建产品资源')
   existing=json.loads(self.command(self.helm,'list','-A','-o','json'))

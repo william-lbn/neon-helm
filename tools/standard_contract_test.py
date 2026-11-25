@@ -13,7 +13,7 @@ import shutil
 import ssl
 import subprocess
 from unittest.mock import patch
-from standard_contract import OperationContract, atomic_json, input_manifest, lock_state, private_state, verify_images
+from standard_contract import OperationContract, atomic_json, input_manifest, lock_state, private_state, verify_images, preflight_image_references
 
 
 def load(name):
@@ -251,7 +251,7 @@ class ReadOnlyDiagnosis(unittest.TestCase):
         module=load('standard-doctor')
         with tempfile.TemporaryDirectory() as directory:
             root=pathlib.Path(directory);state=private_state(root/'state');lock_state(state).close()
-            config={'kubeconfig':'/explicit/cluster','registry':'registry.invalid','namespaces':{'workload':'product','agent':'kube-system'},'catalogTemplate':'catalog.json','releases':{'core':{'release':'core','namespace':'product','values':'values.json'}}}
+            config={'kubeconfig':'/explicit/cluster','registry':'registry.invalid','toolsImage':'registry.invalid/product/tools@sha256:'+'a'*64,'namespaces':{'workload':'product','agent':'kube-system'},'catalogTemplate':'catalog.json','releases':{'core':{'release':'core','namespace':'product','values':'values.json'}}}
             for name,value in [('site.json',config),('values.json',{}),('catalog.json',{}),('state/receipt.json',{'status':'installed','clusterUID':'original-cluster','steps':{}})]:atomic_json(root/name,value)
             before=(state/'receipt.json').read_bytes();modified=(state/'receipt.json').stat().st_mtime_ns;calls=[]
             def run(args,**kwargs):
@@ -272,7 +272,7 @@ class ReadOnlyDiagnosis(unittest.TestCase):
         module=load('standard-site')
         with tempfile.TemporaryDirectory() as directory:
             root=pathlib.Path(directory);(root/'catalog.json').write_text('{}')
-            site=object.__new__(module.Site);site.base=root;site.config={'kubernetesMinor':'36','catalogTemplate':'catalog.json','toolsImage':'registry.invalid/p/image@sha256:'+'a'*64};site.values={}
+            site=object.__new__(module.Site);site.base=root;site.config={'registry':'registry.invalid','kubernetesMinor':'36','catalogTemplate':'catalog.json','toolsImage':'registry.invalid/p/image@sha256:'+'a'*64};site.values={};site.report={}
             with patch.object(site,'kube',return_value={'serverVersion':{'major':'1','minor':'36','gitVersion':'v1.36.6'}}),patch.object(site,'checkImages',side_effect=RuntimeError('registry unavailable')),patch.object(site,'command',side_effect=AssertionError('不得先操作集群')):
                 with self.assertRaisesRegex(RuntimeError,'registry unavailable'):site.preflight()
 
@@ -282,6 +282,27 @@ class ReadOnlyDiagnosis(unittest.TestCase):
         for name,pool in [('arbitrary-worker-a','selected'),('arbitrary-worker-b','other')]:
             nodes.append({'metadata':{'name':name,'uid':name+'-uid','labels':{'kubernetes.io/os':'linux','kubernetes.io/arch':'amd64','example/pool':pool}},'spec':{},'status':{'allocatable':{'neonvm/kvm':'1'},'conditions':[{'type':'Ready','status':'True'}]}})
         with patch.object(site,'kube',return_value={'items':nodes}):self.assertEqual([n['metadata']['name'] for n in site.eligibleNodes()],['arbitrary-worker-a'])
+
+
+class EffectiveImageInventory(unittest.TestCase):
+    def test_unused_external_values_are_deferred_but_rendered_images_stay_strict(self):
+        pin='@sha256:'+'a'*64
+        config={'registry':'registry.invalid','toolsImage':'registry.invalid/product/tools'+pin,'registryAccess':{'scheme':'http','allowPlainHTTP':True}}
+        external='aaa.invalid/compatibility/unused'+pin
+        refs,deferred=preflight_image_references(config,{'optional':{'image':external},'active':{'image':'registry.invalid/product/active'+pin}},{'image':'registry.invalid/product/runtime'+pin})
+        self.assertEqual(deferred,1)
+        self.assertEqual(refs,{config['toolsImage'],'registry.invalid/product/active'+pin,'registry.invalid/product/runtime'+pin})
+        with patch('urllib.request.build_opener') as opener,self.assertRaises(RuntimeError):verify_images(config,[external])
+        opener.return_value.open.assert_not_called()
+
+    def test_runtime_catalog_external_image_is_never_filtered_out(self):
+        pin='@sha256:'+'a'*64
+        config={'registry':'registry.invalid','toolsImage':'registry.invalid/product/tools'+pin,'registryAccess':{'scheme':'http','allowPlainHTTP':True}}
+        external='aaa.invalid/product/runtime'+pin
+        refs,deferred=preflight_image_references(config,{}, {'image':external})
+        self.assertEqual(deferred,0);self.assertIn(external,refs)
+        with patch('urllib.request.build_opener') as opener,self.assertRaises(RuntimeError):verify_images(config,refs)
+        opener.return_value.open.assert_not_called()
 
 
 if __name__ == '__main__':

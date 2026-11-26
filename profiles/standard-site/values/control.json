@@ -30,7 +30,7 @@
     "existingSecret": "neon-control-plane-credentials",
     "image": {
       "pullPolicy": "IfNotPresent",
-      "reference": "registry.invalid/neon/neon-control-api-site@sha256:2210b82aa592242d89dffc0f9796b3a914161c0fc69bb4f715f537262a535dba"
+      "reference": "registry.invalid/neon/dsga403-control-api@sha256:349e3ada3ff6ae048340b21dcf71e05f7cca33794d8e227d66207b89bd18ea21"
     },
     "nodeSelector": {},
     "pgCASecret": "neon-control-proxy-public-ca",

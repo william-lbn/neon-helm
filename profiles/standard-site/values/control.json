@@ -208,7 +208,7 @@
     "enabled": true,
     "image": {
       "pullPolicy": "IfNotPresent",
-      "reference": "registry.invalid/neon/williamluckyli-control-web@sha256:80b21028ce1518f60d25f95ecfe28cd833a23ea8f0de9400bc93880054fd5ad1"
+      "reference": "registry.invalid/neon/dsga403-control-web@sha256:1f90bfdaa6da49d4b64ed5b8da6842e2d84ba3acbfcd9abd3ddf9b35a8bfde99"
     },
     "replicaCount": 1,
     "resources": {
